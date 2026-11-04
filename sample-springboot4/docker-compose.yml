@@ -1,36 +1,36 @@
 version: '3.8'
 
+# Note: This setup uses independent PostgreSQL instances for HA-JDBC testing.
+# For production, configure streaming replication between master and slave.
+# See: https://www.postgresql.org/docs/current/warm-standby.html
+
 services:
   postgres-master:
-    image: postgres:latest
+    image: postgres:16
     container_name: sample-springboot4-postgres-master
-    environment:
-      POSTGRES_DB: sample_db
-      POSTGRES_USER: sample_user
-      POSTGRES_PASSWORD: sample_password
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
-      - postgres_master_data:/var/lib/postgresql
+      - postgres_master_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sample_user -d sample_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sample_user} -d ${POSTGRES_DB:-sample_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   postgres-slave:
-    image: postgres:latest
+    image: postgres:16
     container_name: sample-springboot4-postgres-slave
-    environment:
-      POSTGRES_DB: sample_db
-      POSTGRES_USER: sample_user
-      POSTGRES_PASSWORD: sample_password
+    env_file:
+      - .env
     ports:
       - "5433:5432"
     volumes:
-      - postgres_slave_data:/var/lib/postgresql
+      - postgres_slave_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sample_user -d sample_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sample_user} -d ${POSTGRES_DB:-sample_db}"]
       interval: 10s
       timeout: 5s
       retries: 5

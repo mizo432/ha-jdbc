@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -20,23 +19,28 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Item> findAll() {
         return itemRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Item findById(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + id));
     }
 
+    @Transactional(readOnly = true)
     public List<Item> findByNameContaining(String name) {
         return itemRepository.findByNameContaining(name);
     }
 
+    @Transactional(readOnly = true)
     public List<Item> findByPriceBetween(Integer minPrice, Integer maxPrice) {
         return itemRepository.findByPriceBetween(minPrice, maxPrice);
     }
 
+    @Transactional
     public Item create(ItemCreateRequest request) {
         Item item = new Item();
         item.setName(request.getName());
@@ -46,6 +50,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
+    @Transactional
     public Item update(Long id, ItemUpdateRequest request) {
         Item existing = findById(id);
         existing.setName(request.getName());
@@ -55,6 +60,7 @@ public class ItemService {
         return itemRepository.save(existing);
     }
 
+    @Transactional
     public void delete(Long id) {
         Item existing = findById(id);
         itemRepository.delete(existing);

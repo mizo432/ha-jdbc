@@ -9,3 +9,6 @@ build/
 
 # OS
 .DS_Store
+
+# Environment variables
+.env
