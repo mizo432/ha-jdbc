@@ -31,7 +31,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for Oracle (commercial).
+ * Oracle (商用)用のDialectです。
  * @author Paul Ferraro
  */
 @SuppressWarnings("nls")

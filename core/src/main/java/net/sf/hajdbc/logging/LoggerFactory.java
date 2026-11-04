@@ -21,7 +21,7 @@ import net.sf.hajdbc.ProviderFactory;
 import net.sf.hajdbc.messages.MessagesFactory;
 
 /**
- * Factory for creating {@link Logger} implementation from various logging service provider implementations.
+ * 各種ロギングサービスプロバイダーの実装から{@link Logger}実装を作成するためのファクトリです。
  * @author Paul Ferraro
  */
 public final class LoggerFactory extends ProviderFactory<LoggingProvider>

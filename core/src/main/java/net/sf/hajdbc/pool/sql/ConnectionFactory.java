@@ -21,7 +21,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Factory for creating {@link Connection} objects.
+ * {@link Connection}オブジェクトを作成するためのファクトリです。
  * @author Paul Ferraro
  */
 public interface ConnectionFactory

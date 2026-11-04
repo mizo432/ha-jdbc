@@ -25,18 +25,18 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.balancer.AbstractSetBalancer;
 
 /**
- * Balancer implementation whose {@link #next()} implementation uses a circular FIFO queue.
+ * {@link #next()}の実装で循環FIFOキューを使用するバランサーの実装です。
  * 
  * @author  Paul Ferraro
- * @param <D> either java.sql.Driver or javax.sql.DataSource
+ * @param <D> java.sql.Driverまたはjavax.sql.DataSourceのいずれか
  */
 public class RoundRobinBalancer<P, D extends Database<P>> extends AbstractSetBalancer<P, D>
 {
 	private Queue<D> databaseQueue = new LinkedList<>();
 
 	/**
-	 * Constructs a new RoundRobinBalancer
-	 * @param databases
+	 * 新しいRoundRobinBalancerを構築します
+	 * @param databases データベースのセット
 	 */
 	public RoundRobinBalancer(Set<D> databases)
 	{

@@ -18,7 +18,7 @@
 package net.sf.hajdbc.pool;
 
 /**
- * Abstract pool provider implementation.
+ * 抽象プールプロバイダーの実装です。
  * @author Paul Ferraro
  * @param <T>
  * @param <E>

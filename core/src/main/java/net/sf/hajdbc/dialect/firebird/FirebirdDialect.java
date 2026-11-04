@@ -31,7 +31,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for <a href="firebird.sourceforge.net">Firebird</a>.
+ * <a href="firebird.sourceforge.net">Firebird</a>用のDialectです。
  * @author Paul Ferraro
  */
 @SuppressWarnings("nls")

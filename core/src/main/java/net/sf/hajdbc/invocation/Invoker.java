@@ -20,11 +20,11 @@ package net.sf.hajdbc.invocation;
 import net.sf.hajdbc.Database;
 
 /**
- * Represents a method invocation on a SQL object against a database.
+ * データベースに対するSQLオブジェクトのメソッド呼び出しを表します。
  * @author Paul Ferraro
- * @param <D> Type of the root object (e.g. driver, datasource)
- * @param <T> Target object type of the invocation
- * @param <R> Return type of this invocation
+ * @param <D> ルートオブジェクトの型（例: ドライバー、データソース）
+ * @param <T> 呼び出しのターゲットオブジェクトの型
+ * @param <R> この呼び出しの戻り値の型
  */
 public interface Invoker<Z, D extends Database<Z>, T, R, E extends Exception>
 {

@@ -32,7 +32,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for <a href="http://opensource.ingres.com/projects/ingres/">Ingres</a>.
+ * <a href="http://opensource.ingres.com/projects/ingres/">Ingres</a>用のDialectです。
  * 
  * @author Paul Ferraro
  */

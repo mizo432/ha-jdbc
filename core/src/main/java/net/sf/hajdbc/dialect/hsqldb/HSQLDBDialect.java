@@ -35,7 +35,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for <a href="http://www.hsqldb.org">HSQLDB</a>.
+ * <a href="http://www.hsqldb.org">HSQLDB</a>用のDialectです。
  * 
  * @author  Paul Ferraro
  * @since   1.1

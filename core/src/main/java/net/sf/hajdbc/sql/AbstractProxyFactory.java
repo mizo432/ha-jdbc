@@ -105,11 +105,11 @@ public abstract class AbstractProxyFactory<Z, D extends Database<Z>, TE extends 
 	}
 
 	/**
-	 * Returns the underlying SQL object for the specified database.
-	 * If the sql object does not exist (this might be the case if the database was newly activated), it will be created from the stored operation.
-	 * Any recorded operations are also executed. If the object could not be created, or if any of the executed operations failed, then the specified database is deactivated.
-	 * @param database a database descriptor.
-	 * @return an underlying SQL object
+	 * 指定されたデータベースの基になるSQLオブジェクトを返します。
+	 * SQLオブジェクトが存在しない場合（データベースが新しくアクティブ化された場合など）、保存された操作から作成されます。
+	 * 記録された操作も実行されます。オブジェクトが作成できない場合、または実行された操作のいずれかが失敗した場合、指定されたデータベースは非アクティブ化されます。
+	 * @param database データベース記述子。
+	 * @return 基になるSQLオブジェクト
 	 */
 	@Override
 	public T get(D database)

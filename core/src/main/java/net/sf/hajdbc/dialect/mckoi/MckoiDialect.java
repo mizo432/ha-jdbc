@@ -21,7 +21,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for <a href="http://mckoi.com">Mckoi</a>.
+ * <a href="http://mckoi.com">Mckoi</a>用のDialectです。
  * 
  * @author Paul Ferraro
  */

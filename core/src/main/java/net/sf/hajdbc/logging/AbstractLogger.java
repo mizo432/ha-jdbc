@@ -20,7 +20,7 @@ package net.sf.hajdbc.logging;
 import java.text.MessageFormat;
 
 /**
- * Abstract logger implementation.
+ * 抽象ロガーの実装です。
  * @author Paul Ferraro
  */
 public abstract class AbstractLogger implements Logger

@@ -23,7 +23,7 @@ import net.sf.hajdbc.Identifiable;
 
 
 /**
- * Factory for creating instances of {@link CommandDispatcher}.
+ * {@link CommandDispatcher}のインスタンスを作成するためのファクトリです。
  * 
  * @author Paul Ferraro
  */

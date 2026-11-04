@@ -27,7 +27,7 @@ import javax.crypto.Cipher;
 import net.sf.hajdbc.codec.Codec;
 
 /**
- * Generic cryptographic codec.
+ * 一般的な暗号化コーデックです。
  * @author Paul Ferraro
  */
 public class CipherCodec implements Codec

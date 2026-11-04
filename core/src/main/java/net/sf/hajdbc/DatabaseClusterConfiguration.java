@@ -41,9 +41,9 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	CommandDispatcherFactory getDispatcherFactory();
 	
 	/**
-	 * Returns the databases of this cluster indexed by identifier
-	 * @return a map of databases
-	 * @throws IllegalArgumentException if no database exists with the specified identifier
+	 * このクラスタのデータベースを識別子でインデックス付けて返します
+	 * @return データベースのマップ
+	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合
 	 */
 	ConcurrentMap<String, D> getDatabaseMap();
 	
@@ -52,8 +52,8 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	String getDefaultSynchronizationStrategy();
 	
 	/**
-	 * Returns the Balancer implementation used by this database cluster.
-	 * @return an implementation of <code>Balancer</code>
+	 * このデータベースクラスタで使用されるBalancerの実装を返します。
+	 * @return <code>Balancer</code>の実装
 	 */
 	BalancerFactory getBalancerFactory();
 
@@ -62,20 +62,20 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	ExecutorServiceProvider getExecutorProvider();
 	
 	/**
-	 * Returns a dialect capable of returning database vendor specific values.
-	 * @return an implementation of <code>Dialect</code>
+	 * データベースベンダー固有の値を返すことができるDialectを返します。
+	 * @return <code>Dialect</code>の実装
 	 */
 	DialectFactory getDialectFactory();
 	
 	/**
-	 * Returns a StateManager for persisting database cluster state.
-	 * @return a StateManager implementation
+	 * データベースクラスタの状態を永続化するためのStateManagerを返します。
+	 * @return StateManagerの実装
 	 */
 	StateManagerFactory getStateManagerFactory();
 	
 	/**
-	 * Returns a DatabaseMetaData cache.
-	 * @return a <code>DatabaseMetaDataCache</code> implementation
+	 * DatabaseMetaDataキャッシュを返します。
+	 * @return <code>DatabaseMetaDataCache</code>の実装
 	 */
 	DatabaseMetaDataCacheFactory getDatabaseMetaDataCacheFactory();
 

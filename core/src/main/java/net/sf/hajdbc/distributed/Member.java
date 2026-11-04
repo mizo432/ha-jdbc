@@ -20,7 +20,7 @@ package net.sf.hajdbc.distributed;
 import java.io.Serializable;
 
 /**
- * Identifies a group member.
+ * グループメンバーを識別します。
  * 
  * @author Paul Ferraro
  */

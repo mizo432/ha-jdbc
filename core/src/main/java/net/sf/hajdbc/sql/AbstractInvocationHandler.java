@@ -115,13 +115,13 @@ public class AbstractInvocationHandler<Z, D extends Database<Z>, T, E extends Ex
 	}
 	
 	/**
-	 * Returns the appropriate {@link InvocationStrategy} for the specified method.
-	 * This implementation detects {@link java.sql.Wrapper} methods; and {@link Object#equals}, {@link Object#hashCode()}, and {@link Object#toString()}.
-	 * Default invocation strategy is {@link AllResultsCollector}. 
-	 * @param object the proxied object
-	 * @param method the method to invoke
-	 * @param parameters the method invocation parameters
-	 * @return an invocation strategy
+	 * 指定されたメソッドに適した{@link InvocationStrategy}を返します。
+	 * この実装は{@link java.sql.Wrapper}メソッドと{@link Object#equals}、{@link Object#hashCode()}、{@link Object#toString()}を検出します。
+	 * デフォルトのインボケーション戦略は{@link AllResultsCollector}です。
+	 * @param object プロキシされたオブジェクト
+	 * @param method 実行するメソッド
+	 * @param parameters メソッド実行のパラメータ
+	 * @return インボケーション戦略
 	 * @throws E
 	 */
 	protected InvocationStrategy getInvocationStrategy(T object, Method method, Object... parameters) throws E
@@ -135,11 +135,11 @@ public class AbstractInvocationHandler<Z, D extends Database<Z>, T, E extends Ex
 	}
 	
 	/**
-	 * Return the appropriate invoker for the specified method.
+	 * 指定されたメソッドに適したインボーカーを返します。
 	 * @param proxy
 	 * @param method
 	 * @param parameters
-	 * @return an invoker
+	 * @return インボーカー
 	 * @throws Exception
 	 */
 	protected <R> Invoker<Z, D, T, R, E> getInvoker(T proxy, Method method, Object... parameters) throws E

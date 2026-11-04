@@ -18,7 +18,7 @@
 package net.sf.hajdbc.codec;
 
 /**
- * Abstract codec implementation that is its own factory
+ * 自分自身をファクトリとする抽象コーデック実装です
  * @author Paul Ferraro
  */
 public abstract class AbstractCodec implements Codec, CodecFactory

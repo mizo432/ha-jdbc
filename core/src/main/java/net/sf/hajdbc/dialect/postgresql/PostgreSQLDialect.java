@@ -43,7 +43,7 @@ import net.sf.hajdbc.util.Processes;
 import net.sf.hajdbc.util.Strings;
 
 /**
- * Dialect for <a href="http://postgresql.org">PostgreSQL</a>.
+ * <a href="http://postgresql.org">PostgreSQL</a>用のDialectです。
  * @author  Paul Ferraro
  * @since   1.1
  */

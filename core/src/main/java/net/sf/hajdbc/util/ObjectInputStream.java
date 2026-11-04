@@ -23,7 +23,7 @@ import java.io.ObjectStreamClass;
 import java.lang.reflect.Proxy;
 
 /**
- * Custom {@link java.io.ObjectInputStream} that resolves classes against a specific class loader.
+ * 特定のクラスローダーに対してクラスを解決するカスタム{@link java.io.ObjectInputStream}です。
  * @author Paul Ferraro
  */
 public class ObjectInputStream extends java.io.ObjectInputStream

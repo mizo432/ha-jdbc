@@ -24,8 +24,8 @@ import java.io.Reader;
 import java.sql.SQLException;
 
 /**
- * Provides temp file support for serializing data for streams.
- * Any files created by this object are deleted when {@link #close()} is called.
+ * ストリームのデータをシリアライズするための一時ファイルサポートを提供します。
+ * このオブジェクトによって作成されたファイルは{@link #close()}が呼び出されたときに削除されます。
  * 
  * @author  Paul Ferraro
  * @version $Revision: 1612 $
@@ -34,34 +34,34 @@ import java.sql.SQLException;
 public interface FileSupport<E extends Throwable> extends Closeable
 {
 	/**
-	 * Create a file from the specified binary input stream.
-	 * @param inputStream a binary stream of data
-	 * @return a temporary file
-	 * @throws SQLException if an IO error occurs
+	 * 指定されたバイナリ入力ストリームからファイルを作成します。
+	 * @param inputStream データのバイナリストリーム
+	 * @return 一時ファイル
+	 * @throws SQLException IOエラーが発生した場合
 	 */
 	File createFile(InputStream inputStream) throws E;
 	
 	/**
-	 * Create a file from the specified character input stream
-	 * @param reader a character stream of data
-	 * @return a temporary file
-	 * @throws SQLException if an IO error occurs
+	 * 指定された文字入力ストリームからファイルを作成します。
+	 * @param reader データの文字ストリーム
+	 * @return 一時ファイル
+	 * @throws SQLException IOエラーが発生した場合
 	 */
 	File createFile(Reader reader) throws E;
 
 	/**
-	 * Returns a reader for the specified file.
-	 * @param file a temp file
-	 * @return a reader
-	 * @throws SQLException if IO error occurs
+	 * 指定されたファイルのリーダーを返します。
+	 * @param file 一時ファイル
+	 * @return リーダー
+	 * @throws SQLException IOエラーが発生した場合
 	 */
 	Reader getReader(File file) throws E;
 	
 	/**
-	 * Returns an input stream for the specified file.
-	 * @param file a temp file
-	 * @return an input stream
-	 * @throws SQLException if IO error occurs
+	 * 指定されたファイルの入力ストリームを返します。
+	 * @param file 一時ファイル
+	 * @return 入力ストリーム
+	 * @throws SQLException IOエラーが発生した場合
 	 */
 	InputStream getInputStream(File file) throws E;
 }

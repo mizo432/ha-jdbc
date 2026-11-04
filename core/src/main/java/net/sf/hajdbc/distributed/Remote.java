@@ -18,7 +18,7 @@
 package net.sf.hajdbc.distributed;
 
 /**
- * Use to identify the source member of an object.
+ * オブジェクトのソースメンバーを識別するために使用されます。
  * 
  * @author Paul Ferraro
  */

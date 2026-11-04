@@ -32,7 +32,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for DB2 (commercial).
+ * DB2 (商用)用のDialectです。
  * @author  Paul Ferraro
  * @since   1.1
  */

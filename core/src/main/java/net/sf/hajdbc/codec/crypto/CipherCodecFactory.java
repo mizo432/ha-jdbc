@@ -32,14 +32,14 @@ import net.sf.hajdbc.util.Strings;
 import net.sf.hajdbc.util.SystemProperties;
 
 /**
- * Used to decrypt configuration file passwords using a symmetric key stored in a keystore.
- * Use the following command to generate Base-64 encoded encrypted passwords for use in your config file:<br/>
+ * キーストアに保存された共通鍵を使用して設定ファイルのパスワードを復号化するために使用します。
+ * 設定ファイルで使用するためのBase64エンコードされた暗号化パスワードを生成するには、次のコマンドを使用します:<br/>
  * <p><code>java -classpath ha-jdbc.jar net.sf.hajdbc.codec.crypto.CipherCodecFactory [password]</code></p>
- * The following system properties can be used to customize the properties of the key and/or keystore:
+ * 次のシステムプロパティを使用して、鍵および/またはキーストアのプロパティをカスタマイズできます:
  * <table>
  * 	<tr>
- * 		<th>Property</th>
- * 		<th>Default</th>
+ * 		<th>プロパティ</th>
+ * 		<th>デフォルト</th>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.keystore.file</td>
@@ -51,7 +51,7 @@ import net.sf.hajdbc.util.SystemProperties;
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.keystore.password</td>
- * 		<td><em>none</em></td>
+ * 		<td><em>なし</em></td>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.key.alias</td>
@@ -59,7 +59,7 @@ import net.sf.hajdbc.util.SystemProperties;
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.key.password</td>
- * 		<td><em>required</em><td>
+ * 		<td><em>必須</em><td>
  * 	</tr>
  * </table>
  * @author Paul Ferraro

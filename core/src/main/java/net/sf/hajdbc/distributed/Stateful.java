@@ -22,7 +22,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- * Used by the command dispatcher to handle state transfer between members.
+ * コマンドディスパッチャーによってメンバー間の状態転送を処理するために使用されます。
  * 
  * @author Paul Ferraro
  */

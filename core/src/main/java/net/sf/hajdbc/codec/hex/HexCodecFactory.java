@@ -26,7 +26,7 @@ import net.sf.hajdbc.codec.Codec;
 import net.sf.hajdbc.util.Strings;
 
 /**
- * Codec that uses hex encoding/decoding.
+ * 16進数エンコーディング/デコーディングを使用するコーデックです。
  * @author Paul Ferraro
  */
 public class HexCodecFactory extends AbstractCodec

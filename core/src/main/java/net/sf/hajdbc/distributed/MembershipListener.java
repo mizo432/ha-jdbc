@@ -18,7 +18,7 @@
 package net.sf.hajdbc.distributed;
 
 /**
- * Used to notify the implementor of changes to group membership.
+ * グループメンバーシップの変更を実装者に通知するために使用されます。
  * 
  * @author Paul Ferraro
  */

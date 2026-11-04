@@ -518,9 +518,9 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 
 	/**
-	 * Indicates whether the specified SQLState indicates a database failure that should result in a database deactivation.
-	 * @param sqlState a SQL:2003 or X/Open SQLState
-	 * @return true if the SQLState indicate a failure, false otherwise
+	 * 指定されたSQLStateがデータベースの非活性化をもたらすべきデータベース障害を示しているかどうかを示します。
+	 * @param sqlState SQL:2003またはX/Open SQLState
+	 * @return SQLStateが障害を示す場合はtrue、そうでない場合はfalse
 	 */
 	protected boolean indicatesFailure(String sqlState)
 	{
@@ -529,9 +529,9 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 
 	/**
-	 * Indicates whether the specified vendor-specific error code indicates a database failure that should result in a database deactivation.
-	 * @param code a vendor-specific error code
-	 * @return true if the error code indicate a failure, false otherwise
+	 * 指定されたベンダー固有のエラーコードがデータベースの非活性化をもたらすべきデータベース障害を示しているかどうかを示します。
+	 * @param code ベンダー固有のエラーコード
+	 * @return エラーコードが障害を示す場合はtrue、そうでない場合はfalse
 	 */
 	protected boolean indicatesFailure(int code)
 	{
@@ -680,10 +680,10 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 	
 	/**
-	 * Returns all tables in this database mapped by schema.
-	 * @param metaData a DatabaseMetaData implementation
-	 * @return a Map of schema name to Collection of table names
-	 * @throws SQLException if an error occurs access DatabaseMetaData
+	 * このデータベースのすべてのテーブルをスキーマ別にマッピングして返します。
+	 * @param metaData DatabaseMetaDataの実装
+	 * @return スキーマ名からテーブル名のコレクションへのマップ
+	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
 	 */
 	@Override
 	public Collection<QualifiedName> getTables(DatabaseMetaData metaData, QualifiedNameFactory factory) throws SQLException
@@ -702,11 +702,11 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 
 	/**
-	 * Returns the columns of the specified table.
-	 * @param metaData a DatabaseMetaData implementation
-	 * @param table a schema qualified table name
-	 * @return a Map of column name to column properties
-	 * @throws SQLException if an error occurs access DatabaseMetaData
+	 * 指定されたテーブルの列を返します。
+	 * @param metaData DatabaseMetaDataの実装
+	 * @param table スキーマ修飾されたテーブル名
+	 * @return 列名から列プロパティへのマップ
+	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
 	 */
 	@Override
 	public Map<String, ColumnProperties> getColumns(DatabaseMetaData metaData, QualifiedName table, ColumnPropertiesFactory factory) throws SQLException
@@ -733,11 +733,11 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 
 	/**
-	 * Returns the primary key of the specified table.
-	 * @param metaData a DatabaseMetaData implementation
-	 * @param table a schema qualified table name
-	 * @return a unique constraint
-	 * @throws SQLException if an error occurs access DatabaseMetaData
+	 * 指定されたテーブルの主キーを返します。
+	 * @param metaData DatabaseMetaDataの実装
+	 * @param table スキーマ修飾されたテーブル名
+	 * @return 一意制約
+	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
 	 */
 	@Override
 	public UniqueConstraint getPrimaryKey(DatabaseMetaData metaData, QualifiedName table, UniqueConstraintFactory factory) throws SQLException
@@ -761,11 +761,11 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 
 	/**
-	 * Returns the foreign key constraints on the specified table.
-	 * @param metaData a DatabaseMetaData implementation
-	 * @param table a schema qualified table name
-	 * @return a Collection of foreign key constraints.
-	 * @throws SQLException if an error occurs access DatabaseMetaData
+	 * 指定されたテーブルの外部キー制約を返します。
+	 * @param metaData DatabaseMetaDataの実装
+	 * @param table スキーマ修飾されたテーブル名
+	 * @return 外部キー制約のコレクション
+	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
 	 */
 	@Override
 	public Collection<ForeignKeyConstraint> getForeignKeyConstraints(DatabaseMetaData metaData, QualifiedName table, ForeignKeyConstraintFactory factory) throws SQLException
@@ -796,12 +796,12 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 
 	/**
-	 * Returns the unique constraints on the specified table - excluding the primary key of the table.
-	 * @param metaData a schema qualified table name
-	 * @param table a qualified table name
-	 * @param primaryKey the primary key of this table
-	 * @return a Collection of unique constraints.
-	 * @throws SQLException if an error occurs access DatabaseMetaData
+	 * 指定されたテーブルの一意制約を返します - テーブルの主キーは除外されます。
+	 * @param metaData DatabaseMetaDataの実装
+	 * @param table 修飾されたテーブル名
+	 * @param primaryKey このテーブルの主キー
+	 * @return 一意制約のコレクション
+	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
 	 */
 	@Override
 	public Collection<UniqueConstraint> getUniqueConstraints(DatabaseMetaData metaData, QualifiedName table, UniqueConstraint primaryKey, UniqueConstraintFactory factory) throws SQLException
@@ -843,9 +843,9 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 	
 	/**
-	 * Identifies any identity columns from the from the specified collection of columns
-	 * @param columns the columns of a table
-	 * @return a collection of column names
+	 * 指定された列のコレクションからID列を特定します
+	 * @param columns テーブルの列
+	 * @return 列名のコレクション
 	 * @throws SQLException
 	 */
 	@Override

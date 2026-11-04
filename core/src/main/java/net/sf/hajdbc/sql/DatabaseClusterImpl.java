@@ -193,10 +193,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	}
 	
 	/**
-	 * Determines whether or not the specified database is responsive
-	 * @param databaseId a database identifier
-	 * @return true, if the database is alive, false otherwise
-	 * @throws IllegalArgumentException if no database exists with the specified identifier.
+	 * 指定されたデータベースが応答しているかどうかを判定します
+	 * @param databaseId データベース識別子
+	 * @return データベースが生きている場合はtrue、そうでない場合はfalse
+	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合。
 	 */
 	@ManagedOperation
 	public boolean isAlive(String databaseId)
@@ -205,8 +205,8 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	}
 	
 	/**
-	 * Returns a collection of active databases in this cluster.
-	 * @return a list of database identifiers
+	 * このクラスタのアクティブなデータベースのコレクションを返します。
+	 * @return データベース識別子のリスト
 	 */
 	@ManagedAttribute
 	public Set<String> getActiveDatabases()
@@ -222,8 +222,8 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	}
 	
 	/**
-	 * Returns a collection of inactive databases in this cluster.
-	 * @return a collection of database identifiers
+	 * このクラスタの非アクティブなデータベースのコレクションを返します。
+	 * @return データベース識別子のコレクション
 	 */
 	@ManagedAttribute
 	public Set<String> getInactiveDatabases()

@@ -22,10 +22,10 @@ import java.util.Map;
 import net.sf.hajdbc.Lifecycle;
 
 /**
- * RPC dispatcher that uses the command pattern.
+ * コマンドパターンを使用するRPCディスパッチャーです。
  * @author Paul Ferraro
  *
- * @param <C> the command context type
+ * @param <C> コマンドコンテキストの型
  */
 public interface CommandDispatcher<C> extends Lifecycle
 {
@@ -48,14 +48,14 @@ public interface CommandDispatcher<C> extends Lifecycle
 	<R> CommandResponse<R> execute(Command<R, C> command, Member member) throws Exception;
 
 	/**
-	 * Returns the local member.
-	 * @return the local member.
+	 * ローカルメンバーを返します。
+	 * @return ローカルメンバー。
 	 */
 	Member getLocal();
 	
 	/**
-	 * Returns the group coordinator.
-	 * @return the group coordinator.
+	 * グループコーディネーターを返します。
+	 * @return グループコーディネーター。
 	 */
 	Member getCoordinator();
 }

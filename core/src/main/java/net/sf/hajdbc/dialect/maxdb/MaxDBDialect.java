@@ -31,7 +31,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for <a href="http://www.mysql.com/products/database/maxdb/">MySQL MaxDB</a>.
+ * <a href="http://www.mysql.com/products/database/maxdb/">MySQL MaxDB</a>用のDialectです。
  * @author  Paul Ferraro
  * @since   1.1
  */

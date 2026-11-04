@@ -35,7 +35,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for <a href="http://www.h2database.com">H2 Database Engine</a>.
+ * <a href="http://www.h2database.com">H2 Database Engine</a>用のDialectです。
  * @author Paul Ferraro
  */
 public class H2Dialect extends StandardDialect

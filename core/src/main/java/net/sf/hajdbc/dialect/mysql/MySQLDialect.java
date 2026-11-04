@@ -35,7 +35,7 @@ import net.sf.hajdbc.util.Processes;
 import net.sf.hajdbc.util.Strings;
 
 /**
- * Dialect for <a href="http://www.mysql.com/products/database/mysql/">MySQL</a>
+ * <a href="http://www.mysql.com/products/database/mysql/">MySQL</a>用のDialectです。
  * @author Paul Ferraro
  */
 @SuppressWarnings("nls")

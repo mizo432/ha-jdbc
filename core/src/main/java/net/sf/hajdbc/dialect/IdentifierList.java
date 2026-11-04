@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import net.sf.hajdbc.IdentifierNormalizer;
 
 /**
- * Custom list implementation that normalizes the element entries as they are added.
+ * 要素が追加される際に正規化するカスタムリストの実装です。
  * @author Paul Ferraro
  */
 public class IdentifierList extends LinkedList<String>

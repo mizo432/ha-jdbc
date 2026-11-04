@@ -25,10 +25,10 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.balancer.AbstractSetBalancer;
 
 /**
- * Trivial balancer implementation whose {@link #next} implementation always returns the database with the highest weight.
+ * {@link #next}の実装で常に最も高いウェイトを持つデータベースを返す単純なバランサーの実装です。
  * 
  * @author  Paul Ferraro
- * @param <D> either java.sql.Driver or javax.sql.DataSource
+ * @param <D> java.sql.Driverまたはjavax.sql.DataSourceのいずれか
  */
 public class SimpleBalancer<Z, D extends Database<Z>> extends AbstractSetBalancer<Z, D>
 {
@@ -44,8 +44,8 @@ public class SimpleBalancer<Z, D extends Database<Z>> extends AbstractSetBalance
 	};
 
 	/**
-	 * Constructs a new SimpleBalancer
-	 * @param databases
+	 * 新しいSimpleBalancerを構築します
+	 * @param databases データベースのセット
 	 */
 	public SimpleBalancer(Set<D> databases)
 	{

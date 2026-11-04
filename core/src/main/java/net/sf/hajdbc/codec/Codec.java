@@ -18,7 +18,7 @@
 package net.sf.hajdbc.codec;
 
 /**
- * Interface for encoding and decoding strings.
+ * 文字列のエンコーディングとデコーディングを行うインターフェースです。
  * @author Paul Ferraro
  */
 public interface Codec extends Decoder, Encoder

@@ -38,8 +38,8 @@ import net.sf.hajdbc.tx.TransactionIdentifierFactory;
 public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 {
 	/**
-	 * Returns the identifier of this cluster.
-	 * @return an identifier
+	 * このクラスタの識別子を返します。
+	 * @return 識別子
 	 */
 	String getId();
 	
@@ -60,16 +60,16 @@ public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 	boolean deactivate(D database, StateManager manager);
 	
 	/**
-	 * Returns the database identified by the specified id
-	 * @param id a database identifier
-	 * @return a database descriptor
-	 * @throws IllegalArgumentException if no database exists with the specified identifier
+	 * 指定されたIDで識別されるデータベースを返します
+	 * @param id データベース識別子
+	 * @return データベース記述子
+	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合
 	 */
 	D getDatabase(String id);
 	
 	/**
-	 * Returns the Balancer implementation used by this database cluster.
-	 * @return an implementation of <code>Balancer</code>
+	 * このデータベースクラスタで使用されるBalancerの実装を返します。
+	 * @return <code>Balancer</code>の実装
 	 */
 	Balancer<Z, D> getBalancer();
 	
@@ -78,26 +78,26 @@ public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 	ExecutorService getExecutor();
 	
 	/**
-	 * Returns a dialect capable of returning database vendor specific values.
-	 * @return an implementation of <code>Dialect</code>
+	 * データベースベンダー固有の値を返すことができるDialectを返します。
+	 * @return <code>Dialect</code>の実装
 	 */
 	Dialect getDialect();
 	
 	/**
-	 * Returns a LockManager capable of acquiring named read/write locks on the specific objects in this database cluster.
-	 * @return a LockManager implementation
+	 * このデータベースクラスタ内の特定のオブジェクトに対して名前付きの読み取り/書き込みロックを取得できるLockManagerを返します。
+	 * @return LockManagerの実装
 	 */
 	LockManager getLockManager();
 	
 	/**
-	 * Returns a StateManager for persisting database cluster state.
-	 * @return a StateManager implementation
+	 * データベースクラスタの状態を永続化するためのStateManagerを返します。
+	 * @return StateManagerの実装
 	 */
 	StateManager getStateManager();
 	
 	/**
-	 * Returns a DatabaseMetaData cache.
-	 * @return a <code>DatabaseMetaDataCache</code> implementation
+	 * DatabaseMetaDataキャッシュを返します。
+	 * @return <code>DatabaseMetaDataCache</code>の実装
 	 */
 	DatabaseMetaDataCache<Z, D> getDatabaseMetaDataCache();
 	

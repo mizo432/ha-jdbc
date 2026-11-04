@@ -25,7 +25,7 @@ import net.sf.hajdbc.codec.Codec;
 import net.sf.hajdbc.util.Strings;
 
 /**
- * Codec that uses base-64 encoding/decoding.
+ * Base64エンコーディング/デコーディングを使用するコーデックです。
  * @author Paul Ferraro
  */
 public class Base64CodecFactory extends AbstractCodec

@@ -25,7 +25,7 @@ import net.sf.hajdbc.IdentityColumnSupport;
 import net.sf.hajdbc.dialect.StandardDialect;
 
 /**
- * Dialect for Sybase (commercial).
+ * Sybase (商用)用のDialectです。
  * @author Paul Ferraro
  */
 @SuppressWarnings("nls")

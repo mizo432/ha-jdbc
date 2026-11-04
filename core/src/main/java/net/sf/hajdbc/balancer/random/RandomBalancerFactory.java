@@ -24,7 +24,7 @@ import net.sf.hajdbc.balancer.Balancer;
 import net.sf.hajdbc.balancer.BalancerFactory;
 
 /**
- * Factory for creating a {@link RandomBalancer}
+ * {@link RandomBalancer}を作成するためのファクトリです。
  * @author Paul Ferraro
  */
 public class RandomBalancerFactory implements BalancerFactory

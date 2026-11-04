@@ -18,7 +18,7 @@
 package net.sf.hajdbc.pool;
 
 /**
- * Factory for creating an object pool.
+ * オブジェクトプールを作成するためのファクトリです。
  * @author Paul Ferraro
  */
 public interface PoolFactory

@@ -18,7 +18,7 @@
 package net.sf.hajdbc.dialect;
 
 /**
- * Encapsulation of the properties necessary to connect to a database.
+ * データベースに接続するために必要なプロパティをカプセル化します。
  * @author Paul Ferraro
  */
 public interface ConnectionProperties
