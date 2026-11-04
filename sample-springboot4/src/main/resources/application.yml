@@ -2,17 +2,18 @@ spring:
   application:
     name: sample-springboot4
 
-  # DataSource settings
-  datasource:
-    url: jdbc:postgresql://localhost:5432/sample_db
-    username: sample_user
-    password: sample_password
-    driver-class-name: org.postgresql.Driver
+  # DataSource settings - HA-JDBC manages the data sources
+  # Commented out because HA-JDBC provides its own DataSource bean
+  # datasource:
+  #   url: jdbc:postgresql://localhost:5432/sample_db
+  #   username: sample_user
+  #   password: sample_password
+  #   driver-class-name: org.postgresql.Driver
 
   # JPA / Hibernate settings
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -24,6 +25,12 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    clean-disabled: true
+
+  # Virtual Threads
+  threads:
+    virtual:
+      enabled: true
 
 # Server settings
 server:
@@ -34,5 +41,6 @@ logging:
   level:
     root: INFO
     com.example.sample: DEBUG
+    net.sf.hajdbc: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE

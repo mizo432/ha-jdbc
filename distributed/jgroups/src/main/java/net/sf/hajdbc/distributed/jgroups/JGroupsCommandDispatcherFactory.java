@@ -22,7 +22,6 @@ import net.sf.hajdbc.distributed.CommandDispatcherFactory;
 import net.sf.hajdbc.distributed.MembershipListener;
 import net.sf.hajdbc.distributed.Stateful;
 
-import org.jgroups.Channel;
 import org.jgroups.JChannel;
 
 /**
@@ -50,7 +49,7 @@ public class JGroupsCommandDispatcherFactory implements CommandDispatcherFactory
 	@Override
 	public <C> CommandDispatcher<C> createCommandDispatcher(String id, C context, Stateful stateful, MembershipListener membershipListener) throws Exception
 	{
-		Channel channel = new JChannel(this.stack);
+		JChannel channel = new JChannel(this.stack);
 		if (this.name != null)
 		{
 			channel.setName(this.name);

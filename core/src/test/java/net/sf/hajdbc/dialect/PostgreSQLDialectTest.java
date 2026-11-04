@@ -33,7 +33,7 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.TableProperties;
 import net.sf.hajdbc.dialect.postgresql.PostgreSQLDialectFactory;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -54,7 +54,7 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 	@Override
 	public void getSequenceSupport()
 	{
-		assertSame(this.dialect, this.dialect.getSequenceSupport());
+		assertThat(this.dialect.getSequenceSupport()).isSameAs(this.dialect);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 	@Override
 	public void getIdentityColumnSupport()
 	{
-		assertSame(this.dialect, this.dialect.getIdentityColumnSupport());
+		assertThat(this.dialect.getIdentityColumnSupport()).isSameAs(this.dialect);
 	}
 
 	/**
@@ -80,14 +80,14 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 		
 		int result = this.dialect.getColumnType(column);
 		
-		assertEquals(Types.BLOB, result);
+		assertThat(result).isEqualTo(Types.BLOB);
 		
 		when(column.getNativeType()).thenReturn("int");		
 		when(column.getType()).thenReturn(Types.INTEGER);
 		
 		result = this.dialect.getColumnType(column);
 		
-		assertEquals(Types.INTEGER, result);
+		assertThat(result).isEqualTo(Types.INTEGER);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getTruncateTableSQL(table);
 		
-		assertEquals("TRUNCATE TABLE table", result);
+		assertThat(result).isEqualTo("TRUNCATE TABLE table");
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getSequenceSupport().getNextSequenceValueSQL(sequence);
 		
-		assertEquals("SELECT NEXTVAL('sequence')", result);
+		assertThat(result).isEqualTo("SELECT NEXTVAL('sequence')");
 	}
 	
 	/**
@@ -135,11 +135,11 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 	{
 		SequenceSupport support = this.dialect.getSequenceSupport();
 		
-		assertEquals("sequence", support.parseSequence("SELECT CURRVAL('sequence')"));
-		assertEquals("sequence", support.parseSequence("SELECT nextval('sequence'), * FROM table"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (NEXTVAL('sequence'), 0)"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = NEXTVAL('sequence')"));
-		assertNull(support.parseSequence("SELECT NEXT VALUE FOR sequence"));
+		assertThat(support.parseSequence("SELECT CURRVAL('sequence')")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT nextval('sequence'), * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (NEXTVAL('sequence'), 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = NEXTVAL('sequence')")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT NEXT VALUE FOR sequence")).isNull();
 	}
 
 	/**
@@ -165,9 +165,9 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 		
 		List<String> result = this.dialect.getDefaultSchemas(metaData);
 
-		assertEquals(2, result.size());
-		assertEquals("user", result.get(0));
-		assertEquals("public", result.get(1));
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get(0)).isEqualTo("user");
+		assertThat(result.get(1)).isEqualTo("public");
 		
 		verify(resultSet).close();
 		verify(statement).close();
@@ -190,7 +190,7 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getIdentityColumnSupport().getAlterIdentityColumnSQL(table, column, 1000L);
 
-		assertEquals("ALTER SEQUENCE table_column_seq RESTART WITH 1000", result);
+		assertThat(result).isEqualTo("ALTER SEQUENCE table_column_seq RESTART WITH 1000");
 	}
 
 	/**
@@ -200,9 +200,9 @@ public class PostgreSQLDialectTest extends StandardDialectTest
 	@Override
 	public void evaluateRand()
 	{
-		assertTrue(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOM() FROM test")));
-		assertTrue(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOM ( ) FROM test")));
-		assertEquals("SELECT RAND() FROM test", this.dialect.evaluateRand("SELECT RAND() FROM test"));
-		assertEquals("SELECT OPERANDOM() FROM test", this.dialect.evaluateRand("SELECT OPERANDOM() FROM test"));
+		assertThat(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOM() FROM test"))).isTrue();
+		assertThat(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOM ( ) FROM test"))).isTrue();
+		assertThat(this.dialect.evaluateRand("SELECT RAND() FROM test")).isEqualTo("SELECT RAND() FROM test");
+		assertThat(this.dialect.evaluateRand("SELECT OPERANDOM() FROM test")).isEqualTo("SELECT OPERANDOM() FROM test");
 	}
 }

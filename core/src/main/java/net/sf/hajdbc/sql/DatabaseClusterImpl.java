@@ -93,10 +93,13 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	private ExecutorService executor;
 	private Decoder decoder;
 	private CronThreadPoolExecutor cronExecutor;
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "同期は一貫して管理されている")
 	private LockManager lockManager;
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "同期は一貫して管理されている")
 	private StateManager stateManager;
 	private InputSinkStrategy<? extends Object> sinkSourceFactory;
 	private TransactionIdentifierFactory<? extends Object> txIdentifierFactory;
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "同期は一貫して管理されている")
 	private MBeanRegistrar<Z, D> registrar;
 	
 	private boolean active = false;

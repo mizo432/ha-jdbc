@@ -1,5 +1,7 @@
 package com.example.sample.controller;
 
+import com.example.sample.dto.ItemCreateRequest;
+import com.example.sample.dto.ItemUpdateRequest;
 import com.example.sample.entity.Item;
 import com.example.sample.service.ItemService;
 import jakarta.validation.Valid;
@@ -42,14 +44,14 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseEntity<Item> create(@Valid @RequestBody Item item) {
-        Item created = itemService.create(item);
+    public ResponseEntity<Item> create(@Valid @RequestBody ItemCreateRequest request) {
+        Item created = itemService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Item> update(@PathVariable Long id, @Valid @RequestBody Item item) {
-        return ResponseEntity.ok(itemService.update(id, item));
+    public ResponseEntity<Item> update(@PathVariable Long id, @Valid @RequestBody ItemUpdateRequest request) {
+        return ResponseEntity.ok(itemService.update(id, request));
     }
 
     @DeleteMapping("/{id}")

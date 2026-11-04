@@ -30,6 +30,7 @@ public class IdentifierList extends LinkedList<String>
 {
 	private static final long serialVersionUID = -3743137491103447812L;
 
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "normalizerは直列化されなくても機能する")
 	private final IdentifierNormalizer normalizer;
 	
 	public IdentifierList(IdentifierNormalizer normalizer)

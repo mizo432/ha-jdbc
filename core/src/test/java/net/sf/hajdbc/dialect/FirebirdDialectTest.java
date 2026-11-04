@@ -31,7 +31,7 @@ import net.sf.hajdbc.SequencePropertiesFactory;
 import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.firebird.FirebirdDialectFactory;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -53,7 +53,7 @@ public class FirebirdDialectTest extends StandardDialectTest
 	@Override
 	public void getSequenceSupport()
 	{
-		assertSame(this.dialect, this.dialect.getSequenceSupport());
+		assertThat(this.dialect.getSequenceSupport()).isSameAs(this.dialect);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class FirebirdDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getSequenceSupport().getAlterSequenceSQL(sequence, 1000L);
 
-		assertEquals("SET GENERATOR sequence TO 1000", result);
+		assertThat(result).isEqualTo("SET GENERATOR sequence TO 1000");
 	}
 
 	/**
@@ -102,12 +102,12 @@ public class FirebirdDialectTest extends StandardDialectTest
 		
 		verify(statement).close();
 		
-		assertEquals(2, results.size());
+		assertThat(results.size()).isEqualTo(2);
 		
 		Iterator<SequenceProperties> sequences = results.iterator();
 
-		assertSame(sequence1, sequences.next());
-		assertSame(sequence2, sequences.next());
+		assertThat(sequences.next()).isSameAs(sequence1);
+		assertThat(sequences.next()).isSameAs(sequence2);
 	}
 	
 	/**
@@ -125,7 +125,7 @@ public class FirebirdDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getSequenceSupport().getNextSequenceValueSQL(sequence);
 		
-		assertEquals("SELECT GEN_ID(sequence, 1) FROM RDB$DATABASE", result);
+		assertThat(result).isEqualTo("SELECT GEN_ID(sequence, 1) FROM RDB$DATABASE");
 	}
 
 	/**
@@ -135,8 +135,8 @@ public class FirebirdDialectTest extends StandardDialectTest
 	@Override
 	public void isSelectForUpdate() throws SQLException
 	{
-		assertTrue(this.dialect.isSelectForUpdate("SELECT * FROM test WITH LOCK"));
-		assertFalse(this.dialect.isSelectForUpdate("SELECT * FROM test"));
+		assertThat(this.dialect.isSelectForUpdate("SELECT * FROM test WITH LOCK")).isTrue();
+		assertThat(this.dialect.isSelectForUpdate("SELECT * FROM test")).isFalse();
 	}
 
 	/**
@@ -147,14 +147,14 @@ public class FirebirdDialectTest extends StandardDialectTest
 	public void parseSequence() throws SQLException
 	{
 		SequenceSupport support = this.dialect.getSequenceSupport();
-		assertEquals("sequence", support.parseSequence("SELECT GEN_ID(sequence, 1) FROM RDB$DATABASE"));
-		assertEquals("sequence", support.parseSequence("SELECT GEN_ID(sequence, 1), * FROM table"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (GEN_ID(sequence, 1), 0)"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = GEN_ID(sequence, 1)"));
-		assertNull(support.parseSequence("SELECT NEXT VALUE FOR test"));
-		assertNull(support.parseSequence("SELECT NEXT VALUE FOR test, * FROM table"));
-		assertNull(support.parseSequence("INSERT INTO table VALUES (NEXT VALUE FOR test)"));
-		assertNull(support.parseSequence("UPDATE table SET id = NEXT VALUE FOR test"));
-		assertNull(support.parseSequence("SELECT * FROM table"));
+		assertThat(support.parseSequence("SELECT GEN_ID(sequence, 1) FROM RDB$DATABASE")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT GEN_ID(sequence, 1), * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (GEN_ID(sequence, 1), 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = GEN_ID(sequence, 1)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT NEXT VALUE FOR test")).isNull();
+		assertThat(support.parseSequence("SELECT NEXT VALUE FOR test, * FROM table")).isNull();
+		assertThat(support.parseSequence("INSERT INTO table VALUES (NEXT VALUE FOR test)")).isNull();
+		assertThat(support.parseSequence("UPDATE table SET id = NEXT VALUE FOR test")).isNull();
+		assertThat(support.parseSequence("SELECT * FROM table")).isNull();
 	}
 }

@@ -1,5 +1,7 @@
 package com.example.sample.service;
 
+import com.example.sample.dto.ItemCreateRequest;
+import com.example.sample.dto.ItemUpdateRequest;
 import com.example.sample.entity.Item;
 import com.example.sample.repository.ItemRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,16 +37,21 @@ public class ItemService {
         return itemRepository.findByPriceBetween(minPrice, maxPrice);
     }
 
-    public Item create(Item item) {
+    public Item create(ItemCreateRequest request) {
+        Item item = new Item();
+        item.setName(request.getName());
+        item.setDescription(request.getDescription());
+        item.setPrice(request.getPrice());
+        item.setStock(request.getStock());
         return itemRepository.save(item);
     }
 
-    public Item update(Long id, Item item) {
+    public Item update(Long id, ItemUpdateRequest request) {
         Item existing = findById(id);
-        existing.setName(item.getName());
-        existing.setDescription(item.getDescription());
-        existing.setPrice(item.getPrice());
-        existing.setStock(item.getStock());
+        existing.setName(request.getName());
+        existing.setDescription(request.getDescription());
+        existing.setPrice(request.getPrice());
+        existing.setStock(request.getStock());
         return itemRepository.save(existing);
     }
 

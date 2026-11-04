@@ -139,9 +139,9 @@ public class SybaseDialect extends StandardDialect
 	@Override
 	public boolean isValid(Connection connection) throws SQLException
 	{
-		try (Statement statement = connection.createStatement())
+		try (Statement statement = connection.createStatement();
+			 java.sql.ResultSet resultSet = statement.executeQuery("SELECT GETDATE()"))
 		{
-			statement.executeQuery("SELECT GETDATE()");
 			return true;
 		}
 	}

@@ -9,8 +9,8 @@ group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 repositories {
@@ -35,14 +35,26 @@ dependencies {
     // PostgreSQL Driver
     runtimeOnly("org.postgresql:postgresql")
 
+    // HikariCP Connection Pool
+    runtimeOnly("com.zaxxer:HikariCP")
+
+    // HA-JDBC for database redundancy
+    implementation(project(":core"))
+    implementation(project(":logging:slf4j"))
+    implementation(project(":state:sqlite"))
+    
+    // H2 for HA-JDBC state management
+    runtimeOnly("com.h2database:h2")
+
     // Flyway for database migration
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.springframework.boot:spring-boot-resttestclient")
+    testImplementation("org.springframework.boot:spring-boot-restclient")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 tasks.withType<Test> {

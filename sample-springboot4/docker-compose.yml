@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:17-alpine
-    container_name: sample-springboot4-postgres
+  postgres-master:
+    image: postgres:latest
+    container_name: sample-springboot4-postgres-master
     environment:
       POSTGRES_DB: sample_db
       POSTGRES_USER: sample_user
@@ -11,7 +11,24 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_master_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sample_user -d sample_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-slave:
+    image: postgres:latest
+    container_name: sample-springboot4-postgres-slave
+    environment:
+      POSTGRES_DB: sample_db
+      POSTGRES_USER: sample_user
+      POSTGRES_PASSWORD: sample_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_slave_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sample_user -d sample_db"]
       interval: 10s
@@ -19,4 +36,5 @@ services:
       retries: 5
 
 volumes:
-  postgres_data:
+  postgres_master_data:
+  postgres_slave_data:

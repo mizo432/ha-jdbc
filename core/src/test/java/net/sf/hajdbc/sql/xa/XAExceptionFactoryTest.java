@@ -23,7 +23,7 @@ import net.sf.hajdbc.ExceptionFactory;
 import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.durability.Durability.Phase;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class XAExceptionFactoryTest
 	@Test
 	public void getTargetClass()
 	{
-		assertSame(XAException.class, this.factory.getTargetClass());
+		assertThat(this.factory.getTargetClass()).isSameAs(XAException.class);
 	}
 	
 	@Test
@@ -49,8 +49,8 @@ public class XAExceptionFactoryTest
 		
 		XAException result = this.factory.createException(message);
 		
-		assertSame(message, result.getMessage());
-		assertNull(result.getCause());
+		assertThat(result.getMessage()).isSameAs(message);
+		assertThat(result.getCause()).isNull();
 	}
 	
 	@Test
@@ -61,9 +61,9 @@ public class XAExceptionFactoryTest
 		
 		XAException result = this.factory.createException(exception);
 		
-		assertNotNull(result.getMessage());
-		assertSame(message, result.getMessage());
-		assertSame(exception, result.getCause());
+		assertThat(result.getMessage()).isNotNull();
+		assertThat(result.getMessage()).isSameAs(message);
+		assertThat(result.getCause()).isSameAs(exception);
 	}
 	
 	@Test
@@ -73,7 +73,7 @@ public class XAExceptionFactoryTest
 		
 		XAException result = this.factory.createException(exception);
 		
-		assertSame(exception, result);
+		assertThat(result).isSameAs(exception);
 	}
 	
 	@Test
@@ -81,66 +81,66 @@ public class XAExceptionFactoryTest
 	{
 		ExceptionType result = this.factory.getType();
 		
-		assertSame(ExceptionType.XA, result);
+		assertThat(result).isSameAs(ExceptionType.XA);
 	}
 	
 	@Test
 	public void equals()
 	{
-		assertTrue(this.factory.equals(new XAException(), new XAException()));
+		assertThat(this.factory.equals(new XAException(), new XAException())).isTrue();
 		
-		assertTrue(this.factory.equals(new XAException(XAException.XA_HEURCOM), new XAException(XAException.XA_HEURCOM)));
-		assertFalse(this.factory.equals(new XAException(XAException.XA_HEURCOM), new XAException(XAException.XA_HEURHAZ)));
+		assertThat(this.factory.equals(new XAException(XAException.XA_HEURCOM), new XAException(XAException.XA_HEURCOM))).isTrue();
+		assertThat(this.factory.equals(new XAException(XAException.XA_HEURCOM), new XAException(XAException.XA_HEURHAZ))).isFalse();
 		
-		assertTrue(this.factory.equals(new XAException("reason"), new XAException("reason")));
-		assertFalse(this.factory.equals(new XAException("reason"), new XAException()));
-		assertFalse(this.factory.equals(new XAException("reason1"), new XAException("reason2")));
+		assertThat(this.factory.equals(new XAException("reason"), new XAException("reason"))).isTrue();
+		assertThat(this.factory.equals(new XAException("reason"), new XAException())).isFalse();
+		assertThat(this.factory.equals(new XAException("reason1"), new XAException("reason2"))).isFalse();
 	}
 	
 	@Test
 	public void correctHeuristic()
 	{
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBBASE), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBCOMMFAIL), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBDEADLOCK), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBEND), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBINTEGRITY), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBOTHER), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBPROTO), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBROLLBACK), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBTIMEOUT), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_RBTRANSIENT), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.PREPARE));
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBBASE), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBCOMMFAIL), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBDEADLOCK), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBEND), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBINTEGRITY), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBOTHER), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBPROTO), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBROLLBACK), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBTIMEOUT), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_RBTRANSIENT), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.PREPARE)).isFalse();
 		
-		assertTrue(this.factory.correctHeuristic(new XAException(XAException.XA_HEURCOM), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_HEURHAZ), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_HEURMIX), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_HEURRB), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.COMMIT));
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURCOM), Phase.COMMIT)).isTrue();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURHAZ), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURMIX), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURRB), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.COMMIT)).isFalse();
 		
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_HEURCOM), Phase.ROLLBACK));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_HEURHAZ), Phase.ROLLBACK));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XA_HEURMIX), Phase.ROLLBACK));
-		assertTrue(this.factory.correctHeuristic(new XAException(XAException.XA_HEURRB), Phase.ROLLBACK));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.ROLLBACK));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.ROLLBACK));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.ROLLBACK));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.ROLLBACK));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.ROLLBACK));
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURCOM), Phase.ROLLBACK)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURHAZ), Phase.ROLLBACK)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURMIX), Phase.ROLLBACK)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XA_HEURRB), Phase.ROLLBACK)).isTrue();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.ROLLBACK)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.ROLLBACK)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.ROLLBACK)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.ROLLBACK)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.ROLLBACK)).isFalse();
 		
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.FORGET));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.FORGET));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.FORGET));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.FORGET));
-		assertFalse(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.FORGET));
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_INVAL), Phase.FORGET)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_NOTA), Phase.FORGET)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_PROTO), Phase.FORGET)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMERR), Phase.FORGET)).isFalse();
+		assertThat(this.factory.correctHeuristic(new XAException(XAException.XAER_RMFAIL), Phase.FORGET)).isFalse();
 	}
 	
 	@Test
@@ -153,6 +153,6 @@ public class XAExceptionFactoryTest
 		
 		boolean result = this.factory.indicatesFailure(exception, dialect);
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 }

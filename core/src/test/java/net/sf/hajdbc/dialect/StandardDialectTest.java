@@ -17,9 +17,9 @@
  */
 package net.sf.hajdbc.dialect;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.aryEq;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -95,13 +95,13 @@ public class StandardDialectTest
 	@Test
 	public void getSequenceSupport()
 	{
-		assertNull(this.dialect.getSequenceSupport());
+		assertThat(this.dialect.getSequenceSupport()).isNull();
 	}
 	
 	@Test
 	public void getIdentityColumnSupport()
 	{
-		assertNull(this.dialect.getIdentityColumnSupport());
+		assertThat(this.dialect.getIdentityColumnSupport()).isNull();
 	}
 	
 	@Test
@@ -120,7 +120,7 @@ public class StandardDialectTest
 			
 			String result = support.getAlterSequenceSQL(sequence, 1000L);
 			
-			assertEquals("ALTER SEQUENCE sequence RESTART WITH 1000", result);
+			assertThat(result).isEqualTo("ALTER SEQUENCE sequence RESTART WITH 1000");
 		}
 	}
 
@@ -133,7 +133,7 @@ public class StandardDialectTest
 		
 		int result = this.dialect.getColumnType(column);
 		
-		assertEquals(Types.INTEGER, result);
+		assertThat(result).isEqualTo(Types.INTEGER);
 	}
 
 	@Test
@@ -156,7 +156,7 @@ public class StandardDialectTest
 		
 		String result = this.dialect.getCreateForeignKeyConstraintSQL(constraint);
 		
-		assertEquals("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE ON UPDATE RESTRICT DEFERRABLE INITIALLY DEFERRED", result);
+		assertThat(result).isEqualTo("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE ON UPDATE RESTRICT DEFERRABLE INITIALLY DEFERRED");
 	}
 
 	@Test
@@ -172,7 +172,7 @@ public class StandardDialectTest
 		
 		String result = this.dialect.getCreateUniqueConstraintSQL(constraint);
 		
-		assertEquals("ALTER TABLE table ADD CONSTRAINT name UNIQUE (column1, column2)", result);
+		assertThat(result).isEqualTo("ALTER TABLE table ADD CONSTRAINT name UNIQUE (column1, column2)");
 	}
 
 	@Test
@@ -195,7 +195,7 @@ public class StandardDialectTest
 		
 		String result = this.dialect.getDropForeignKeyConstraintSQL(constraint);
 		
-		assertEquals("ALTER TABLE table DROP CONSTRAINT name", result);
+		assertThat(result).isEqualTo("ALTER TABLE table DROP CONSTRAINT name");
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class StandardDialectTest
 		
 		String result = this.dialect.getDropUniqueConstraintSQL(constraint);
 		
-		assertEquals("ALTER TABLE table DROP CONSTRAINT name", result);
+		assertThat(result).isEqualTo("ALTER TABLE table DROP CONSTRAINT name");
 	}
 
 	@Test
@@ -229,7 +229,7 @@ public class StandardDialectTest
 			
 			String result = support.getNextSequenceValueSQL(sequence);
 			
-			assertEquals("SELECT NEXT VALUE FOR sequence", result);
+			assertThat(result).isEqualTo("SELECT NEXT VALUE FOR sequence");
 		}
 	}
 
@@ -259,12 +259,12 @@ public class StandardDialectTest
 			
 			verify(resultSet).close();
 			
-			assertEquals(2, results.size());
+			assertThat(results.size()).isEqualTo(2);
 			
 			Iterator<SequenceProperties> sequences = results.iterator();
 
-			assertSame(sequence1, sequences.next());
-			assertSame(sequence2, sequences.next());
+			assertThat(sequences.next()).isSameAs(sequence1);
+			assertThat(sequences.next()).isSameAs(sequence2);
 		}
 	}
 
@@ -279,14 +279,14 @@ public class StandardDialectTest
 		
 		String result = this.dialect.getTruncateTableSQL(table);
 		
-		assertEquals("DELETE FROM table", result);
+		assertThat(result).isEqualTo("DELETE FROM table");
 	}
 
 	@Test
 	public void isSelectForUpdate() throws SQLException
 	{
-		assertTrue(this.dialect.isSelectForUpdate("SELECT * FROM test FOR UPDATE"));
-		assertFalse(this.dialect.isSelectForUpdate("SELECT * FROM test"));
+		assertThat(this.dialect.isSelectForUpdate("SELECT * FROM test FOR UPDATE")).isTrue();
+		assertThat(this.dialect.isSelectForUpdate("SELECT * FROM test")).isFalse();
 	}
 
 	@Test
@@ -296,11 +296,11 @@ public class StandardDialectTest
 		
 		if (support != null)
 		{
-			assertEquals("test", support.parseSequence("SELECT NEXT VALUE FOR test"));
-			assertEquals("test", support.parseSequence("SELECT NEXT VALUE FOR test, * FROM table"));
-			assertEquals("test", support.parseSequence("INSERT INTO table VALUES (NEXT VALUE FOR test)"));
-			assertEquals("test", support.parseSequence("UPDATE table SET id = NEXT VALUE FOR test"));
-			assertNull(support.parseSequence("SELECT * FROM table"));
+			assertThat(support.parseSequence("SELECT NEXT VALUE FOR test")).isEqualTo("test");
+			assertThat(support.parseSequence("SELECT NEXT VALUE FOR test, * FROM table")).isEqualTo("test");
+			assertThat(support.parseSequence("INSERT INTO table VALUES (NEXT VALUE FOR test)")).isEqualTo("test");
+			assertThat(support.parseSequence("UPDATE table SET id = NEXT VALUE FOR test")).isEqualTo("test");
+			assertThat(support.parseSequence("SELECT * FROM table")).isNull();
 		}
 	}
 
@@ -315,8 +315,8 @@ public class StandardDialectTest
 		
 		List<String> result = this.dialect.getDefaultSchemas(metaData);
 		
-		assertEquals(1, result.size());
-		assertSame(user, result.get(0));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0)).isSameAs(user);
 	}
 
 	@Test
@@ -326,16 +326,16 @@ public class StandardDialectTest
 		
 		if (support != null)
 		{
-			assertEquals("table", support.parseInsertTable("INSERT INTO table (column1, column2) VALUES (1, 2)"));
-			assertEquals("table", support.parseInsertTable("INSERT INTO table VALUES (1, 2)"));
-			assertEquals("table", support.parseInsertTable("INSERT table (column1, column2) VALUES (1, 2)"));
-			assertEquals("table", support.parseInsertTable("INSERT table VALUES (1, 2)"));
-			assertEquals("table", support.parseInsertTable("INSERT INTO table (column1, column2) SELECT column1, column2 FROM dummy"));
-			assertEquals("table", support.parseInsertTable("INSERT INTO table SELECT column1, column2 FROM dummy"));
-			assertEquals("table", support.parseInsertTable("INSERT table (column1, column2) SELECT column1, column2 FROM dummy"));
-			assertEquals("table", support.parseInsertTable("INSERT table SELECT column1, column2 FROM dummy"));
-			assertNull(support.parseInsertTable("SELECT * FROM table WHERE 0=1"));
-			assertNull(support.parseInsertTable("UPDATE table SET column = 0"));
+			assertThat(support.parseInsertTable("INSERT INTO table (column1, column2) VALUES (1, 2)")).isEqualTo("table");
+			assertThat(support.parseInsertTable("INSERT INTO table VALUES (1, 2)")).isEqualTo("table");
+			assertThat(support.parseInsertTable("INSERT table (column1, column2) VALUES (1, 2)")).isEqualTo("table");
+			assertThat(support.parseInsertTable("INSERT table VALUES (1, 2)")).isEqualTo("table");
+			assertThat(support.parseInsertTable("INSERT INTO table (column1, column2) SELECT column1, column2 FROM dummy")).isEqualTo("table");
+			assertThat(support.parseInsertTable("INSERT INTO table SELECT column1, column2 FROM dummy")).isEqualTo("table");
+			assertThat(support.parseInsertTable("INSERT table (column1, column2) SELECT column1, column2 FROM dummy")).isEqualTo("table");
+			assertThat(support.parseInsertTable("INSERT table SELECT column1, column2 FROM dummy")).isEqualTo("table");
+			assertThat(support.parseInsertTable("SELECT * FROM table WHERE 0=1")).isNull();
+			assertThat(support.parseInsertTable("UPDATE table SET column = 0")).isNull();
 		}
 	}
 
@@ -344,11 +344,11 @@ public class StandardDialectTest
 	{
 		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT DATE '%s' FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date));
-		assertEquals("SELECT CCURRENT_DATE FROM test", this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date));
-		assertEquals("SELECT CURRENT_DATES FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date)).isEqualTo(String.format("SELECT DATE '%s' FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date)).isEqualTo("SELECT CCURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date)).isEqualTo("SELECT CURRENT_DATES FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date)).isEqualTo("SELECT CURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
 	}
 
 	@Test
@@ -356,17 +356,17 @@ public class StandardDialectTest
 	{
 		java.sql.Time time = new java.sql.Time(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME(2) FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME ( 2 ) FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT LOCALTIME FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT LOCALTIME(2) FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT LOCALTIME ( 2 ) FROM test", time));
-		assertEquals("SELECT CCURRENT_TIME FROM test", this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time));
-		assertEquals("SELECT LLOCALTIME FROM test", this.dialect.evaluateCurrentTime("SELECT LLOCALTIME FROM test", time));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time));
-		assertEquals("SELECT LOCALTIMESTAMP FROM test", this.dialect.evaluateCurrentTime("SELECT LOCALTIMESTAMP FROM test", time));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME(2) FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME ( 2 ) FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME(2) FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME ( 2 ) FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time)).isEqualTo("SELECT CCURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LLOCALTIME FROM test", time)).isEqualTo("SELECT LLOCALTIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIMESTAMP FROM test", time)).isEqualTo("SELECT LOCALTIMESTAMP FROM test");
 	}
 
 	@Test
@@ -374,27 +374,27 @@ public class StandardDialectTest
 	{
 		java.sql.Timestamp timestamp = new java.sql.Timestamp(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP(2) FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP ( 2 ) FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP(2) FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP ( 2 ) FROM test", timestamp));
-		assertEquals("SELECT CCURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT LLOCALTIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LLOCALTIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp));
-		assertEquals("SELECT LOCALTIME FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIME FROM test", timestamp));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP(2) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP ( 2 ) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP(2) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP ( 2 ) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo("SELECT CCURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LLOCALTIMESTAMP FROM test", timestamp)).isEqualTo("SELECT LLOCALTIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp)).isEqualTo("SELECT CURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIME FROM test", timestamp)).isEqualTo("SELECT LOCALTIME FROM test");
 	}
 
 	@Test
 	public void evaluateRand()
 	{
-		assertTrue(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RAND() FROM test")));
-		assertTrue(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RAND ( ) FROM test")));
-		assertEquals("SELECT RAND FROM test", this.dialect.evaluateRand("SELECT RAND FROM test"));
-		assertEquals("SELECT OPERAND() FROM test", this.dialect.evaluateRand("SELECT OPERAND() FROM test"));
-		assertEquals("SELECT 1 FROM test", this.dialect.evaluateRand("SELECT 1 FROM test"));
+		assertThat(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RAND() FROM test"))).isTrue();
+		assertThat(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RAND ( ) FROM test"))).isTrue();
+		assertThat(this.dialect.evaluateRand("SELECT RAND FROM test")).isEqualTo("SELECT RAND FROM test");
+		assertThat(this.dialect.evaluateRand("SELECT OPERAND() FROM test")).isEqualTo("SELECT OPERAND() FROM test");
+		assertThat(this.dialect.evaluateRand("SELECT 1 FROM test")).isEqualTo("SELECT 1 FROM test");
 	}
 
 	@Test
@@ -414,15 +414,15 @@ public class StandardDialectTest
 			
 			String result = support.getAlterIdentityColumnSQL(table, column, 1000L);
 			
-			assertEquals("ALTER TABLE table ALTER COLUMN column RESTART WITH 1000", result);
+			assertThat(result).isEqualTo("ALTER TABLE table ALTER COLUMN column RESTART WITH 1000");
 		}
 	}
 	
 	@Test
 	public void indicatesFailureSQLException()
 	{
-		assertTrue(this.dialect.indicatesFailure(new SQLNonTransientConnectionException()));
-		assertTrue(this.dialect.indicatesFailure(new SQLTransientConnectionException()));
+		assertThat(this.dialect.indicatesFailure(new SQLNonTransientConnectionException())).isTrue();
+		assertThat(this.dialect.indicatesFailure(new SQLTransientConnectionException())).isTrue();
 		int i = 0;
 		char[] alphabet = new char[36];
 		for (char c = '0'; c <= '9'; ++c)
@@ -440,26 +440,26 @@ public class StandardDialectTest
 				this.indicatesFailure(String.format("%s%s000", alphabet[a], alphabet[b]));
 			}
 		}
-		assertFalse(this.dialect.indicatesFailure(new SQLException()));
-		assertFalse(this.dialect.indicatesFailure(new BatchUpdateException()));
-		assertFalse(this.dialect.indicatesFailure(new RowSetWarning()));
-		assertFalse(this.dialect.indicatesFailure(new SerialException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLClientInfoException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLNonTransientException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLDataException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLFeatureNotSupportedException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLIntegrityConstraintViolationException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLInvalidAuthorizationSpecException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLSyntaxErrorException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLRecoverableException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLTransientException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLTimeoutException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLTransactionRollbackException()));
-		assertFalse(this.dialect.indicatesFailure(new SQLWarning()));
-		assertFalse(this.dialect.indicatesFailure(new DataTruncation(1, false, false, 1, 1)));
-		assertFalse(this.dialect.indicatesFailure(new SQLDataException()));
-		assertFalse(this.dialect.indicatesFailure(new SyncFactoryException()));
-		assertFalse(this.dialect.indicatesFailure(new SyncProviderException()));
+		assertThat(this.dialect.indicatesFailure(new SQLException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new BatchUpdateException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new RowSetWarning())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SerialException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLClientInfoException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLNonTransientException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLDataException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLFeatureNotSupportedException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLIntegrityConstraintViolationException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLInvalidAuthorizationSpecException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLSyntaxErrorException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLRecoverableException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLTransientException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLTimeoutException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLTransactionRollbackException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLWarning())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new DataTruncation(1, false, false, 1, 1))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLDataException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SyncFactoryException())).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SyncProviderException())).isFalse();
 	}
 	
 	protected void indicatesFailure(String sqlState)
@@ -467,43 +467,43 @@ public class StandardDialectTest
 		SQLException exception = new SQLException("reason", String.valueOf(sqlState));
 		if (sqlState.startsWith("08"))
 		{
-			assertTrue(sqlState, this.dialect.indicatesFailure(exception));
+			assertThat(this.dialect.indicatesFailure(exception)).as(sqlState).isTrue();
 		}
 		else
 		{
-			assertFalse(sqlState, this.dialect.indicatesFailure(exception));
+			assertThat(this.dialect.indicatesFailure(exception)).as(sqlState).isFalse();
 		}
 	}
 	
 	@Test
 	public void indicatesFailureXAException()
 	{
-		assertTrue(this.dialect.indicatesFailure(new XAException(XAException.XAER_RMFAIL)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURCOM)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURHAZ)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURMIX)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURRB)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_NOMIGRATE)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBBASE)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBCOMMFAIL)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBDEADLOCK)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBDEADLOCK)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBEND)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBINTEGRITY)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBOTHER)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBPROTO)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBROLLBACK)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBTIMEOUT)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RBTRANSIENT)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RDONLY)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XA_RETRY)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XAER_ASYNC)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XAER_DUPID)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XAER_INVAL)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XAER_NOTA)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XAER_OUTSIDE)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XAER_PROTO)));
-		assertFalse(this.dialect.indicatesFailure(new XAException(XAException.XAER_RMERR)));
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_RMFAIL))).isTrue();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURCOM))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURHAZ))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURMIX))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_HEURRB))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_NOMIGRATE))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBBASE))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBCOMMFAIL))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBDEADLOCK))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBDEADLOCK))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBEND))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBINTEGRITY))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBOTHER))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBPROTO))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBROLLBACK))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBTIMEOUT))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RBTRANSIENT))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RDONLY))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XA_RETRY))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_ASYNC))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_DUPID))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_INVAL))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_NOTA))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_OUTSIDE))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_PROTO))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new XAException(XAException.XAER_RMERR))).isFalse();
 	}
 	
 	@Test
@@ -515,7 +515,7 @@ public class StandardDialectTest
 		
 		boolean result = this.dialect.isValid(connection);
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -542,20 +542,20 @@ public class StandardDialectTest
 		
 		ConnectionProperties properties = this.dialect.getConnectionProperties(database, decoder);
 		
-		assertEquals(host, properties.getHost());
-		assertEquals(port, properties.getPort());
-		assertEquals(databaseName, properties.getDatabase());
-		assertSame(user, properties.getUser());
-		assertSame(password, properties.getPassword());
+		assertThat(properties.getHost()).isEqualTo(host);
+		assertThat(properties.getPort()).isEqualTo(port);
+		assertThat(properties.getDatabase()).isEqualTo(databaseName);
+		assertThat(properties.getUser()).isSameAs(user);
+		assertThat(properties.getPassword()).isSameAs(password);
 
 		when(metaData.getURL()).thenReturn(String.format("jdbc:%s:%s?loginTimeout=0&socketTimeout=0&prepareThreshold=5&unknownLength=2147483647&tcpKeepAlive=false&binaryTransfer=true", this.factory.getId(), databaseName));
 		
 		properties = this.dialect.getConnectionProperties(database, decoder);
 		
-		assertNull(properties.getHost());
-		assertNull(properties.getPort());
-		assertEquals(databaseName, properties.getDatabase());
-		assertSame(user, properties.getUser());
-		assertSame(password, properties.getPassword());
+		assertThat(properties.getHost()).isNull();
+		assertThat(properties.getPort()).isNull();
+		assertThat(properties.getDatabase()).isEqualTo(databaseName);
+		assertThat(properties.getUser()).isSameAs(user);
+		assertThat(properties.getPassword()).isSameAs(password);
 	}
 }

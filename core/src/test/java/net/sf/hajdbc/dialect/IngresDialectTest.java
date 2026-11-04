@@ -17,10 +17,7 @@
  */
 package net.sf.hajdbc.dialect;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,7 +54,7 @@ public class IngresDialectTest extends StandardDialectTest
 	@Override
 	public void getSequenceSupport()
 	{
-		assertSame(this.dialect, this.dialect.getSequenceSupport());
+		assertThat(this.dialect.getSequenceSupport()).isSameAs(this.dialect);
 	}
 
 	/**
@@ -87,12 +84,12 @@ public class IngresDialectTest extends StandardDialectTest
 		
 		verify(statement).close();
 		
-		assertEquals(2, results.size());
+		assertThat(results.size()).isEqualTo(2);
 		
 		Iterator<SequenceProperties> sequences = results.iterator();
 
-		assertSame(sequence1, sequences.next());
-		assertSame(sequence2, sequences.next());
+		assertThat(sequences.next()).isSameAs(sequence1);
+		assertThat(sequences.next()).isSameAs(sequence2);
 	}
 
 	/**
@@ -103,23 +100,23 @@ public class IngresDialectTest extends StandardDialectTest
 	public void parseSequence() throws SQLException
 	{
 		SequenceSupport support = this.dialect.getSequenceSupport();
-		assertEquals("sequence", support.parseSequence("SELECT NEXT VALUE FOR sequence"));
-		assertEquals("sequence", support.parseSequence("SELECT CURRENT VALUE FOR sequence"));
-		assertEquals("sequence", support.parseSequence("SELECT NEXT VALUE FOR sequence, * FROM table"));
-		assertEquals("sequence", support.parseSequence("SELECT CURRENT VALUE FOR sequence, * FROM table"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (NEXT VALUE FOR sequence, 0)"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (CURRENT VALUE FOR sequence, 0)"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = NEXT VALUE FOR sequence"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = CURRENT VALUE FOR sequence"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.nextval"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.currval"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.nextval, * FROM table"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.currval, * FROM table"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (sequence.nextval, 0)"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (sequence.currval, 0)"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = sequence.nextval"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = sequence.currval"));
-		assertNull(support.parseSequence("SELECT * FROM table"));
+		assertThat(support.parseSequence("SELECT NEXT VALUE FOR sequence")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT CURRENT VALUE FOR sequence")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT NEXT VALUE FOR sequence, * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT CURRENT VALUE FOR sequence, * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (NEXT VALUE FOR sequence, 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (CURRENT VALUE FOR sequence, 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = NEXT VALUE FOR sequence")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = CURRENT VALUE FOR sequence")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.nextval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.currval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.nextval, * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.currval, * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (sequence.nextval, 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (sequence.currval, 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = sequence.nextval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = sequence.currval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT * FROM table")).isNull();
 	}
 
 	/**
@@ -131,13 +128,13 @@ public class IngresDialectTest extends StandardDialectTest
 	{
 		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT DATE '%s' FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date));
-		assertEquals(String.format("SELECT DATE '%s' FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT DATE('TODAY') FROM test", date));
-		assertEquals(String.format("SELECT DATE '%s' FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT DATE ( 'TODAY' ) FROM test", date));
-		assertEquals("SELECT CURRENT_DATES FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date));
-		assertEquals("SELECT CCURRENT_DATE FROM test", this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date)).isEqualTo(String.format("SELECT DATE '%s' FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT DATE('TODAY') FROM test", date)).isEqualTo(String.format("SELECT DATE '%s' FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT DATE ( 'TODAY' ) FROM test", date)).isEqualTo(String.format("SELECT DATE '%s' FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date)).isEqualTo("SELECT CURRENT_DATES FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date)).isEqualTo("SELECT CCURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date)).isEqualTo("SELECT CURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
 	}
 
 	/**
@@ -149,12 +146,12 @@ public class IngresDialectTest extends StandardDialectTest
 	{
 		java.sql.Time time = new java.sql.Time(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT LOCAL_TIME FROM test", time));
-		assertEquals("SELECT CURRENT_TIMES FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMES FROM test", time));
-		assertEquals("SELECT CCURRENT_TIME FROM test", this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCAL_TIME FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMES FROM test", time)).isEqualTo("SELECT CURRENT_TIMES FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time)).isEqualTo("SELECT CCURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
 	}
 
 	/**
@@ -166,14 +163,14 @@ public class IngresDialectTest extends StandardDialectTest
 	{
 		java.sql.Timestamp timestamp = new java.sql.Timestamp(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT LOCAL_TIMESTAMP FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT DATE('NOW') FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT DATE ( 'NOW' ) FROM test", timestamp));
-		assertEquals("SELECT CURRENT_TIMESTAMPS FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMPS FROM test", timestamp));
-		assertEquals("SELECT CCURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCAL_TIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT DATE('NOW') FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT DATE ( 'NOW' ) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMPS FROM test", timestamp)).isEqualTo("SELECT CURRENT_TIMESTAMPS FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo("SELECT CCURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp)).isEqualTo("SELECT CURRENT_TIME FROM test");
 	}
 
 	/**
@@ -183,10 +180,10 @@ public class IngresDialectTest extends StandardDialectTest
 	@Override
 	public void evaluateRand()
 	{
-		assertTrue(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOMF() FROM test")));
-		assertTrue(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOMF ( ) FROM test")));
-		assertEquals("SELECT RANDOMF FROM test", this.dialect.evaluateRand("SELECT RANDOMF FROM test"));
-		assertEquals("SELECT OPERANDOMF() FROM test", this.dialect.evaluateRand("SELECT OPERANDOMF() FROM test"));
-		assertEquals("SELECT RAND() FROM test", this.dialect.evaluateRand("SELECT RAND() FROM test"));
+		assertThat(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOMF() FROM test"))).isTrue();
+		assertThat(Pattern.matches("SELECT ((0\\.\\d+)|([1-9]\\.\\d+E\\-\\d+)) FROM test", this.dialect.evaluateRand("SELECT RANDOMF ( ) FROM test"))).isTrue();
+		assertThat(this.dialect.evaluateRand("SELECT RANDOMF FROM test")).isEqualTo("SELECT RANDOMF FROM test");
+		assertThat(this.dialect.evaluateRand("SELECT OPERANDOMF() FROM test")).isEqualTo("SELECT OPERANDOMF() FROM test");
+		assertThat(this.dialect.evaluateRand("SELECT RAND() FROM test")).isEqualTo("SELECT RAND() FROM test");
 	}
 }

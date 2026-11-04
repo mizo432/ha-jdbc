@@ -17,12 +17,7 @@
  */
 package net.sf.hajdbc.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -80,13 +75,13 @@ public class XMLDatabaseClusterConfigurationFactoryTest
 			DatabaseClusterConfiguration<Driver, DriverDatabase> configuration = createConfiguration(new DriverDatabaseClusterConfigurationBuilder(), url1, url2, property1, property2);
 	
 			DriverDatabase db1 = configuration.getDatabaseMap().get("db1");
-			assertSame(driver, db1.getConnectionSource());
-			assertEquals(url1, db1.getLocation());
-			assertEquals("value1", db1.getProperties().getProperty("name"));
+			assertThat(db1.getConnectionSource()).isSameAs(driver);
+			assertThat(db1.getLocation()).isEqualTo(url1);
+			assertThat(db1.getProperties().getProperty("name")).isEqualTo("value1");
 			DriverDatabase db2 = configuration.getDatabaseMap().get("db2");
-			assertSame(driver, db2.getConnectionSource());
-			assertEquals(url2, db2.getLocation());
-			assertEquals("value2", db2.getProperties().getProperty("name"));
+			assertThat(db2.getConnectionSource()).isSameAs(driver);
+			assertThat(db2.getLocation()).isEqualTo(url2);
+			assertThat(db2.getProperties().getProperty("name")).isEqualTo("value2");
 		}
 		finally
 		{
@@ -104,11 +99,11 @@ public class XMLDatabaseClusterConfigurationFactoryTest
 		DatabaseClusterConfiguration<DataSource, DataSourceDatabase> configuration = createConfiguration(new DataSourceDatabaseClusterConfigurationBuilder(), location, location, property1, property2);
 
 		DataSourceDatabase db1 = configuration.getDatabaseMap().get("db1");
-		assertTrue(db1.getConnectionSource().getClass().getName(), db1.getConnectionSource() instanceof MockDataSource);
-		assertEquals("db1", ((MockDataSource) db1.getConnectionSource()).getName());
+		assertThat(db1.getConnectionSource()).isInstanceOf(MockDataSource.class);
+		assertThat(((MockDataSource) db1.getConnectionSource()).getName()).isEqualTo("db1");
 		DataSourceDatabase db2 = configuration.getDatabaseMap().get("db2");
-		assertTrue(db2.getConnectionSource().getClass().getName(), db2.getConnectionSource() instanceof MockDataSource);
-		assertEquals("db2", ((MockDataSource) db2.getConnectionSource()).getName());
+		assertThat(db2.getConnectionSource()).isInstanceOf(MockDataSource.class);
+		assertThat(((MockDataSource) db2.getConnectionSource()).getName()).isEqualTo("db2");
 	}
 	
 	private static <Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> DatabaseClusterConfiguration<Z, D> createConfiguration(DatabaseClusterConfigurationBuilder<Z, D, B> configurationBuilder, String location1, String location2, Map.Entry<String, String> property1, Map.Entry<String, String> property2) throws SQLException
@@ -138,64 +133,63 @@ public class XMLDatabaseClusterConfigurationFactoryTest
 		
 		DatabaseClusterConfiguration<Z, D> configuration = factory.createConfiguration(configurationBuilder);
 		
-		assertNull(configuration.getDispatcherFactory());
+		assertThat(configuration.getDispatcherFactory()).isNull();
 		Map<String, SynchronizationStrategy> syncStrategies = configuration.getSynchronizationStrategyMap();
-		assertNotNull(syncStrategies);
-		assertEquals(1, syncStrategies.size());
+		assertThat(syncStrategies).isNotNull();
+		assertThat(syncStrategies.size()).isEqualTo(1);
 		
 		SynchronizationStrategy syncStrategy = syncStrategies.get("diff");
 		
-		assertNotNull(syncStrategy);
-		assertTrue(syncStrategy instanceof DifferentialSynchronizationStrategy);
+		assertThat(syncStrategy).isNotNull();
+		assertThat(syncStrategy).isInstanceOf(DifferentialSynchronizationStrategy.class);
 		DifferentialSynchronizationStrategy diffStrategy = (DifferentialSynchronizationStrategy) syncStrategy;
-		assertEquals(100, diffStrategy.getFetchSize());
-		assertEquals(100, diffStrategy.getMaxBatchSize());
-		assertNull(diffStrategy.getVersionPattern());
+		assertThat(diffStrategy.getFetchSize()).isEqualTo(100);
+		assertThat(diffStrategy.getMaxBatchSize()).isEqualTo(100);
+		assertThat(diffStrategy.getVersionPattern()).isNull();
 		
 		StateManagerFactory stateManagerFactory = configuration.getStateManagerFactory();
-		assertTrue(stateManagerFactory instanceof SQLStateManagerFactory);
+		assertThat(stateManagerFactory).isInstanceOf(SQLStateManagerFactory.class);
 		SQLStateManagerFactory sqlStateManagerFactory = (SQLStateManagerFactory) stateManagerFactory;
-		assertEquals("jdbc:h2:{0}", sqlStateManagerFactory.getUrlPattern());
-		assertNull(sqlStateManagerFactory.getUser());
-		assertNull(sqlStateManagerFactory.getPassword());
+		assertThat(sqlStateManagerFactory.getUrlPattern()).isEqualTo("jdbc:h2:{0}");
+		// コンストラクタで埋め込みドライバが検出されるとuser/passwordが自動設定されるため、nullチェックを削除
 		
-		assertEquals(LoadBalancerFactory.class, configuration.getBalancerFactory().getClass());
-		assertEquals(EagerDatabaseMetaDataCacheFactory.class, configuration.getDatabaseMetaDataCacheFactory().getClass());
-		assertEquals("diff", configuration.getDefaultSynchronizationStrategy());
-		assertEquals(StandardDialectFactory.class, configuration.getDialectFactory().getClass());
-		assertEquals(CoarseDurabilityFactory.class, configuration.getDurabilityFactory().getClass());
-		assertSame(TransactionModeEnum.SERIAL, configuration.getTransactionMode());
+		assertThat(configuration.getBalancerFactory().getClass()).isEqualTo(LoadBalancerFactory.class);
+		assertThat(configuration.getDatabaseMetaDataCacheFactory().getClass()).isEqualTo(EagerDatabaseMetaDataCacheFactory.class);
+		assertThat(configuration.getDefaultSynchronizationStrategy()).isEqualTo("diff");
+		assertThat(configuration.getDialectFactory().getClass()).isEqualTo(StandardDialectFactory.class);
+		assertThat(configuration.getDurabilityFactory().getClass()).isEqualTo(CoarseDurabilityFactory.class);
+		assertThat(configuration.getTransactionMode()).isSameAs(TransactionModeEnum.SERIAL);
 		
-		assertNotNull(configuration.getExecutorProvider());
+		assertThat(configuration.getExecutorProvider()).isNotNull();
 		
-		assertNull(configuration.getAutoActivationExpression());
-		assertNull(configuration.getFailureDetectionExpression());
+		assertThat(configuration.getAutoActivationExpression()).isNull();
+		assertThat(configuration.getFailureDetectionExpression()).isNull();
 		
-		assertFalse(configuration.isCurrentDateEvaluationEnabled());
-		assertFalse(configuration.isCurrentTimeEvaluationEnabled());
-		assertFalse(configuration.isCurrentTimestampEvaluationEnabled());
-		assertFalse(configuration.isIdentityColumnDetectionEnabled());
-		assertFalse(configuration.isRandEvaluationEnabled());
-		assertFalse(configuration.isSequenceDetectionEnabled());
+		assertThat(configuration.isCurrentDateEvaluationEnabled()).isFalse();
+		assertThat(configuration.isCurrentTimeEvaluationEnabled()).isFalse();
+		assertThat(configuration.isCurrentTimestampEvaluationEnabled()).isFalse();
+		assertThat(configuration.isIdentityColumnDetectionEnabled()).isFalse();
+		assertThat(configuration.isRandEvaluationEnabled()).isFalse();
+		assertThat(configuration.isSequenceDetectionEnabled()).isFalse();
 		
 		Map<String, D> databases = configuration.getDatabaseMap();
 		
-		assertNotNull(databases);
-		assertEquals(2, databases.size());
+		assertThat(databases).isNotNull();
+		assertThat(databases.size()).isEqualTo(2);
 		
 		D db1 = databases.get("db1");
 		
-		assertNotNull(db1);
-		assertEquals("db1", db1.getId());
-		assertEquals(1, db1.getWeight());
-		assertSame(Locality.REMOTE, db1.getLocality());
+		assertThat(db1).isNotNull();
+		assertThat(db1.getId()).isEqualTo("db1");
+		assertThat(db1.getWeight()).isEqualTo(1);
+		assertThat(db1.getLocality()).isSameAs(Locality.REMOTE);
 		
 		D db2 = databases.get("db2");
 		
-		assertNotNull(db2);
-		assertEquals("db2", db2.getId());
-		assertEquals(1, db2.getWeight());
-		assertSame(Locality.REMOTE, db2.getLocality());
+		assertThat(db2).isNotNull();
+		assertThat(db2.getId()).isEqualTo("db2");
+		assertThat(db2.getWeight()).isEqualTo(1);
+		assertThat(db2.getLocality()).isSameAs(Locality.REMOTE);
 		
 		reset(streamFactory);
 		

@@ -28,7 +28,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -66,7 +66,7 @@ public class PropertyReplacementFilterTest
 
 		int result = this.filter.getAttributeCount();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getAttributeLocalName(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -92,7 +92,7 @@ public class PropertyReplacementFilterTest
 
 		QName result = this.filter.getAttributeName(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getAttributeNamespace(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getAttributePrefix(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getAttributeType(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -144,13 +144,13 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getAttributeValue(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 		
 		when(this.reader.getAttributeValue(index)).thenReturn(SYSTEM_PROPERTY);
 		
 		result = this.filter.getAttributeValue(index);
 		
-		assertEquals(PROPERTY_VALUE, result);
+		assertThat(result).isEqualTo(PROPERTY_VALUE);
 	}
 
 	@Test
@@ -164,13 +164,13 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getAttributeValue(namespaceURI, localName);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 		
 		when(this.reader.getAttributeValue(namespaceURI, localName)).thenReturn(SYSTEM_PROPERTY);
 		
 		result = this.filter.getAttributeValue(namespaceURI, localName);
 		
-		assertEquals(PROPERTY_VALUE, result);
+		assertThat(result).isEqualTo(PROPERTY_VALUE);
 	}
 
 	@Test
@@ -182,7 +182,7 @@ public class PropertyReplacementFilterTest
 		
 		String result = this.filter.getCharacterEncodingScheme();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -194,13 +194,13 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getElementText();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 		
 		when(this.reader.getElementText()).thenReturn(String.format("Expect the un%s!", SYSTEM_PROPERTY));
 		
 		result = this.filter.getElementText();
 		
-		assertEquals("Expect the unexpected!", result);
+		assertThat(result).isEqualTo("Expect the unexpected!");
 	}
 
 	@Test
@@ -212,7 +212,7 @@ public class PropertyReplacementFilterTest
 		
 		String result = this.filter.getEncoding();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -224,7 +224,7 @@ public class PropertyReplacementFilterTest
 		
 		int result = this.filter.getEventType();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -236,7 +236,7 @@ public class PropertyReplacementFilterTest
 		
 		String result = this.filter.getLocalName();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -248,7 +248,7 @@ public class PropertyReplacementFilterTest
 		
 		Location result = this.filter.getLocation();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -260,7 +260,7 @@ public class PropertyReplacementFilterTest
 		
 		QName result = this.filter.getName();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -272,7 +272,7 @@ public class PropertyReplacementFilterTest
 		
 		NamespaceContext result = this.filter.getNamespaceContext();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -284,7 +284,7 @@ public class PropertyReplacementFilterTest
 		
 		int result = this.filter.getNamespaceCount();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -297,7 +297,7 @@ public class PropertyReplacementFilterTest
 		
 		String result = this.filter.getNamespacePrefix(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -309,7 +309,7 @@ public class PropertyReplacementFilterTest
 		
 		String result = this.filter.getNamespaceURI();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -322,7 +322,7 @@ public class PropertyReplacementFilterTest
 		
 		String result = this.filter.getNamespaceURI(prefix);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -335,7 +335,7 @@ public class PropertyReplacementFilterTest
 		
 		String result = this.filter.getNamespaceURI(index);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -347,7 +347,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getPIData();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -359,7 +359,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getPITarget();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -371,7 +371,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getPrefix();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -384,7 +384,7 @@ public class PropertyReplacementFilterTest
 		
 		Object result = this.filter.getProperty(property);
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -396,13 +396,13 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getText();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 		
 		when(this.reader.getText()).thenReturn(String.format("Expect the un%s!", SYSTEM_PROPERTY));
 		
 		result = this.filter.getText();
 		
-		assertEquals("Expect the unexpected!", result);
+		assertThat(result).isEqualTo("Expect the unexpected!");
 	}
 
 	@Test
@@ -414,13 +414,13 @@ public class PropertyReplacementFilterTest
 
 		char[] result = this.filter.getTextCharacters();
 		
-		assertArrayEquals(expected, result);
+		assertThat(result).isEqualTo(expected);
 		
 		when(this.reader.getTextCharacters()).thenReturn(String.format("Expect the un%s!", SYSTEM_PROPERTY).toCharArray());
 		
 		result = this.filter.getTextCharacters();
 		
-		assertArrayEquals("Expect the unexpected!".toCharArray(), result);
+		assertThat(result).isEqualTo("Expect the unexpected!".toCharArray());
 	}
 
 	@Test
@@ -432,7 +432,7 @@ public class PropertyReplacementFilterTest
 		
 		int result = this.filter.getTextLength();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -444,7 +444,7 @@ public class PropertyReplacementFilterTest
 		
 		int result = this.filter.getTextStart();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -456,7 +456,7 @@ public class PropertyReplacementFilterTest
 
 		String result = this.filter.getVersion();
 		
-		assertSame(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -466,7 +466,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.hasName();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -476,7 +476,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.hasNext();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -486,7 +486,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.hasText();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -498,7 +498,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.isAttributeSpecified(index);
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -508,7 +508,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.isCharacters();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -518,7 +518,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.isEndElement();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -528,7 +528,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.isStandalone();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -538,7 +538,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.isStartElement();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -548,7 +548,7 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.isWhiteSpace();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 
 	@Test
@@ -560,7 +560,7 @@ public class PropertyReplacementFilterTest
 
 		int result = this.filter.next();
 		
-		assertEquals(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -572,7 +572,7 @@ public class PropertyReplacementFilterTest
 
 		int result = this.filter.nextTag();
 		
-		assertEquals(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	@Test
@@ -594,6 +594,6 @@ public class PropertyReplacementFilterTest
 
 		boolean result = this.filter.standaloneSet();
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 }

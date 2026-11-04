@@ -17,11 +17,7 @@
  */
 package net.sf.hajdbc.dialect;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,7 +56,7 @@ public class OracleDialectTest extends StandardDialectTest
 	@Override
 	public void getSequenceSupport()
 	{
-		assertSame(this.dialect, this.dialect.getSequenceSupport());
+		assertThat(this.dialect.getSequenceSupport()).isSameAs(this.dialect);
 	}
 
 	/**
@@ -79,7 +75,7 @@ public class OracleDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getSequenceSupport().getAlterSequenceSQL(sequence, 1000L);
 		
-		assertEquals("DROP SEQUENCE sequence; CREATE SEQUENCE sequence START WITH 1000 INCREMENT BY 1", result);
+		assertThat(result).isEqualTo("DROP SEQUENCE sequence; CREATE SEQUENCE sequence START WITH 1000 INCREMENT BY 1");
 	}
 
 	/**
@@ -106,7 +102,7 @@ public class OracleDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getCreateForeignKeyConstraintSQL(constraint);
 		
-		assertEquals("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE", result);
+		assertThat(result).isEqualTo("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE");
 	}
 
 	/**
@@ -137,12 +133,12 @@ public class OracleDialectTest extends StandardDialectTest
 		
 		verify(statement).close();
 		
-		assertEquals(2, results.size());
+		assertThat(results.size()).isEqualTo(2);
 		
 		Iterator<SequenceProperties> sequences = results.iterator();
 
-		assertSame(sequence1, sequences.next());
-		assertSame(sequence2, sequences.next());
+		assertThat(sequences.next()).isSameAs(sequence1);
+		assertThat(sequences.next()).isSameAs(sequence2);
 	}
 
 	/**
@@ -160,7 +156,7 @@ public class OracleDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getTruncateTableSQL(table);
 		
-		assertEquals("TRUNCATE TABLE table", result);
+		assertThat(result).isEqualTo("TRUNCATE TABLE table");
 	}
 
 	/**
@@ -171,16 +167,16 @@ public class OracleDialectTest extends StandardDialectTest
 	public void parseSequence() throws SQLException
 	{
 		SequenceSupport support = this.dialect.getSequenceSupport();
-		assertEquals("sequence", support.parseSequence("SELECT sequence.nextval"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.currval"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.nextval, * FROM table"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.currval, * FROM table"));
-		assertEquals("sequence", support.parseSequence("SELECT sequence.nextval"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (sequence.nextval, 0)"));
-		assertEquals("sequence", support.parseSequence("INSERT INTO table VALUES (sequence.currval, 0)"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = sequence.nextval"));
-		assertEquals("sequence", support.parseSequence("UPDATE table SET id = sequence.nextval"));
-		assertNull(support.parseSequence("SELECT NEXT VALUE FOR sequence"));
+		assertThat(support.parseSequence("SELECT sequence.nextval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.currval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.nextval, * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.currval, * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT sequence.nextval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (sequence.nextval, 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("INSERT INTO table VALUES (sequence.currval, 0)")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = sequence.nextval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("UPDATE table SET id = sequence.nextval")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT NEXT VALUE FOR sequence")).isNull();
 	}
 	
 	/**
@@ -198,7 +194,7 @@ public class OracleDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getSequenceSupport().getNextSequenceValueSQL(sequence);
 
-		assertEquals("SELECT sequence.NEXTVAL FROM DUAL", result);
+		assertThat(result).isEqualTo("SELECT sequence.NEXTVAL FROM DUAL");
 	}
 
 	@Override
@@ -207,11 +203,11 @@ public class OracleDialectTest extends StandardDialectTest
 		SQLException exception = new SQLException("reason", String.valueOf(sqlState));
 		if (sqlState.startsWith("08") || sqlState.startsWith("66") || sqlState.startsWith("69"))
 		{
-			assertTrue(sqlState, this.dialect.indicatesFailure(exception));
+			assertThat(this.dialect.indicatesFailure(exception)).as(sqlState).isTrue();
 		}
 		else
 		{
-			assertFalse(sqlState, this.dialect.indicatesFailure(exception));
+			assertThat(this.dialect.indicatesFailure(exception)).as(sqlState).isFalse();
 		}
 	}
 }

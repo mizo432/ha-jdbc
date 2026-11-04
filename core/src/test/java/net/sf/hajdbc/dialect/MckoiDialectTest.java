@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.mckoi.MckoiDialectFactory;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Paul Ferraro
@@ -42,7 +42,7 @@ public class MckoiDialectTest extends StandardDialectTest
 	@Override
 	public void getSequenceSupport()
 	{
-		assertSame(this.dialect, this.dialect.getSequenceSupport());
+		assertThat(this.dialect.getSequenceSupport()).isSameAs(this.dialect);
 	}
 
 	/**
@@ -53,11 +53,11 @@ public class MckoiDialectTest extends StandardDialectTest
 	public void parseSequence() throws SQLException
 	{
 		SequenceSupport support = this.dialect.getSequenceSupport();
-		assertEquals("sequence", support.parseSequence("SELECT NEXTVAL('sequence'), * FROM table"));
-		assertEquals("sequence", support.parseSequence("SELECT NEXTVAL ( 'sequence' ), * FROM table"));
-		assertEquals("sequence", support.parseSequence("SELECT CURRVAL('sequence'), * FROM table"));
-		assertEquals("sequence", support.parseSequence("SELECT CURRVAL ( 'sequence' ), * FROM table"));
-		assertNull(support.parseSequence("SELECT NEXT VALUE FOR sequence"));
-		assertNull(support.parseSequence("SELECT * FROM table"));
+		assertThat(support.parseSequence("SELECT NEXTVAL('sequence'), * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT NEXTVAL ( 'sequence' ), * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT CURRVAL('sequence'), * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT CURRVAL ( 'sequence' ), * FROM table")).isEqualTo("sequence");
+		assertThat(support.parseSequence("SELECT NEXT VALUE FOR sequence")).isNull();
+		assertThat(support.parseSequence("SELECT * FROM table")).isNull();
 	}
 }

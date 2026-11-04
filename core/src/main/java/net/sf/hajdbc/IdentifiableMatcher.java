@@ -31,7 +31,14 @@ public class IdentifiableMatcher<T extends Identifiable> implements Matcher<T>
 	@Override
 	public boolean matches(T service)
 	{
-		return (this.id != null) && (service != null) ? this.id.equalsIgnoreCase(service.getId()) : (this.id == service.getId());
+		if (service == null) {
+			return this.id == null;
+		}
+		String serviceId = service.getId();
+		if (this.id == null) {
+			return serviceId == null;
+		}
+		return this.id.equalsIgnoreCase(serviceId);
 	}
 
 	@Override

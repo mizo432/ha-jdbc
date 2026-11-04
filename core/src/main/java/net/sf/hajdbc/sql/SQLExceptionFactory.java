@@ -123,14 +123,29 @@ public class SQLExceptionFactory extends AbstractExceptionFactory<SQLException>
 		// Match by SQLState, if defined
 		if (hasState1 || hasState2)
 		{
-			return (state1 == state2) || (hasState1 && hasState2 && state1.equals(state2)) ? this.equals(nextException1, nextException2) : false;
+			if (!hasState1 || !hasState2) {
+				return false;
+			}
+			if (!state1.equals(state2)) {
+				return false;
+			}
+			return this.equals(nextException1, nextException2);
 		}
 
 		// Fallback to match by reason
 		String reason1 = exception1.getMessage();
 		String reason2 = exception2.getMessage();
 		
-		return ((reason1 == reason2) || ((reason1 != null) && (reason2 != null) && reason1.equals(reason2))) ? this.equals(nextException1, nextException2) : false;
+		if (reason1 == null) {
+			return reason2 == null ? this.equals(nextException1, nextException2) : false;
+		}
+		if (reason2 == null) {
+			return false;
+		}
+		if (!reason1.equals(reason2)) {
+			return false;
+		}
+		return this.equals(nextException1, nextException2);
 	}
 
 	/**

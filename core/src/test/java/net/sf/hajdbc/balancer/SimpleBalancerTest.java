@@ -20,7 +20,8 @@ package net.sf.hajdbc.balancer;
 import net.sf.hajdbc.MockDatabase;
 import net.sf.hajdbc.balancer.simple.SimpleBalancerFactory;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 /**
  * @author Paul Ferraro
@@ -37,7 +38,7 @@ public class SimpleBalancerTest extends AbstractBalancerTest
 	{
 		for (int i = 0; i < 100; ++i)
 		{
-			assertSame(this.databases[2], balancer.next());
+			assertThat(balancer.next()).isSameAs(this.databases[2]);
 		}
 	}
 }

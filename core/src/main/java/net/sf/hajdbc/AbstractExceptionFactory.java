@@ -62,6 +62,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "isInstanceチェック後にcastするため安全")
 	public E createException(Throwable e)
 	{
 		if (this.targetClass.isInstance(e))
@@ -94,6 +95,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 		String message1 = exception1.getMessage();
 		String message2 = exception2.getMessage();
 		
-		return ((message1 != null) && (message2 != null)) ? message1.equals(message2) : message1 == message2;
+		if (message1 == null) return message2 == null;
+		return message1.equals(message2);
 	}
 }

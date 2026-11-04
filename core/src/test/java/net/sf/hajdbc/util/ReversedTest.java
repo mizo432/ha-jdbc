@@ -17,7 +17,7 @@
  */
 package net.sf.hajdbc.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +44,6 @@ public class ReversedTest
 		
 		java.util.Collections.reverse(result);
 		
-		assertEquals(list, result);
+		assertThat(result).isEqualTo(list);
 	}
 }

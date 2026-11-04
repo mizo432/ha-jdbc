@@ -52,8 +52,11 @@ public interface TriggerSupport
 		{
 			for (TriggerEventEnum event: TriggerEventEnum.values())
 			{
-				if (((value != null) && (event.value != null)) ? value.equals(event.value) : (value == event.value))
-				{
+				if (value == null) {
+					if (event.value == null) {
+						return event;
+					}
+				} else if (value.equals(event.value)) {
 					return event;
 				}
 			}

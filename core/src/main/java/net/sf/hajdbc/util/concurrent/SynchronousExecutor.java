@@ -327,67 +327,68 @@ public class SynchronousExecutor extends AbstractExecutorService
 			return this.get(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 * @see java.util.concurrent.Future#get(long, java.util.concurrent.TimeUnit)
-		 */
-		@Override
-		public T get(long time, TimeUnit unit) throws ExecutionException, InterruptedException
+	/**
+	 * {@inheritDoc}
+	 * @see java.util.concurrent.Future#get(long, java.util.concurrent.TimeUnit)
+	 */
+	@Override
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "タイムアウトは意図的に無視している")
+	public T get(long time, TimeUnit unit) throws ExecutionException, InterruptedException
+	{
+		if (this.state.compareAndSet(State.NEW, State.DONE))
 		{
-			if (this.state.compareAndSet(State.NEW, State.DONE))
+			try
 			{
-				try
-				{
-					this.result = this.task.call();
-				}
-				catch (Throwable e)
-				{
-					this.exception = new ExecutionException(e);
-				}
-				this.latch.countDown();
+				this.result = this.task.call();
 			}
-			
-			if (this.state.get() == State.CANCELLED)
+			catch (Throwable e)
 			{
-				throw new CancellationException();
+				this.exception = new ExecutionException(e);
 			}
-			
-			if (time == Long.MAX_VALUE)
-			{
-				this.latch.await();
-			}
-			else
-			{
-				this.latch.await(time, unit);
-			}
-			
-			if (this.exception != null)
-			{
-				throw this.exception;
-			}
-			
-			return this.result;
+			this.latch.countDown();
 		}
+		
+		if (this.state.get() == State.CANCELLED)
+		{
+			throw new CancellationException();
+		}
+		
+		if (time == Long.MAX_VALUE)
+		{
+			this.latch.await();
+		}
+		else
+		{
+			this.latch.await(time, unit);
+		}
+		
+		if (this.exception != null)
+		{
+			throw this.exception;
+		}
+		
+		return this.result;
+	}
 
-		/**
-		 * {@inheritDoc}
-		 * @see java.util.concurrent.Future#isCancelled()
-		 */
-		@Override
-		public boolean isCancelled()
-		{
-			return this.state.get() == State.CANCELLED;
-		}
+	/**
+	 * {@inheritDoc}
+	 * @see java.util.concurrent.Future#isCancelled()
+	 */
+	@Override
+	public boolean isCancelled()
+	{
+		return this.state.get() == State.CANCELLED;
+	}
 
-		/**
-		 * {@inheritDoc}
-		 * @see java.util.concurrent.Future#isDone()
-		 */
-		@Override
-		public boolean isDone()
-		{
-			return this.state.get() == State.DONE;
-		}
+	/**
+	 * {@inheritDoc}
+	 * @see java.util.concurrent.Future#isDone()
+	 */
+	@Override
+	public boolean isDone()
+	{
+		return this.state.get() == State.DONE;
+	}
 	}
 
 	/**

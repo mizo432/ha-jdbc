@@ -26,8 +26,9 @@ import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.durability.Durability.Phase;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -40,7 +41,7 @@ public class SQLExceptionFactoryTest
 	@Test
 	public void getTargetClass()
 	{
-		assertSame(SQLException.class, this.factory.getTargetClass());
+		assertThat(this.factory.getTargetClass()).isSameAs(SQLException.class);
 	}
 	
 	@Test
@@ -50,8 +51,8 @@ public class SQLExceptionFactoryTest
 		
 		SQLException result = this.factory.createException(message);
 		
-		assertSame(message, result.getMessage());
-		assertNull(result.getCause());
+		assertThat(result.getMessage()).isSameAs(message);
+		assertThat(result.getCause()).isNull();
 	}
 	
 	@Test
@@ -62,9 +63,9 @@ public class SQLExceptionFactoryTest
 		
 		SQLException result = this.factory.createException(exception);
 		
-		assertNotNull(result.getMessage());
-		assertSame(exception.getMessage(), result.getMessage());
-		assertSame(exception, result.getCause());
+		assertThat(result.getMessage()).isNotNull();
+		assertThat(result.getMessage()).isSameAs(exception.getMessage());
+		assertThat(result.getCause()).isSameAs(exception);
 	}
 	
 	@Test
@@ -74,7 +75,7 @@ public class SQLExceptionFactoryTest
 		
 		SQLException result = this.factory.createException(exception);
 		
-		assertSame(exception, result);
+		org.assertj.core.api.Assertions.assertThat((Throwable)result).isSameAs(exception);
 	}
 	
 	@Test
@@ -82,42 +83,42 @@ public class SQLExceptionFactoryTest
 	{
 		ExceptionType result = this.factory.getType();
 		
-		assertSame(ExceptionType.SQL, result);
+		assertThat(result).isSameAs(ExceptionType.SQL);
 	}
 	
 	@Test
 	public void equals()
 	{
-		assertTrue(this.factory.equals(null, null));
-		assertFalse(this.factory.equals(new SQLException(), null));
-		assertTrue(this.factory.equals(new SQLException(), new SQLException()));
+		assertThat(this.factory.equals(null, null)).isTrue();
+		assertThat(this.factory.equals(new SQLException(), null)).isFalse();
+		assertThat(this.factory.equals(new SQLException(), new SQLException())).isTrue();
 
-		assertTrue(this.factory.equals(new java.sql.SQLDataException(), new java.sql.SQLDataException()));
-		assertFalse(this.factory.equals(new java.sql.SQLClientInfoException(), new java.sql.SQLDataException()));
+		assertThat(this.factory.equals(new java.sql.SQLDataException(), new java.sql.SQLDataException())).isTrue();
+		assertThat(this.factory.equals(new java.sql.SQLClientInfoException(), new java.sql.SQLDataException())).isFalse();
 
-		assertTrue(this.factory.equals(new java.sql.BatchUpdateException(new int[] { 1, 2 }), new java.sql.BatchUpdateException(new int[] { 1, 2 })));
-		assertFalse(this.factory.equals(new java.sql.BatchUpdateException(new int[] { 1, 2 }), new java.sql.BatchUpdateException(new int[] { 1, 3 })));
+		assertThat(this.factory.equals(new java.sql.BatchUpdateException(new int[] { 1, 2 }), new java.sql.BatchUpdateException(new int[] { 1, 2 }))).isTrue();
+		assertThat(this.factory.equals(new java.sql.BatchUpdateException(new int[] { 1, 2 }), new java.sql.BatchUpdateException(new int[] { 1, 3 }))).isFalse();
 
-		assertTrue(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, true, 1, 1)));
-		assertFalse(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(2, true, true, 1, 1)));
-		assertFalse(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, false, true, 1, 1)));
-		assertFalse(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, false, 1, 1)));
-		assertFalse(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, true, 2, 1)));
-		assertFalse(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, true, 1, 2)));
+		assertThat(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, true, 1, 1))).isTrue();
+		assertThat(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(2, true, true, 1, 1))).isFalse();
+		assertThat(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, false, true, 1, 1))).isFalse();
+		assertThat(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, false, 1, 1))).isFalse();
+		assertThat(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, true, 2, 1))).isFalse();
+		assertThat(this.factory.equals(new java.sql.DataTruncation(1, true, true, 1, 1), new java.sql.DataTruncation(1, true, true, 1, 2))).isFalse();
 		
-		assertTrue(this.factory.equals(new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN)), new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN))));
-		assertFalse(this.factory.equals(new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN)), new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN_PROPERTY))));
+		assertThat(this.factory.equals(new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN)), new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN)))).isTrue();
+		assertThat(this.factory.equals(new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN)), new java.sql.SQLClientInfoException(Collections.singletonMap("test", ClientInfoStatus.REASON_UNKNOWN_PROPERTY)))).isFalse();
 		
-		assertTrue(this.factory.equals(new SQLException("reason1", "sql.state1", 1), new SQLException("reason2", "sql.state2", 1)));
-		assertFalse(this.factory.equals(new SQLException("reason", "sql.state", 1), new SQLException("reason", "sql.state", 2)));
-		assertFalse(this.factory.equals(new SQLException("reason", "sql.state", 1), new SQLException("reason", "sql.state", 0)));
+		assertThat(this.factory.equals(new SQLException("reason1", "sql.state1", 1), new SQLException("reason2", "sql.state2", 1))).isTrue();
+		assertThat(this.factory.equals(new SQLException("reason", "sql.state", 1), new SQLException("reason", "sql.state", 2))).isFalse();
+		assertThat(this.factory.equals(new SQLException("reason", "sql.state", 1), new SQLException("reason", "sql.state", 0))).isFalse();
 		
-		assertTrue(this.factory.equals(new SQLException("reason1", "sql.state", 0), new SQLException("reason2", "sql.state", 0)));
-		assertFalse(this.factory.equals(new SQLException("reason", "sql.state1", 0), new SQLException("reason", "sql.state2", 0)));
-		assertFalse(this.factory.equals(new SQLException("reason", "sql.state1", 0), new SQLException("reason", null, 0)));
+		assertThat(this.factory.equals(new SQLException("reason1", "sql.state", 0), new SQLException("reason2", "sql.state", 0))).isTrue();
+		assertThat(this.factory.equals(new SQLException("reason", "sql.state1", 0), new SQLException("reason", "sql.state2", 0))).isFalse();
+		assertThat(this.factory.equals(new SQLException("reason", "sql.state1", 0), new SQLException("reason", null, 0))).isFalse();
 		
-		assertTrue(this.factory.equals(new SQLException("reason", null, 0), new SQLException("reason", null, 0)));
-		assertFalse(this.factory.equals(new SQLException("reason1", null, 0), new SQLException("reason2", null, 0)));
+		assertThat(this.factory.equals(new SQLException("reason", null, 0), new SQLException("reason", null, 0))).isTrue();
+		assertThat(this.factory.equals(new SQLException("reason1", null, 0), new SQLException("reason2", null, 0))).isFalse();
 		
 		SQLException exception1 = new SQLException();
 		SQLException exception2 = new SQLException();
@@ -125,21 +126,21 @@ public class SQLExceptionFactoryTest
 		exception1.setNextException(new SQLException());
 		exception2.setNextException(new SQLException());
 		
-		assertTrue(this.factory.equals(exception1, exception2));
+		assertThat(this.factory.equals(exception1, exception2)).isTrue();
 		
 		exception1.setNextException(new SQLException("reason1"));
 		exception2.setNextException(new SQLException("reason2"));
 		
-		assertFalse(this.factory.equals(exception1, exception2));
+		assertThat(this.factory.equals(exception1, exception2)).isFalse();
 	}
 	
 	@Test
 	public void correctHeuristic()
 	{
-		assertFalse(this.factory.correctHeuristic(new SQLException(), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new SQLException(), Phase.FORGET));
-		assertFalse(this.factory.correctHeuristic(new SQLException(), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new SQLException(), Phase.ROLLBACK));
+		assertThat(this.factory.correctHeuristic(new SQLException(), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new SQLException(), Phase.FORGET)).isFalse();
+		assertThat(this.factory.correctHeuristic(new SQLException(), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new SQLException(), Phase.ROLLBACK)).isFalse();
 	}
 	
 	@Test
@@ -153,7 +154,7 @@ public class SQLExceptionFactoryTest
 		
 		boolean result = this.factory.indicatesFailure(exception, dialect);
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 
 		reset(dialect);
 		
@@ -164,6 +165,6 @@ public class SQLExceptionFactoryTest
 		
 		result = this.factory.indicatesFailure(exception, dialect);
 		
-		assertTrue(result);
+		assertThat(result).isTrue();
 	}
 }

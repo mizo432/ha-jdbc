@@ -17,9 +17,7 @@
  */
 package net.sf.hajdbc.durability;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.SQLException;
 import java.util.UUID;
@@ -39,10 +37,10 @@ public class InvokerEventTest
 	{
 		InvokerEvent event1 = new InvokerEventImpl(UUID.randomUUID(), Durability.Phase.COMMIT, "1");
 		InvokerEvent event2 = Objects.deserialize(Objects.serialize(event1), InvokerEvent.class);
-		assertEquals(event1, event2);
-		assertEquals(event1.getTransactionId(), event2.getTransactionId());
-		assertEquals(event1.getPhase(), event2.getPhase());
-		assertEquals(event1.getDatabaseId(), event2.getDatabaseId());
+		assertThat(event2).isEqualTo(event1);
+		assertThat(event2.getTransactionId()).isEqualTo(event1.getTransactionId());
+		assertThat(event2.getPhase()).isEqualTo(event1.getPhase());
+		assertThat(event2.getDatabaseId()).isEqualTo(event1.getDatabaseId());
 	}
 
 	@Test
@@ -51,11 +49,11 @@ public class InvokerEventTest
 		InvokerEvent event1 = new InvokerEventImpl(UUID.randomUUID(), Durability.Phase.COMMIT, "1");
 		event1.setResult(new InvokerResultImpl(100));
 		InvokerEvent event2 = Objects.deserialize(Objects.serialize(event1), InvokerEvent.class);
-		assertEquals(event1, event2);
-		assertEquals(event1.getTransactionId(), event2.getTransactionId());
-		assertEquals(event1.getPhase(), event2.getPhase());
-		assertEquals(event1.getDatabaseId(), event2.getDatabaseId());
-		assertEquals(event1.getResult().getValue(), event2.getResult().getValue());
+		assertThat(event2).isEqualTo(event1);
+		assertThat(event2.getTransactionId()).isEqualTo(event1.getTransactionId());
+		assertThat(event2.getPhase()).isEqualTo(event1.getPhase());
+		assertThat(event2.getDatabaseId()).isEqualTo(event1.getDatabaseId());
+		assertThat(event2.getResult().getValue()).isEqualTo(event1.getResult().getValue());
 	}
 
 	@Test
@@ -64,11 +62,11 @@ public class InvokerEventTest
 		InvokerEvent event1 = new InvokerEventImpl(UUID.randomUUID(), Durability.Phase.COMMIT, "1");
 		event1.setResult(new InvokerResultImpl(new SQLException()));
 		InvokerEvent event2 = Objects.deserialize(Objects.serialize(event1), event1.getClass());
-		assertEquals(event1, event2);
-		assertEquals(event1.getTransactionId(), event2.getTransactionId());
-		assertEquals(event1.getPhase(), event2.getPhase());
-		assertEquals(event1.getDatabaseId(), event2.getDatabaseId());
-		assertNotNull(event2.getResult().getException());
+		assertThat(event2).isEqualTo(event1);
+		assertThat(event2.getTransactionId()).isEqualTo(event1.getTransactionId());
+		assertThat(event2.getPhase()).isEqualTo(event1.getPhase());
+		assertThat(event2.getDatabaseId()).isEqualTo(event1.getDatabaseId());
+		assertThat(event2.getResult().getException()).isNotNull();
 	}
 
 	@Test
@@ -76,21 +74,21 @@ public class InvokerEventTest
 		UUID txId = UUID.randomUUID();
 		InvokerEvent event1 = new InvokerEventImpl(txId, Durability.Phase.COMMIT, "1");
 		InvokerEvent event2 = new InvokerEventImpl(txId, Durability.Phase.COMMIT, "1");
-		assertEquals(event1, event2);
+		assertThat(event2).isEqualTo(event1);
 		
 		event1.setResult(new InvokerResultImpl(0));
-		assertEquals(event1, event2);
+		assertThat(event2).isEqualTo(event1);
 		
 		event2.setResult(new InvokerResultImpl(new Exception()));
-		assertEquals(event1, event2);
+		assertThat(event2).isEqualTo(event1);
 		
 		event2 = new InvokerEventImpl(txId, Durability.Phase.COMMIT, "2");
-		assertNotEquals(event1, event2);
+		assertThat(event2).isNotEqualTo(event1);
 		
 		event2 = new InvokerEventImpl(txId, Durability.Phase.ROLLBACK, "1");
-		assertNotEquals(event1, event2);
+		assertThat(event2).isNotEqualTo(event1);
 		
 		event2 = new InvokerEventImpl(UUID.randomUUID(), Durability.Phase.COMMIT, "1");
-		assertNotEquals(event1, event2);
+		assertThat(event2).isNotEqualTo(event1);
 	}
 }

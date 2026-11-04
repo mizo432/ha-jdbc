@@ -17,9 +17,9 @@
  */
 package net.sf.hajdbc.codec.hex;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-
-import javax.xml.bind.DatatypeConverter;
+import java.util.Locale;
 
 import net.sf.hajdbc.codec.AbstractCodec;
 import net.sf.hajdbc.codec.Codec;
@@ -46,7 +46,12 @@ public class HexCodecFactory extends AbstractCodec
 	@Override
 	public String decode(String value)
 	{
-		return new String(DatatypeConverter.parseHexBinary(value));
+		byte[] decodedBytes = new byte[value.length() / 2];
+		for (int i = 0; i < value.length(); i += 2) {
+			decodedBytes[i / 2] = (byte) Integer.parseInt(
+				value.substring(i, i + 2), 16);
+		}
+		return new String(decodedBytes, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -56,7 +61,12 @@ public class HexCodecFactory extends AbstractCodec
 	@Override
 	public String encode(String value)
 	{
-		return DatatypeConverter.printHexBinary(value.getBytes());
+		byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+		StringBuilder builder = new StringBuilder(bytes.length * 2);
+		for (byte b : bytes) {
+			builder.append(String.format(Locale.ROOT, "%02X", b));
+		}
+		return builder.toString();
 	}
 	
 	public static void main(String... args)

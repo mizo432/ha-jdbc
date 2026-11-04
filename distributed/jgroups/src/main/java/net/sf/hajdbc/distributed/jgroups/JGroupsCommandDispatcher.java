@@ -42,9 +42,9 @@ import net.sf.hajdbc.util.ObjectInputStream;
 import net.sf.hajdbc.util.Objects;
 
 import org.jgroups.Address;
-import org.jgroups.Channel;
+import org.jgroups.JChannel;
 import org.jgroups.Message;
-import org.jgroups.MessageListener;
+import org.jgroups.ObjectMessage;
 import org.jgroups.View;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
@@ -59,7 +59,7 @@ import org.jgroups.util.Rsp;
  * @see org.jgroups.blocks.MessageDispatcher
  * @param <C> the execution context type
  */
-public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispatcher<C>, org.jgroups.MembershipListener, MessageListener
+public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispatcher<C>
 {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -81,14 +81,14 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 	 * @param membershipListener notified of membership changes
 	 * @throws Exception if channel cannot be created
 	 */
-	public JGroupsCommandDispatcher(String id, Channel channel, long timeout, C context, Stateful stateful, MembershipListener membershipListener) throws Exception
+	public JGroupsCommandDispatcher(String id, JChannel channel, long timeout, C context, Stateful stateful, MembershipListener membershipListener) throws Exception
 	{
 		this.id = id;
 		this.context = context;
 		this.stateful = stateful;
 		this.membershipListener = membershipListener;
 		
-		this.dispatcher = new MessageDispatcher(channel, this, this, this);
+		this.dispatcher = new MessageDispatcher(channel, this);
 		this.timeout = timeout;
 	}
 
@@ -99,14 +99,14 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 	@Override
 	public void start() throws SQLException
 	{
-		Channel channel = this.dispatcher.getChannel();
+		JChannel channel = this.dispatcher.getChannel();
 		
 		channel.setDiscardOwnMessages(false);
 		
 		// Connect and fetch state
 		try
 		{
-			channel.connect(this.id, null, 0);
+			channel.connect(this.id);
 		}
 		catch (Exception e)
 		{
@@ -121,7 +121,7 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 	@Override
 	public void stop()
 	{
-		Channel channel = this.dispatcher.getChannel();
+		JChannel channel = this.dispatcher.getChannel();
 		
 		if (channel.isOpen())
 		{
@@ -133,26 +133,10 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 	}
 
 	@Override
-	protected void finalize()
-	{
-		this.dispatcher.getChannel().close();
-	}
-
-	@Override
 	public <R> Map<Member, CommandResponse<R>> executeAll(Command<R, C> command, Member... excludedMembers) throws Exception
 	{
 		Message message = this.createMessage(null, command);
 		RequestOptions options = this.createRequestOptions();
-		
-		if ((excludedMembers != null) && (excludedMembers.length > 0))
-		{
-			Address[] exclusions = new Address[excludedMembers.length];
-			for (int i = 0; i < excludedMembers.length; ++i)
-			{
-				exclusions[i] = ((AddressMember) excludedMembers[i]).getAddress();
-			}
-			options.setExclusionList(exclusions);
-		}
 
 		Map<Address, Rsp<R>> responses = this.dispatcher.castMessage(null, message, options);
 		
@@ -192,12 +176,14 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 	
 	private <R> Message createMessage(Address destination, Command<R, C> command)
 	{
-		return new Message(destination, this.getLocalAddress(), Objects.serialize(command));
+		Message message = new ObjectMessage(destination, Objects.serialize(command));
+		message.setSrc(this.getLocalAddress());
+		return message;
 	}
 	
 	private RequestOptions createRequestOptions()
 	{
-		return new RequestOptions(ResponseMode.GET_ALL, this.timeout, false, null, Message.Flag.DONT_BUNDLE, Message.Flag.OOB);
+		return new RequestOptions(ResponseMode.GET_ALL, this.timeout);
 	}
 	
 	/**
@@ -239,18 +225,14 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 	@Override
 	public Object handle(Message message)
 	{
-		Command<Object, C> command = Objects.deserialize(message.getRawBuffer(), Command.class);
+		byte[] buffer = message.getArray();
+		Command<Object, C> command = Objects.deserialize(buffer, Command.class);
 
 		this.logger.log(Level.DEBUG, "{0} received from {1}", command, message.getSrc());
 		
 		return command.execute(this.context);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#viewAccepted(org.jgroups.View)
-	 */
-	@Override
 	public void viewAccepted(View view)
 	{
 		if (this.membershipListener != null)
@@ -278,11 +260,6 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MessageListener#getState(java.io.OutputStream)
-	 */
-	@Override
 	public void getState(OutputStream output) throws Exception
 	{
 		ObjectOutput out = new ObjectOutputStream(output);
@@ -290,50 +267,9 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 		out.flush();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MessageListener#setState(java.io.InputStream)
-	 */
-	@Override
 	public void setState(InputStream input) throws Exception
 	{
 		this.stateful.readState(new ObjectInputStream(input, Stateful.class.getClassLoader()));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#suspect(org.jgroups.Address)
-	 */
-	@Override
-	public void suspect(Address member)
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#block()
-	 */
-	@Override
-	public void block()
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#unblock()
-	 */
-	@Override
-	public void unblock()
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MessageListener#receive(org.jgroups.Message)
-	 */
-	@Override
-	public void receive(Message message)
-	{
 	}
 
 	private class RspCommandResponse<R> implements CommandResponse<R>

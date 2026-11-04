@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ha-jdbc xmlns="urn:ha-jdbc:config:3.1">
+    <sync id="passive"/>
+    
+    <cluster default-sync="passive" balancer="round-robin" transaction-mode="auto">
+        <database id="master" location="com.zaxxer.hikari.HikariDataSource" weight="10" locality="local">
+            <user>sample_user</user>
+            <password>sample_password</password>
+            <property name="driverClassName">org.postgresql.Driver</property>
+            <property name="jdbcUrl">jdbc:postgresql://localhost:5432/sample_db</property>
+            <property name="maximumPoolSize">10</property>
+            <property name="minimumIdle">5</property>
+        </database>
+        <database id="slave" location="com.zaxxer.hikari.HikariDataSource" weight="1" locality="local">
+            <user>sample_user</user>
+            <password>sample_password</password>
+            <property name="driverClassName">org.postgresql.Driver</property>
+            <property name="jdbcUrl">jdbc:postgresql://localhost:5433/sample_db</property>
+            <property name="maximumPoolSize">10</property>
+            <property name="minimumIdle">5</property>
+        </database>
+    </cluster>
+</ha-jdbc>

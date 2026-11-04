@@ -1,0 +1,46 @@
+[versions]
+spotbugs = "4.10.2"
+jspecify = "1.0.0"
+error-prone = "2.36.0"
+spotbugs-gradle = "6.5.12"
+commons-pool2 = "2.13.1"
+commons-logging = "1.3.5"
+gettext-commons = "0.9.8"
+leveldb-api = "0.12"
+jboss-logging = "3.6.3.Final"
+jgroups = "5.5.1.Final"
+slf4j-api = "2.0.20"
+logback = "1.5.18"
+sqljet = "1.1.15"
+junit-jupiter = "5.14.4"
+junit-vintage = "5.14.4"
+mockito = "5.24.0"
+assertj = "3.27.3"
+hsqldb = "2.7.4"
+h2 = "2.5.252"
+postgresql = "42.7.14"
+
+[plugins]
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs-gradle" }
+
+[libraries]
+commons-pool2 = { module = "org.apache.commons:commons-pool2", version.ref = "commons-pool2" }
+commons-logging = { module = "commons-logging:commons-logging", version.ref = "commons-logging" }
+gettext-commons = { module = "com.googlecode.gettext-commons:gettext-commons", version.ref = "gettext-commons" }
+leveldb-api = { module = "org.iq80.leveldb:leveldb-api", version.ref = "leveldb-api" }
+jboss-logging = { module = "org.jboss.logging:jboss-logging", version.ref = "jboss-logging" }
+jgroups = { module = "org.jgroups:jgroups", version.ref = "jgroups" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+sqljet = { module = "org.tmatesoft.sqljet:sqljet", version.ref = "sqljet" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-jupiter" }
+junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-vintage" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+hsqldb = { module = "org.hsqldb:hsqldb", version.ref = "hsqldb" }
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+error-prone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "error-prone" }

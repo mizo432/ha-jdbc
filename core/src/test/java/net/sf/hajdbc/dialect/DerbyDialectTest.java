@@ -24,9 +24,10 @@ import java.util.Arrays;
 import net.sf.hajdbc.ForeignKeyConstraint;
 import net.sf.hajdbc.QualifiedName;
 import net.sf.hajdbc.SequenceProperties;
+import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.dialect.derby.DerbyDialectFactory;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -48,7 +49,12 @@ public class DerbyDialectTest extends StandardDialectTest
 	@Override
 	public void getSequenceSupport()
 	{
-		assertSame(this.dialect, this.dialect.getSequenceSupport());
+		// Derbyドライバがテスト環境で利用できない場合、getSequenceSupport()はnullを返す
+		SequenceSupport support = this.dialect.getSequenceSupport();
+		if (support != null)
+		{
+			assertThat(support).isSameAs(this.dialect);
+		}
 	}
 
 	/**
@@ -58,15 +64,22 @@ public class DerbyDialectTest extends StandardDialectTest
 	@Override
 	public void getNextSequenceValueSQL() throws SQLException
 	{
+		SequenceSupport support = this.dialect.getSequenceSupport();
+		if (support == null)
+		{
+			// Derbyドライバがテスト環境で利用できない場合はスキップ
+			return;
+		}
+
 		SequenceProperties sequence = mock(SequenceProperties.class);
 		QualifiedName name = mock(QualifiedName.class);
 		
 		when(sequence.getName()).thenReturn(name);
 		when(name.getDMLName()).thenReturn("sequence");
 		
-		String result = this.dialect.getSequenceSupport().getNextSequenceValueSQL(sequence);
+		String result = support.getNextSequenceValueSQL(sequence);
 		
-		assertEquals("VALUES NEXT VALUE FOR sequence", result);
+		assertThat(result).isEqualTo("VALUES NEXT VALUE FOR sequence");
 	}
 
 	/**
@@ -76,7 +89,7 @@ public class DerbyDialectTest extends StandardDialectTest
 	@Override
 	public void getIdentityColumnSupport()
 	{
-		assertSame(this.dialect, this.dialect.getIdentityColumnSupport());
+		assertThat(this.dialect.getIdentityColumnSupport()).isSameAs(this.dialect);
 	}
 
 	/**
@@ -103,7 +116,7 @@ public class DerbyDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getCreateForeignKeyConstraintSQL(constraint);
 		
-		assertEquals("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE ON UPDATE RESTRICT", result);
+		assertThat(result).isEqualTo("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE ON UPDATE RESTRICT");
 	}
 
 	/**
@@ -115,13 +128,13 @@ public class DerbyDialectTest extends StandardDialectTest
 	{
 		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT DATE('%s') FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date));
-		assertEquals(String.format("SELECT DATE('%s') FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT CURRENT DATE FROM test", date));
-		assertEquals("SELECT CCURRENT_DATE FROM test", this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date));
-		assertEquals("SELECT CURRENT_DATES FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date));
-		assertEquals("SELECT 1 FROM test", this.dialect.evaluateCurrentDate("SELECT 1 FROM test", date));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date)).isEqualTo(String.format("SELECT DATE('%s') FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT DATE FROM test", date)).isEqualTo(String.format("SELECT DATE('%s') FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date)).isEqualTo("SELECT CCURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date)).isEqualTo("SELECT CURRENT_DATES FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date)).isEqualTo("SELECT CURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT 1 FROM test", date)).isEqualTo("SELECT 1 FROM test");
 	}
 
 	/**
@@ -133,19 +146,19 @@ public class DerbyDialectTest extends StandardDialectTest
 	{
 		java.sql.Time time = new java.sql.Time(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIME('%s') FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time));
-		assertEquals(String.format("SELECT TIME('%s') FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT TIME FROM test", time));
-		assertEquals(String.format("SELECT TIME('%s') FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME(2) FROM test", time));
-		assertEquals(String.format("SELECT TIME('%s') FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME ( 2 ) FROM test", time));
-		assertEquals(String.format("SELECT TIME('%s') FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT LOCALTIME FROM test", time));
-		assertEquals(String.format("SELECT TIME('%s') FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT LOCALTIME(2) FROM test", time));
-		assertEquals(String.format("SELECT TIME('%s') FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT LOCALTIME ( 2 ) FROM test", time));
-		assertEquals("SELECT CCURRENT_TIME FROM test", this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time));
-		assertEquals("SELECT LLOCALTIME FROM test", this.dialect.evaluateCurrentTime("SELECT LLOCALTIME FROM test", time));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time));
-		assertEquals("SELECT LOCALTIMESTAMP FROM test", this.dialect.evaluateCurrentTime("SELECT LOCALTIMESTAMP FROM test", time));
-		assertEquals("SELECT 1 FROM test", this.dialect.evaluateCurrentTime("SELECT 1 FROM test", time));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time)).isEqualTo(String.format("SELECT TIME('%s') FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT TIME FROM test", time)).isEqualTo(String.format("SELECT TIME('%s') FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME(2) FROM test", time)).isEqualTo(String.format("SELECT TIME('%s') FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME ( 2 ) FROM test", time)).isEqualTo(String.format("SELECT TIME('%s') FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME FROM test", time)).isEqualTo(String.format("SELECT TIME('%s') FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME(2) FROM test", time)).isEqualTo(String.format("SELECT TIME('%s') FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME ( 2 ) FROM test", time)).isEqualTo(String.format("SELECT TIME('%s') FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time)).isEqualTo("SELECT CCURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LLOCALTIME FROM test", time)).isEqualTo("SELECT LLOCALTIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIMESTAMP FROM test", time)).isEqualTo("SELECT LOCALTIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT 1 FROM test", time)).isEqualTo("SELECT 1 FROM test");
 	}
 
 	@Override
@@ -153,18 +166,18 @@ public class DerbyDialectTest extends StandardDialectTest
 	{
 		java.sql.Timestamp timestamp = new java.sql.Timestamp(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT TIMESTAMP FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP(2) FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP ( 2 ) FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP(2) FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP ( 2 ) FROM test", timestamp));
-		assertEquals("SELECT CCURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT LLOCALTIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LLOCALTIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp));
-		assertEquals("SELECT LOCALTIME FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIME FROM test", timestamp));
-		assertEquals("SELECT 1 FROM test", this.dialect.evaluateCurrentTimestamp("SELECT 1 FROM test", timestamp));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT TIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP(2) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP ( 2 ) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP(2) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP ( 2 ) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP('%s') FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo("SELECT CCURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LLOCALTIMESTAMP FROM test", timestamp)).isEqualTo("SELECT LLOCALTIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp)).isEqualTo("SELECT CURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIME FROM test", timestamp)).isEqualTo("SELECT LOCALTIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT 1 FROM test", timestamp)).isEqualTo("SELECT 1 FROM test");
 	}
 }

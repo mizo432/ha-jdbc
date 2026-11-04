@@ -2,9 +2,6 @@ package net.sf.hajdbc.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 
 import net.sf.hajdbc.logging.Level;
@@ -20,15 +17,7 @@ public class Processes
 
 	public static Map<String, String> environment(final ProcessBuilder builder)
 	{
-		PrivilegedAction<Map<String, String>> action = new PrivilegedAction<Map<String, String>>()
-		{
-			@Override
-			public Map<String, String> run()
-			{
-				return builder.environment();
-			}
-		};
-		return AccessController.doPrivileged(action);
+		return builder.environment();
 	}
 	
 	public static void run(final ProcessBuilder processBuilder) throws Exception
@@ -37,27 +26,19 @@ public class Processes
 		
 		logger.log(Level.DEBUG, Strings.join(processBuilder.command(), " "));
 		
-		PrivilegedExceptionAction<Process> action = new PrivilegedExceptionAction<Process>()
-		{
-			@Override
-			public Process run() throws Exception
-			{
-				return processBuilder.start();
-			}
-		};
-		
-		Process process = AccessController.doPrivileged(action);
+		Process process = processBuilder.start();
 		
 		try
 		{
 			int status = process.waitFor();
 			
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line = reader.readLine();
-			while (line != null)
-			{
-				logger.log(Level.DEBUG, line);
-				line = reader.readLine();
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+				String line = reader.readLine();
+				while (line != null)
+				{
+					logger.log(Level.DEBUG, line);
+					line = reader.readLine();
+				}
 			}
 			
 			if (status != 0)

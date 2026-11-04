@@ -17,7 +17,7 @@
  */
 package net.sf.hajdbc.lock.semaphore;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
@@ -35,28 +35,28 @@ public class SemaphoreReadWriteLockTest
 		Lock writeLock = rwLock.writeLock();
 		
 		// Validate that a write lock blocks readers
-		assertTrue(writeLock.tryLock());
+		assertThat(writeLock.tryLock()).isTrue();
 		try
 		{
-			assertFalse(readLock.tryLock());
+			assertThat(readLock.tryLock()).isFalse();
 		}
 		finally
 		{
 			writeLock.unlock();
 		}
 		
-		assertTrue(readLock.tryLock());
+		assertThat(readLock.tryLock()).isTrue();
 		try
 		{
 			// Validate that a read lock blocks writers
-			assertFalse(writeLock.tryLock());
+			assertThat(writeLock.tryLock()).isFalse();
 
 			// Validate multiple readers
-			assertTrue(readLock.tryLock());
+			assertThat(readLock.tryLock()).isTrue();
 			try
 			{
 				// Validate max readers
-				assertFalse(readLock.tryLock());
+				assertThat(readLock.tryLock()).isFalse();
 			}
 			finally
 			{

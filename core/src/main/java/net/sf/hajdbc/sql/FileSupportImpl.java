@@ -182,14 +182,4 @@ public class FileSupportImpl<E extends Exception> implements FileSupport<E>
 		this.files.clear();
 	}
 	
-	/**
-	 * @see java.lang.Object#finalize()
-	 */
-	@Override
-	protected void finalize() throws Throwable
-	{
-		this.close();
-		
-		super.finalize();
-	}
 }
