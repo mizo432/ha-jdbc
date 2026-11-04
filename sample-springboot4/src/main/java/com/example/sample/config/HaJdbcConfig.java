@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariDataSource;
 import net.sf.hajdbc.sql.DataSourceDatabaseClusterConfigurationBuilder;
+import net.sf.hajdbc.state.sql.SQLStateManagerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -43,6 +44,19 @@ public class HaJdbcConfig {
         builder.addDatabase("slave").dataSource(slaveDs).weight(1);
         builder.addSynchronizationStrategy("passive");
         builder.defaultSynchronizationStrategy("passive");
+        
+        // Enable StateManager with H2 embedded database
+        SQLStateManagerFactory stateManagerFactory = new SQLStateManagerFactory();
+        stateManagerFactory.setUrlPattern("jdbc:h2:./ha-jdbc-state/{0}");
+        stateManagerFactory.setUser("sa");
+        stateManagerFactory.setPassword("");
+        builder.state(stateManagerFactory);
+        
+        // Configure failure detection every 10 seconds
+        builder.failureDetectSchedule("0/10 * * * * ?");
+        
+        // Configure auto-activation every 30 seconds
+        builder.autoActivateSchedule("0/30 * * * * ?");
         
         return haJdbcDataSource;
     }
