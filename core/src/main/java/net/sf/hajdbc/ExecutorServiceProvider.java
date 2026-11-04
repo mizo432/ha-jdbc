@@ -21,20 +21,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
 /**
+ * エグゼキューターサービスプロバイダーのインターフェース
  * @author Paul Ferraro
  */
 public interface ExecutorServiceProvider
 {
 	/**
-	 * Returns an executor to use for parallel statement execution
-	 * @param threadFactory factory for creating threads
-	 * @return an executor service
+	 * 並列ステートメント実行に使用するエグゼキューターを返します
+	 * @param threadFactory スレッドを作成するファクトリ
+	 * @return エグゼキューターサービス
 	 */
 	ExecutorService getExecutor(ThreadFactory threadFactory);
 	
 	/**
-	 * Shuts down the specified executor.
-	 * @param service an executor service
+	 * 指定されたエグゼキューターをシャットダウンします
+	 * @param service エグゼキューターサービス
 	 */
 	void release(ExecutorService service);
 }

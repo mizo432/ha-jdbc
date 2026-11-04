@@ -18,38 +18,54 @@
 package net.sf.hajdbc;
 
 /**
- * Implements {@link #hashCode()}, {@link #equals(Object)}, {@link #toString()}, and {@link #compareTo(Object)} for named objects.
+ * 名前付きオブジェクトの{@link #hashCode()}、{@link #equals(Object)}、{@link #toString()}、{@link #compareTo(Object)}を実装します
  * @author Paul Ferraro
- * @param <N> the name type
- * @param <T> this type
+ * @param <N> 名前の型
+ * @param <T> この型
  */
 public abstract class AbstractNamed<N extends Comparable<N>, T extends Named<N, T>> implements Named<N, T>
 {
 	private final N name;
 	
+	/**
+	 * 名前を指定してコンストラクトします
+	 * @param name 名前
+	 */
 	protected AbstractNamed(N name)
 	{
 		this.name = name;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public N getName()
 	{
 		return this.name;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode()
 	{
 		return this.name.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object object)
 	{
 		return ((object != null) && this.getClass().isInstance(object)) ? this.name.equals(this.getClass().cast(object).getName()) : false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString()
 	{
@@ -57,7 +73,7 @@ public abstract class AbstractNamed<N extends Comparable<N>, T extends Named<N, 
 	}
 
 	/**
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int compareTo(T named)

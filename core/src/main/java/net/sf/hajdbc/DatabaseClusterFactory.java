@@ -21,9 +21,20 @@ import java.sql.SQLException;
 
 
 /**
+ * データベースクラスタファクトリのインターフェース
  * @author Paul Ferraro
+ * @param <Z> 接続ソース（例：Driver、DataSourceなど）
+ * @param <D> データベースの実装
  */
 public interface DatabaseClusterFactory<Z, D extends Database<Z>>
 {
+	/**
+	 * データベースクラスタを作成します
+	 * @param id クラスタの識別子
+	 * @param factory 設定ファクトリ
+	 * @param builder 設定ビルダー
+	 * @return データベースクラスタ
+	 * @throws SQLException クラスタの作成に失敗した場合
+	 */
 	<B extends DatabaseBuilder<Z, D>> DatabaseCluster<Z, D> createDatabaseCluster(String id, DatabaseClusterConfigurationFactory<Z, D> factory, DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
 }

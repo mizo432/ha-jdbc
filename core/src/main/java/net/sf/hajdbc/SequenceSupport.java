@@ -22,45 +22,52 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 /**
+ * シーケンスのサポートインターフェース
  * @author Paul Ferraro
  */
 public interface SequenceSupport
 {
 	/**
-	 * Parses a sequence name from the specified SQL statement.
-	 * @param sql a SQL statement
-	 * @return the name of a sequence, or null if this SQL statement does not reference a sequence or this dialect does not support sequences
-	 * @throws SQLException
+	 * 指定されたSQLステートメントからシーケンス名を解析します
+	 * @param sql SQLステートメント
+	 * @return シーケンス名、またはSQLステートメントがシーケンスを参照しない場合またはこのダイアレクトがシーケンスをサポートしない場合はnull
+	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
 	String parseSequence(String sql) throws SQLException;
 	
 	/**
-	 * Returns a collection of sequences using dialect specific logic.
-	 * @param metaData database meta data
-	 * @return a collection of sequences
-	 * @throws SQLException
+	 * ダイアレクト固有のロジックを使用してシーケンスのコレクションを返します
+	 * @param metaData データベースメタデータ
+	 * @param factory シーケンスプロパティファクトリ
+	 * @return シーケンスのコレクション
+	 * @throws SQLException エラーが発生した場合
 	 */
 	Collection<SequenceProperties> getSequences(DatabaseMetaData metaData, SequencePropertiesFactory factory) throws SQLException;
 	
 	/**
-	 * Returns a SQL statement for obtaining the next value the specified sequence
-	 * @param sequence a sequence name
-	 * @return a SQL statement
-	 * @throws SQLException
+	 * 指定されたシーケンスの次の値を取得するためのSQLステートメントを返します
+	 * @param sequence シーケンスプロパティ
+	 * @return SQLステートメント
+	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
 	String getNextSequenceValueSQL(SequenceProperties sequence) throws SQLException;
 
 	/**
-	 * Returns a SQL statement used reset the current value of a sequence.
-	 * @param sequence a sequence name
-	 * @param value a sequence value
-	 * @return a SQL statement
-	 * @throws SQLException 
+	 * シーケンスの現在値をリセットするために使用するSQLステートメントを返します
+	 * @param sequence シーケンスプロパティ
+	 * @param value シーケンス値
+	 * @return SQLステートメント
+	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
 	String getAlterSequenceSQL(SequenceProperties sequence, long value) throws SQLException;
 
+	/**
+	 * シーケンスプロパティファクトリを作成します
+	 * @param factory 修飾名前ファクトリ
+	 * @return シーケンスプロパティファクトリ
+	 */
 	SequencePropertiesFactory createSequencePropertiesFactory(QualifiedNameFactory factory);
 }

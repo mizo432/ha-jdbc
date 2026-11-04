@@ -19,20 +19,41 @@ package net.sf.hajdbc;
 
 import java.util.Locale;
 
+/**
+ * データベースの所在地を示す列挙型
+ * @author Paul Ferraro
+ */
 public enum Locality
 {
+	/**
+	 * リモート
+	 */
 	REMOTE(false),
+	/**
+	 * ローカル
+	 */
 	LOCAL(true),
+	/**
+	 * エンベデッド
+	 */
 	EMBEDDED(true),
 	;
 
 	private final boolean local;
 
+	/**
+	 * ローカルかどうかを指定してコンストラクトします
+	 * @param local ローカルの場合はtrue
+	 */
 	private Locality(boolean local)
 	{
 		this.local = local;
 	}
 
+	/**
+	 * ローカルかどうかを返します
+	 * @return ローカルの場合はtrue
+	 */
 	public boolean isLocal()
 	{
 		return this.local;

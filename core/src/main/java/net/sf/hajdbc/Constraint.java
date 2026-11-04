@@ -22,12 +22,14 @@ import java.util.List;
 public interface Constraint<T extends Constraint<T>> extends Named<String, T>
 {
 	/**
-	 * @return the table of this constraint
+	 * この制約のテーブルを返します
+	 * @return テーブル名
 	 */
 	QualifiedName getTable();
 	
 	/**
-	 * @return the list of columns in this unique constraint
+	 * この一意制約に含まれる列のリストを返します
+	 * @return 列名のリスト
 	 */
 	List<String> getColumnList();
 }

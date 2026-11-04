@@ -18,11 +18,24 @@
 package net.sf.hajdbc;
 
 /**
+ * データベースクラスタ設定の変更を監視するリスナーのインターフェース
  * @author Paul Ferraro
+ * @param <Z> 接続ソース（例：Driver、DataSourceなど）
+ * @param <D> データベースの実装
  */
 public interface DatabaseClusterConfigurationListener<Z, D extends Database<Z>>
 {
+	/**
+	 * データベースが追加されたときに呼び出されます
+	 * @param database 追加されたデータベース
+	 * @param configuration データベースクラスタ設定
+	 */
 	void added(D database, DatabaseClusterConfiguration<Z, D> configuration);
 	
+	/**
+	 * データベースが削除されたときに呼び出されます
+	 * @param database 削除されたデータベース
+	 * @param configuration データベースクラスタ設定
+	 */
 	void removed(D database, DatabaseClusterConfiguration<Z, D> configuration);
 }

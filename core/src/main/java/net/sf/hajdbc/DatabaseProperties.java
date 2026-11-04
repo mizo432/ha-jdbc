@@ -22,21 +22,61 @@ import java.util.Collection;
 
 
 /**
+ * データベースプロパティのインターフェース
  * @author Paul Ferraro
  */
 public interface DatabaseProperties
 {
+	/**
+	 * テーブルプロパティのコレクションを返します
+	 * @return テーブルプロパティのコレクション
+	 * @throws SQLException エラーが発生した場合
+	 */
 	Collection<TableProperties> getTables() throws SQLException;
 
+	/**
+	 * SELECT FOR UPDATEをサポートしているかどうかを返します
+	 * @return サポートしている場合はtrue
+	 * @throws SQLException エラーが発生した場合
+	 */
 	boolean supportsSelectForUpdate() throws SQLException;
 	
+	/**
+	 * ロケータがコピーを更新するかどうかを返します
+	 * @return 更新する場合はtrue
+	 * @throws SQLException エラーが発生した場合
+	 */
 	boolean locatorsUpdateCopy() throws SQLException;
 	
+	/**
+	 * 指定されたテーブル名のプロパティを検索します
+	 * @param table テーブル名
+	 * @return テーブルプロパティ
+	 * @throws SQLException エラーが発生した場合
+	 */
 	TableProperties findTable(String table) throws SQLException;
 	
+	/**
+	 * シーケンスプロパティのコレクションを返します
+	 * @return シーケンスプロパティのコレクション
+	 * @throws SQLException エラーが発生した場合
+	 */
 	Collection<SequenceProperties> getSequences() throws SQLException;
 	
+	/**
+	 * 指定されたシーケンス名のプロパティを検索します
+	 * @param sequence シーケンス名
+	 * @return シーケンスプロパティ
+	 * @throws SQLException エラーが発生した場合
+	 */
 	SequenceProperties findSequence(String sequence) throws SQLException;
 	
+	/**
+	 * 指定された精度と型に一致する型名を検索します
+	 * @param precision 精度
+	 * @param types 型のリスト
+	 * @return 型名
+	 * @throws SQLException エラーが発生した場合
+	 */
 	String findType(int precision, int... types) throws SQLException;
 }

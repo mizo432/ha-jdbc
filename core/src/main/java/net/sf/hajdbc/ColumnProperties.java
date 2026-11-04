@@ -18,14 +18,26 @@
 package net.sf.hajdbc;
 
 /**
+ * 列プロパティのインターフェース
  * @author Paul Ferraro
- *
  */
 public interface ColumnProperties extends Named<String, ColumnProperties>
 {
+	/**
+	 * SQLタイプを返します
+	 * @return SQLタイプ
+	 */
 	int getType();
 	
+	/**
+	 * ネイティブタイプ名を返します
+	 * @return ネイティブタイプ名
+	 */
 	String getNativeType();
 	
+	/**
+	 * 自動インクリメントかどうかを返します
+	 * @return 自動インクリメントの場合はtrue
+	 */
 	boolean isAutoIncrement();
 }

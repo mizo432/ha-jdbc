@@ -18,13 +18,26 @@
 package net.sf.hajdbc;
 
 /**
+ * 修飾名前のインターフェース
  * @author Paul Ferraro
  */
 public interface QualifiedName extends Named<String, QualifiedName>
 {
+	/**
+	 * スキーマ名を返します
+	 * @return スキーマ名
+	 */
 	String getSchema();
 	
+	/**
+	 * DDLで使用される名前を返します
+	 * @return DDL名前
+	 */
 	String getDDLName();
 	
+	/**
+	 * DMLで使用される名前を返します
+	 * @return DML名前
+	 */
 	String getDMLName();
 }

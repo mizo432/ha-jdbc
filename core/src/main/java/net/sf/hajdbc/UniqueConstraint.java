@@ -18,7 +18,7 @@
 package net.sf.hajdbc;
 
 /**
- * Represents a unique constraint on a table.
+ * テーブルの一意制約を表します
  * 
  * @author  Paul Ferraro
  * @since   1.1

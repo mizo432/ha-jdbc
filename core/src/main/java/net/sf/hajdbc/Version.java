@@ -23,10 +23,14 @@ import java.util.regex.Pattern;
 import net.sf.hajdbc.util.Strings;
 
 /**
+ * バージョン情報を表すクラス
  * @author Paul Ferraro
  */
 public class Version
 {
+	/**
+	 * 現在のバージョン
+	 */
 	public static final Version CURRENT = new Version(ResourceBundle.getBundle(Version.class.getName()).getString("version"));
 	
 	private final String version;
@@ -34,6 +38,10 @@ public class Version
 	private final int minor;
 	private final int revision;
 	
+	/**
+	 * バージョン文字列を指定してコンストラクトします
+	 * @param version バージョン文字列
+	 */
 	Version(String version)
 	{
 		this.version = version;
@@ -47,16 +55,28 @@ public class Version
 		return Integer.parseInt(this.version.split(Pattern.quote(Strings.DASH))[0].split(Pattern.quote(Strings.DOT))[index]);
 	}
 	
+	/**
+	 * メジャーバージョンを返します
+	 * @return メジャーバージョン
+	 */
 	public int getMajor()
 	{
 		return this.major;
 	}
 	
+	/**
+	 * マイナーバージョンを返します
+	 * @return マイナーバージョン
+	 */
 	public int getMinor()
 	{
 		return this.minor;
 	}
 	
+	/**
+	 * リビジョン番号を返します
+	 * @return リビジョン番号
+	 */
 	public int getRevision()
 	{
 		return this.revision;

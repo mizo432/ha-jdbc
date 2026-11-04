@@ -21,8 +21,9 @@ import net.sf.hajdbc.durability.Durability.Phase;
 
 
 /**
+ * 例外ファクトリの抽象ベースクラス
  * @author paul
- *
+ * @param <E> 例外の型
  */
 public abstract class AbstractExceptionFactory<E extends Exception> implements ExceptionFactory<E>
 {
@@ -30,17 +31,27 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 
 	private Class<E> targetClass;
 	
+	/**
+	 * 対象の例外クラスを指定してコンストラクトします
+	 * @param targetClass 対象の例外クラス
+	 */
 	protected AbstractExceptionFactory(Class<E> targetClass)
 	{
 		this.targetClass = targetClass;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Class<E> getTargetClass()
 	{
 		return this.targetClass;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ExceptionType getType()
 	{
@@ -49,7 +60,6 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 
 	/**
 	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.ExceptionFactory#createException(java.lang.Throwable)
 	 */
 	@Override
 	public E createException(Throwable e)
@@ -66,12 +76,18 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 		return exception;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean correctHeuristic(E exception, Phase phase)
 	{
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(E exception1, E exception2)
 	{

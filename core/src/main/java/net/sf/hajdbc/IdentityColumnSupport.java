@@ -21,26 +21,27 @@ import java.sql.SQLException;
 
 
 /**
+ * アイデンティティ列のサポートインターフェース
  * @author Paul Ferraro
  */
 public interface IdentityColumnSupport
 {
 	/**
-	 * Parses a table name from the specified INSERT SQL statement that may contain identity columns.
-	 * @param sql a SQL statement
-	 * @return the name of a table, or null if this SQL statement is not an INSERT statement or this dialect does not support identity columns
-	 * @throws SQLException
+	 * アイデンティティ列を含む可能性のあるINSERT SQLステートメントからテーブル名を解析します
+	 * @param sql SQLステートメント
+	 * @return テーブル名、またはSQLステートメントがINSERTでない場合またはこのダイアレクトがアイデンティティ列をサポートしない場合はnull
+	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
 	String parseInsertTable(String sql) throws SQLException;
 	
 	/**
-	 * Returns a SQL statement used reset the current value of an identity column.
-	 * @param table a sequence name
-	 * @param column a sequence name
-	 * @param value a sequence value
-	 * @return a SQL statement
-	 * @throws SQLException 
+	 * アイデンティティ列の現在値をリセットするために使用するSQLステートメントを返します
+	 * @param table テーブルプロパティ
+	 * @param column 列プロパティ
+	 * @param value 値
+	 * @return SQLステートメント
+	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0.2
 	 */
 	String getAlterIdentityColumnSQL(TableProperties table, ColumnProperties column, long value) throws SQLException;

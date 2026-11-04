@@ -20,7 +20,7 @@ package net.sf.hajdbc;
 import java.util.List;
 
 /**
- * Represents a foreign key constraint on a table.
+ * テーブルの外部キー制約を表します
  * 
  * @author  Paul Ferraro
  * @since   1.1
@@ -28,27 +28,32 @@ import java.util.List;
 public interface ForeignKeyConstraint extends Constraint<ForeignKeyConstraint>
 {
 	/**
-	 * @return the foreign table of this foreign key
+	 * この外部キーの外部テーブルを返します
+	 * @return 外部テーブル名
 	 */
 	QualifiedName getForeignTable();
 	
 	/**
-	 * @return the foreign column of this foreign key
+	 * この外部キーの外部列を返します
+	 * @return 外部列名のリスト
 	 */
 	List<String> getForeignColumnList();
 	
 	/**
-	 * @return Returns the deleteRule.
+	 * 削除ルールを返します
+	 * @return 削除ルール
 	 */
 	int getDeleteRule();
 
 	/**
-	 * @return Returns the updateRule.
+	 * 更新ルールを返します
+	 * @return 更新ルール
 	 */
 	int getUpdateRule();
 
 	/**
-	 * @return Returns the deferrability.
+	 * 遅延可能性を返します
+	 * @return 遅延可能性
 	 */
 	int getDeferrability();
 }

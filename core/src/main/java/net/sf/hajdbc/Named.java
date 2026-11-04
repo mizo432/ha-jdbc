@@ -17,7 +17,17 @@
  */
 package net.sf.hajdbc;
 
+/**
+ * 名前を持つオブジェクトのインターフェース
+ * @author Paul Ferraro
+ * @param <N> 名前の型
+ * @param <T> オブジェクトの型
+ */
 public interface Named<N, T extends Named<N, T>> extends Comparable<T>
 {
+	/**
+	 * 名前を返します
+	 * @return 名前
+	 */
 	N getName();
 }

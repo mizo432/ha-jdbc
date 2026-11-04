@@ -22,11 +22,28 @@ import java.io.File;
 import net.sf.hajdbc.codec.Decoder;
 
 /**
+ * ダンプ・リストア機能のサポートインターフェース
  * @author Paul Ferraro
  */
 public interface DumpRestoreSupport
 {
+	/**
+	 * データベースをダンプします
+	 * @param database データベース
+	 * @param decoder デコーダー
+	 * @param file 出力ファイル
+	 * @param dataOnly データのみをダンプする場合はtrue
+	 * @throws Exception エラーが発生した場合
+	 */
 	<Z, D extends Database<Z>> void dump(D database, Decoder decoder, File file, boolean dataOnly) throws Exception;
 
+	/**
+	 * データベースをリストアします
+	 * @param database データベース
+	 * @param decoder デコーダー
+	 * @param file 入力ファイル
+	 * @param dataOnly データのみをリストアする場合はtrue
+	 * @throws Exception エラーが発生した場合
+	 */
 	<Z, D extends Database<Z>> void restore(D database, Decoder decoder, File file, boolean dataOnly) throws Exception;
 }

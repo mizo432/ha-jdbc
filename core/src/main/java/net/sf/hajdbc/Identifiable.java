@@ -17,7 +17,15 @@
  */
 package net.sf.hajdbc;
 
+/**
+ * 識別子を持つオブジェクトのインターフェース
+ * @author Paul Ferraro
+ */
 public interface Identifiable
 {
+	/**
+	 * 識別子を返します
+	 * @return 識別子
+	 */
 	String getId();
 }

@@ -22,20 +22,20 @@ import java.util.EventListener;
 import net.sf.hajdbc.state.DatabaseEvent;
 
 /**
- * Event listener for synchronization notifications.
+ * 同期通知のリスナーインターフェース
  * @author Paul Ferraro
  */
 public interface SynchronizationListener extends EventListener
 {
 	/**
-	 * Triggered just before synchronization commences.
-	 * @param event identifies the database to be synchronized.
+	 * 同期が開始される直前に呼び出されます
+	 * @param event 同期対象のデータベースを識別するイベント
 	 */
 	void beforeSynchronization(DatabaseEvent event);
 	
 	/**
-	 * Triggered immediately after synchronization completes.
-	 * @param event identifies the database to be synchronized.
+	 * 同期が完了した直後に呼び出されます
+	 * @param event 同期対象のデータベースを識別するイベント
 	 */
 	void afterSynchronization(DatabaseEvent event);
 }

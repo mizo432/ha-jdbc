@@ -21,9 +21,29 @@ import java.sql.SQLException;
 
 import net.sf.hajdbc.codec.Decoder;
 
+/**
+ * 認証情報のインターフェース
+ * @author Paul Ferraro
+ */
 public interface Credentials
 {
+	/**
+	 * ユーザー名を返します
+	 * @return ユーザー名
+	 */
 	String getUser();
+	
+	/**
+	 * エンコードされたパスワードを返します
+	 * @return エンコードされたパスワード
+	 */
 	String getEncodedPassword();
+	
+	/**
+	 * パスワードをデコードします
+	 * @param decoder デコーダー
+	 * @return デコードされたパスワード
+	 * @throws SQLException パスワードのデコードに失敗した場合
+	 */
 	String decodePassword(Decoder decoder) throws SQLException;
 }

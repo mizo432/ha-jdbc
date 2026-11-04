@@ -21,9 +21,18 @@ import java.io.Serializable;
 import java.sql.SQLException;
 
 /**
+ * データベースクラスタ設定ファクトリのインターフェース
  * @author Paul Ferraro
+ * @param <Z> 接続ソース（例：Driver、DataSourceなど）
+ * @param <D> データベースの実装
  */
 public interface DatabaseClusterConfigurationFactory<Z, D extends Database<Z>> extends DatabaseClusterConfigurationListener<Z, D>, Serializable
 {
+	/**
+	 * データベースクラスタ設定を作成します
+	 * @param builder 設定ビルダー
+	 * @return データベースクラスタ設定
+	 * @throws SQLException 設定の作成に失敗した場合
+	 */
 	<B extends DatabaseBuilder<Z, D>> DatabaseClusterConfiguration<Z, D> createConfiguration(DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
 }

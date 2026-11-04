@@ -23,34 +23,64 @@ import net.sf.hajdbc.sql.xa.XAExceptionFactory;
 import net.sf.hajdbc.util.Matcher;
 
 /**
+ * 例外タイプの列挙型
  * @author Paul Ferraro
  */
 @SuppressWarnings("rawtypes")
 public enum ExceptionType implements Matcher<ExceptionFactory>
 {
+	/**
+	 * SQL例外
+	 */
 	SQL(new SQLExceptionFactory()),
+	/**
+	 * XA例外
+	 */
 	XA(new XAExceptionFactory()),
+	/**
+	 * IO例外
+	 */
 	IO(new IOExceptionFactory())
 	;
 	private final ExceptionFactory<? extends Exception> factory;
 	
+	/**
+	 * 例外ファクトリを指定してコンストラクトします
+	 * @param factory 例外ファクトリ
+	 */
 	private ExceptionType(ExceptionFactory<? extends Exception> factory)
 	{
 		this.factory = factory;
 	}
 	
+	/**
+	 * 指定されたファクトリがこのタイプと一致するかどうかを判定します
+	 * @param factory 例外ファクトリ
+	 * @return 一致する場合はtrue
+	 */
 	@Override
 	public boolean matches(ExceptionFactory factory)
 	{
 		return this == factory.getType();
 	}
 
+	/**
+	 * 例外ファクトリを返します
+	 * @param <E> 例外の型
+	 * @return 例外ファクトリ
+	 */
 	@SuppressWarnings("unchecked")
 	public <E extends Exception> ExceptionFactory<E> getExceptionFactory()
 	{
 		return (ExceptionFactory<E>) this.factory;
 	}
 	
+	/**
+	 * 指定された例外クラスに対応するタイプを返します
+	 * @param exceptionClass 例外クラス
+	 * @return 例外タイプ
+	 * @throws IllegalArgumentException 対応するタイプが見つからない場合
+	 */
 	public static ExceptionType valueOf(Class<?> exceptionClass)
 	{
 		for (ExceptionType type: ExceptionType.values())

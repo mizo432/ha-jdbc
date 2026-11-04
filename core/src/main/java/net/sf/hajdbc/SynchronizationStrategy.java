@@ -24,20 +24,27 @@ import net.sf.hajdbc.sync.SynchronizationContext;
 
 
 /**
+ * 同期戦略のインターフェース
  * @author  Paul Ferraro
  */
 public interface SynchronizationStrategy extends Identifiable, Serializable
 {
+	/**
+	 * 同期戦略を初期化します
+	 * @param cluster データベースクラスタ
+	 */
 	<Z, D extends Database<Z>> void init(DatabaseCluster<Z, D> cluster);
 	
 	/**
-	 * Synchronizes a target database with a source database as defined by the synchronization context.
-	 * @param <Z>
-	 * @param <D>
-	 * @param context a synchronization context
-	 * @throws SQLException if synchronization fails
+	 * 同期コンテキストで定義されたソースデータベースとターゲットデータベースを同期します
+	 * @param context 同期コンテキスト
+	 * @throws SQLException 同期に失敗した場合
 	 */
 	<Z, D extends Database<Z>> void synchronize(SynchronizationContext<Z, D> context) throws SQLException;
 	
+	/**
+	 * 同期戦略を破棄します
+	 * @param cluster データベースクラスタ
+	 */
 	<Z, D extends Database<Z>> void destroy(DatabaseCluster<Z, D> cluster);	
 }

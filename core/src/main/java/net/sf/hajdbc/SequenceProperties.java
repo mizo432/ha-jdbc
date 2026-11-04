@@ -19,9 +19,14 @@ package net.sf.hajdbc;
 
 
 /**
+ * シーケンスプロパティのインターフェース
  * @author Paul Ferraro
  */
 public interface SequenceProperties extends Named<QualifiedName, SequenceProperties>
 {
+	/**
+	 * インクリメント値を返します
+	 * @return インクリメント値
+	 */
 	int getIncrement();
 }

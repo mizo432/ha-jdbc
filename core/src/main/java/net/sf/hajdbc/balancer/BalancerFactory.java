@@ -24,17 +24,17 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.Identifiable;
 
 /**
- * Factory for creating balancers.
+ * バランサーを作成するためのファクトリです。
  * @author Paul Ferraro
  */
 public interface BalancerFactory extends Identifiable, Serializable
 {
 	/**
-	 * Create a balancer.
-	 * @param <Z> database connection source
-	 * @param <D> database descriptor
-	 * @param databases set of initial databases
-	 * @return a new balancer.
+	 * バランサーを作成します。
+	 * @param <Z> データベース接続ソース
+	 * @param <D> データベース記述子
+	 * @param databases 初期データベースのセット
+	 * @return 新しいバランサー
 	 */
 	<Z, D extends Database<Z>> Balancer<Z, D> createBalancer(Set<D> databases);
 }

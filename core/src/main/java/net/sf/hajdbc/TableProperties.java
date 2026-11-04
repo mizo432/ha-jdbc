@@ -21,19 +21,51 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 /**
+ * テーブルプロパティのインターフェース
  * @author Paul Ferraro
  */
 public interface TableProperties extends Named<QualifiedName, TableProperties>
 {
+	/**
+	 * 列名のコレクションを返します
+	 * @return 列名のコレクション
+	 * @throws SQLException エラーが発生した場合
+	 */
 	Collection<String> getColumns() throws SQLException;
 	
+	/**
+	 * 指定された列のプロパティを返します
+	 * @param column 列名
+	 * @return 列プロパティ
+	 * @throws SQLException エラーが発生した場合
+	 */
 	ColumnProperties getColumnProperties(String column) throws SQLException;
 	
+	/**
+	 * 主キー制約を返します
+	 * @return 主キー制約
+	 * @throws SQLException エラーが発生した場合
+	 */
 	UniqueConstraint getPrimaryKey() throws SQLException;
 	
+	/**
+	 * 外部キー制約のコレクションを返します
+	 * @return 外部キー制約のコレクション
+	 * @throws SQLException エラーが発生した場合
+	 */
 	Collection<ForeignKeyConstraint> getForeignKeyConstraints() throws SQLException;
 	
+	/**
+	 * 一意制約のコレクションを返します
+	 * @return 一意制約のコレクション
+	 * @throws SQLException エラーが発生した場合
+	 */
 	Collection<UniqueConstraint> getUniqueConstraints() throws SQLException;
 	
+	/**
+	 * アイデンティティ列名のコレクションを返します
+	 * @return アイデンティティ列名のコレクション
+	 * @throws SQLException エラーが発生した場合
+	 */
 	Collection<String> getIdentityColumns() throws SQLException;
 }

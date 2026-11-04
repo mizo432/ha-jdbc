@@ -18,12 +18,20 @@
 package net.sf.hajdbc;
 
 /**
- * Common interface for providers.
+ * プロバイダーの共通インターフェース
  * @author Paul Ferraro
  */
 public interface Provider
 {
+	/**
+	 * プロバイダーの名前を返します
+	 * @return 名前
+	 */
 	String getName();
 
+	/**
+	 * プロバイダーが有効かどうかを返します
+	 * @return 有効の場合はtrue
+	 */
 	boolean isEnabled();
 }
