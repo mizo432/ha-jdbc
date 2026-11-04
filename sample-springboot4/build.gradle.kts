@@ -62,7 +62,7 @@ tasks.withType<Test> {
 }
 
 flyway {
-    url = "jdbc:postgresql://localhost:5432/sample_db"
-    user = "sample_user"
-    password = "sample_password"
+    url = System.getenv("DB_MASTER_URL") ?: "jdbc:postgresql://localhost:5432/sample_db"
+    user = System.getenv("DB_USERNAME") ?: "sample_user"
+    password = System.getenv("DB_PASSWORD") ?: "sample_password"
 }
