@@ -1,7 +1,7 @@
 package com.example.sample.controller;
 
-import com.example.sample.dto.ItemCreateRequest;
-import com.example.sample.dto.ItemUpdateRequest;
+import com.example.sample.dto.ApiResponse;
+import com.example.sample.dto.ItemRequest;
 import com.example.sample.entity.Item;
 import com.example.sample.service.ItemService;
 import jakarta.validation.Valid;
@@ -27,44 +27,44 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Item>> findAll() {
-        return ResponseEntity.ok(itemService.findAll());
+    public ResponseEntity<ApiResponse<List<Item>>> findAll() {
+        return ResponseEntity.ok(ApiResponse.ok(itemService.findAll()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Item> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(itemService.findById(id));
+    public ResponseEntity<ApiResponse<Item>> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(itemService.findById(id)));
     }
 
     @GetMapping("/search/name")
-    public ResponseEntity<List<Item>> findByName(
+    public ResponseEntity<ApiResponse<List<Item>>> findByName(
             @RequestParam @NotBlank(message = "Name is required") String name) {
         // Limit search string length to prevent abuse
         if (name.length() > 100) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(ApiResponse.error("Name must be 100 characters or less"));
         }
-        return ResponseEntity.ok(itemService.findByNameContaining(name));
+        return ResponseEntity.ok(ApiResponse.ok(itemService.findByNameContaining(name)));
     }
 
     @GetMapping("/search/price")
-    public ResponseEntity<List<Item>> findByPriceRange(
+    public ResponseEntity<ApiResponse<List<Item>>> findByPriceRange(
             @RequestParam @NotNull(message = "Min price is required") @Min(value = 0, message = "Min price must be 0 or greater") Integer minPrice,
             @RequestParam @NotNull(message = "Max price is required") @Min(value = 0, message = "Max price must be 0 or greater") Integer maxPrice) {
         if (minPrice > maxPrice) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(ApiResponse.error("Min price must be less than or equal to max price"));
         }
-        return ResponseEntity.ok(itemService.findByPriceBetween(minPrice, maxPrice));
+        return ResponseEntity.ok(ApiResponse.ok(itemService.findByPriceBetween(minPrice, maxPrice)));
     }
 
     @PostMapping
-    public ResponseEntity<Item> create(@Valid @RequestBody ItemCreateRequest request) {
+    public ResponseEntity<ApiResponse<Item>> create(@Valid @RequestBody ItemRequest request) {
         Item created = itemService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(created, "Item created successfully"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Item> update(@PathVariable Long id, @Valid @RequestBody ItemUpdateRequest request) {
-        return ResponseEntity.ok(itemService.update(id, request));
+    public ResponseEntity<ApiResponse<Item>> update(@PathVariable Long id, @Valid @RequestBody ItemRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(itemService.update(id, request), "Item updated successfully"));
     }
 
     @DeleteMapping("/{id}")

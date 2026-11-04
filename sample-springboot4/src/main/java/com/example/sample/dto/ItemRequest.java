@@ -3,12 +3,15 @@ package com.example.sample.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-public class ItemUpdateRequest {
+public class ItemRequest {
 
     @NotBlank(message = "Name is required")
+    @Size(max = 100, message = "Name must be 100 characters or less")
     private String name;
 
+    @Size(max = 500, message = "Description must be 500 characters or less")
     private String description;
 
     @NotNull(message = "Price is required")

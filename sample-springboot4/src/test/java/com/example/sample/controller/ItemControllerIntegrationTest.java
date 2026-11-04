@@ -1,9 +1,13 @@
 package com.example.sample.controller;
 
-import com.example.sample.dto.ItemCreateRequest;
-import com.example.sample.dto.ItemUpdateRequest;
+import com.example.sample.dto.ApiResponse;
+import com.example.sample.dto.ItemRequest;
 import com.example.sample.entity.Item;
 import com.example.sample.repository.ItemRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,6 +31,8 @@ class ItemControllerIntegrationTest {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     private Long createdItemId;
 
@@ -46,36 +51,42 @@ class ItemControllerIntegrationTest {
     @AfterEach
     void tearDown() {
         // テストデータをクリーンアップ
-        if (createdItemId != null) {
-            itemRepository.deleteById(createdItemId);
-        }
+        itemRepository.deleteAll();
     }
 
     @Test
-    void testGetAllItems() {
-        List<Item> items = restTestClient.get()
+    void testGetAllItems() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
                 .uri("/api/items")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(List.class)
+                .expectBody(String.class)
                 .returnResult().getResponseBody();
 
-        assertThat(items).isNotNull();
-        assertThat(items).isNotEmpty();
+        ApiResponse<List<Item>> response = objectMapper.readValue(responseBody, 
+                new TypeReference<ApiResponse<List<Item>>>() {});
+        
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).isNotEmpty();
     }
 
     @Test
-    void testGetItemById() {
-        Item item = restTestClient.get()
+    void testGetItemById() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
                 .uri("/api/items/" + createdItemId)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(Item.class)
+                .expectBody(String.class)
                 .returnResult().getResponseBody();
 
-        assertThat(item).isNotNull();
-        assertThat(item.getName()).isEqualTo("テスト商品");
-        assertThat(item.getPrice()).isEqualTo(1500);
+        ApiResponse<Item> response = objectMapper.readValue(responseBody, 
+                new TypeReference<ApiResponse<Item>>() {});
+        
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData().getName()).isEqualTo("テスト商品");
+        assertThat(response.getData().getPrice()).isEqualTo(1500);
     }
 
     @Test
@@ -87,37 +98,38 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testCreateItem() {
-        ItemCreateRequest request = new ItemCreateRequest();
+    void testCreateItem() throws JsonProcessingException {
+        ItemRequest request = new ItemRequest();
         request.setName("新規商品");
         request.setDescription("新規に作成した商品");
         request.setPrice(2500);
         request.setStock(20);
 
-        Item created = restTestClient.post()
+        String responseBody = restTestClient.post()
                 .uri("/api/items")
                 .body(request)
                 .exchange()
                 .expectStatus().isCreated()
-                .expectBody(Item.class)
+                .expectBody(String.class)
                 .returnResult().getResponseBody();
 
-        assertThat(created).isNotNull();
-        assertThat(created.getName()).isEqualTo("新規商品");
-        assertThat(created.getId()).isNotNull();
+        ApiResponse<Item> response = objectMapper.readValue(responseBody, 
+                new TypeReference<ApiResponse<Item>>() {});
+        
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData().getName()).isEqualTo("新規商品");
+        assertThat(response.getData().getId()).isNotNull();
 
         // データベースにも保存されていることを確認
-        Item savedItem = itemRepository.findById(created.getId()).orElse(null);
+        Item savedItem = itemRepository.findById(response.getData().getId()).orElse(null);
         assertThat(savedItem).isNotNull();
         assertThat(savedItem.getName()).isEqualTo("新規商品");
-
-        // クリーンアップ
-        itemRepository.delete(savedItem);
     }
 
     @Test
     void testCreateItem_ValidationFailed() {
-        ItemCreateRequest request = new ItemCreateRequest();
+        ItemRequest request = new ItemRequest();
         request.setName("");  // 空文字はバリデーションエラー
         request.setPrice(-1);  // 負の数はバリデーションエラー
         request.setStock(0);
@@ -130,25 +142,29 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testUpdateItem() {
-        ItemUpdateRequest request = new ItemUpdateRequest();
+    void testUpdateItem() throws JsonProcessingException {
+        ItemRequest request = new ItemRequest();
         request.setName("更新された商品");
         request.setDescription("更新された説明");
         request.setPrice(3000);
         request.setStock(30);
 
-        Item updated = restTestClient.put()
+        String responseBody = restTestClient.put()
                 .uri("/api/items/" + createdItemId)
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(Item.class)
+                .expectBody(String.class)
                 .returnResult().getResponseBody();
 
-        assertThat(updated).isNotNull();
-        assertThat(updated.getName()).isEqualTo("更新された商品");
-        assertThat(updated.getPrice()).isEqualTo(3000);
-        assertThat(updated.getStock()).isEqualTo(30);
+        ApiResponse<Item> response = objectMapper.readValue(responseBody, 
+                new TypeReference<ApiResponse<Item>>() {});
+        
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData().getName()).isEqualTo("更新された商品");
+        assertThat(response.getData().getPrice()).isEqualTo(3000);
+        assertThat(response.getData().getStock()).isEqualTo(30);
     }
 
     @Test
@@ -160,49 +176,344 @@ class ItemControllerIntegrationTest {
 
         // データベースから削除されたことを確認
         assertThat(itemRepository.findById(createdItemId)).isEmpty();
-
-        // createdItemIdをnullにしてtearDownでの削除エラーを防ぐ
-        createdItemId = null;
     }
 
     @Test
-    void testSearchByName() {
-        restTestClient.get()
+    void testSearchByName() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
                 .uri("/api/items/search/name?name=テスト")
                 .exchange()
-                .expectStatus().isOk();
-
-        List<Object> itemsJson = restTestClient.get()
-                .uri("/api/items/search/name?name=テスト")
-                .exchange()
-                .expectBody(List.class)
+                .expectStatus().isOk()
+                .expectBody(String.class)
                 .returnResult().getResponseBody();
 
-        assertThat(itemsJson).isNotNull();
-        assertThat(itemsJson).isNotEmpty();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> firstItem = (Map<String, Object>) itemsJson.get(0);
-        assertThat(firstItem.get("name")).isEqualTo("テスト商品");
+        ApiResponse<List<Item>> response = objectMapper.readValue(responseBody, 
+                new TypeReference<ApiResponse<List<Item>>>() {});
+        
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).isNotEmpty();
+        assertThat(response.getData().get(0).getName()).isEqualTo("テスト商品");
     }
 
     @Test
-    void testSearchByPriceRange() {
-        restTestClient.get()
+    void testSearchByPriceRange() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
                 .uri("/api/items/search/price?minPrice=1000&maxPrice=2000")
                 .exchange()
-                .expectStatus().isOk();
-
-        List<Object> itemsJson = restTestClient.get()
-                .uri("/api/items/search/price?minPrice=1000&maxPrice=2000")
-                .exchange()
-                .expectBody(List.class)
+                .expectStatus().isOk()
+                .expectBody(String.class)
                 .returnResult().getResponseBody();
 
-        assertThat(itemsJson).isNotNull();
-        assertThat(itemsJson).isNotEmpty();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> firstItem = (Map<String, Object>) itemsJson.get(0);
-        int price = (Integer) firstItem.get("price");
+        ApiResponse<List<Item>> response = objectMapper.readValue(responseBody, 
+                new TypeReference<ApiResponse<List<Item>>>() {});
+        
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).isNotEmpty();
+        int price = response.getData().get(0).getPrice();
         assertThat(price).isBetween(1000, 2000);
+    }
+
+    // === Edge case tests ===
+
+    @Test
+    void testSearchByName_NoMatch_ShouldReturnEmptyList() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
+                .uri("/api/items/search/name?name=存在しない商品名")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<List<Item>> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<List<Item>>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).isEmpty();
+    }
+
+    @Test
+    void testSearchByPriceRange_NoMatch_ShouldReturnEmptyList() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
+                .uri("/api/items/search/price?minPrice=99999&maxPrice=999999")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<List<Item>> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<List<Item>>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).isEmpty();
+    }
+
+    @Test
+    void testSearchByPriceRange_MinGreaterThanMax_ShouldReturnBadRequest() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
+                .uri("/api/items/search/price?minPrice=2000&maxPrice=1000")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<Void> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<Void>>() {});
+
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getMessage()).contains("Min price must be less than or equal to max price");
+    }
+
+    @Test
+    void testSearchByName_TooLongName_ShouldReturnBadRequest() throws JsonProcessingException {
+        String longName = "A".repeat(101);
+        String responseBody = restTestClient.get()
+                .uri("/api/items/search/name?name=" + longName)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<Void> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<Void>>() {});
+
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getMessage()).contains("100 characters");
+    }
+
+    @Test
+    void testSearchByName_Exactly100Chars_ShouldSucceed() throws JsonProcessingException {
+        String name = "A".repeat(100);
+        restTestClient.get()
+                .uri("/api/items/search/name?name=" + name)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void testCreateItem_WithNullFields_ShouldReturnBadRequest() {
+        ItemRequest request = new ItemRequest();
+        // All fields are null - should fail validation
+
+        restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCreateItem_WithZeroPriceAndStock_ShouldSucceed() throws JsonProcessingException {
+        ItemRequest request = new ItemRequest();
+        request.setName("無料商品");
+        request.setDescription("無料のサンプル");
+        request.setPrice(0);
+        request.setStock(0);
+
+        String responseBody = restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<Item> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<Item>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData().getPrice()).isEqualTo(0);
+        assertThat(response.getData().getStock()).isEqualTo(0);
+    }
+
+    @Test
+    void testCreateItem_WithLongName_ShouldSucceed() throws JsonProcessingException {
+        ItemRequest request = new ItemRequest();
+        request.setName("A".repeat(100));  // Maximum allowed length
+        request.setDescription("説明");
+        request.setPrice(1000);
+        request.setStock(5);
+
+        String responseBody = restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<Item> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<Item>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData().getName()).hasSize(100);
+    }
+
+    @Test
+    void testCreateItem_WithLongDescription_ShouldSucceed() throws JsonProcessingException {
+        ItemRequest request = new ItemRequest();
+        request.setName("商品");
+        request.setDescription("B".repeat(500));  // Maximum allowed length
+        request.setPrice(1000);
+        request.setStock(5);
+
+        String responseBody = restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<Item> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<Item>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData().getDescription()).hasSize(500);
+    }
+
+    @Test
+    void testCreateItem_NameTooLong_ShouldReturnBadRequest() {
+        ItemRequest request = new ItemRequest();
+        request.setName("A".repeat(101));  // Exceeds maximum length
+        request.setDescription("説明");
+        request.setPrice(1000);
+        request.setStock(5);
+
+        restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCreateItem_DescriptionTooLong_ShouldReturnBadRequest() {
+        ItemRequest request = new ItemRequest();
+        request.setName("商品");
+        request.setDescription("B".repeat(501));  // Exceeds maximum length
+        request.setPrice(1000);
+        request.setStock(5);
+
+        restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testUpdateItem_NotFound_ShouldReturnNotFound() {
+        ItemRequest request = new ItemRequest();
+        request.setName("更新商品");
+        request.setDescription("更新説明");
+        request.setPrice(3000);
+        request.setStock(30);
+
+        restTestClient.put()
+                .uri("/api/items/99999")
+                .body(request)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testDeleteItem_NotFound_ShouldReturnNotFound() {
+        restTestClient.delete()
+                .uri("/api/items/99999")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testGetAllItems_AfterDelete_ShouldNotContainDeletedItem() throws JsonProcessingException {
+        // Create a new item
+        ItemRequest request = new ItemRequest();
+        request.setName("削除対象商品");
+        request.setDescription("削除される商品");
+        request.setPrice(1000);
+        request.setStock(5);
+
+        String createResponse = restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<Item> created = objectMapper.readValue(createResponse,
+                new TypeReference<ApiResponse<Item>>() {});
+        Long deletedItemId = created.getData().getId();
+
+        // Delete the item
+        restTestClient.delete()
+                .uri("/api/items/" + deletedItemId)
+                .exchange()
+                .expectStatus().isNoContent();
+
+        // Verify it's not in the list
+        String allResponse = restTestClient.get()
+                .uri("/api/items")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<List<Item>> allItems = objectMapper.readValue(allResponse,
+                new TypeReference<ApiResponse<List<Item>>>() {});
+
+        assertThat(allItems.getData()).noneMatch(item -> item.getId().equals(deletedItemId));
+    }
+
+    @Test
+    void testSearchByPriceRange_EqualMinMax_ShouldReturnMatchingItems() throws JsonProcessingException {
+        // The test item has price 1500
+        String responseBody = restTestClient.get()
+                .uri("/api/items/search/price?minPrice=1500&maxPrice=1500")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<List<Item>> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<List<Item>>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotEmpty();
+        assertThat(response.getData()).allMatch(item -> item.getPrice() == 1500);
+    }
+
+    @Test
+    void testCreateItem_NegativePrice_ShouldReturnBadRequest() {
+        ItemRequest request = new ItemRequest();
+        request.setName("負の価格商品");
+        request.setDescription("説明");
+        request.setPrice(-100);
+        request.setStock(5);
+
+        restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCreateItem_NegativeStock_ShouldReturnBadRequest() {
+        ItemRequest request = new ItemRequest();
+        request.setName("負の在庫商品");
+        request.setDescription("説明");
+        request.setPrice(1000);
+        request.setStock(-5);
+
+        restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }

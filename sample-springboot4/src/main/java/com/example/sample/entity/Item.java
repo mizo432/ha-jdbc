@@ -1,5 +1,6 @@
 package com.example.sample.entity;
 
+import com.example.sample.dto.ItemRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -48,6 +49,28 @@ public class Item {
         this.description = description;
         this.price = price;
         this.stock = stock;
+    }
+
+    /**
+     * Create a new Item from a request DTO.
+     */
+    public static Item from(ItemRequest request) {
+        Item item = new Item();
+        item.setName(request.getName());
+        item.setDescription(request.getDescription());
+        item.setPrice(request.getPrice());
+        item.setStock(request.getStock());
+        return item;
+    }
+
+    /**
+     * Update this Item from a request DTO.
+     */
+    public void updateFrom(ItemRequest request) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.price = request.getPrice();
+        this.stock = request.getStock();
     }
 
     @PrePersist
