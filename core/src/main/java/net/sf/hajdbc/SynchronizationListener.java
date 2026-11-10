@@ -20,6 +20,7 @@ package net.sf.hajdbc;
 import java.util.EventListener;
 
 import net.sf.hajdbc.state.DatabaseEvent;
+import org.jspecify.annotations.NonNull;
 
 /**
  * 同期通知のリスナーインターフェース
@@ -31,11 +32,11 @@ public interface SynchronizationListener extends EventListener
 	 * 同期が開始される直前に呼び出されます
 	 * @param event 同期対象のデータベースを識別するイベント
 	 */
-	void beforeSynchronization(DatabaseEvent event);
+	void beforeSynchronization(@NonNull DatabaseEvent event);
 	
 	/**
 	 * 同期が完了した直後に呼び出されます
 	 * @param event 同期対象のデータベースを識別するイベント
 	 */
-	void afterSynchronization(DatabaseEvent event);
+	void afterSynchronization(@NonNull DatabaseEvent event);
 }

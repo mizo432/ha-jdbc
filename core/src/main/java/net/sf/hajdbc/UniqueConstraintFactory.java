@@ -17,7 +17,9 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 public interface UniqueConstraintFactory
 {
-	UniqueConstraint createUniqueConstraint(String name, QualifiedName table);
+	@NonNull UniqueConstraint createUniqueConstraint(@NonNull String name, @NonNull QualifiedName table);
 }

@@ -17,6 +17,7 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author Paul Ferraro
@@ -27,17 +28,17 @@ public interface TriggerSupport
 	{
 		INSERT(TriggerTimeEnum.AFTER, true), UPDATE(TriggerTimeEnum.AFTER, false), DELETE(TriggerTimeEnum.BEFORE, null);
 		
-		private final TriggerTime time;
+		private final @NonNull TriggerTime time;
 		private final Boolean value;
 		
-		private TriggerEventEnum(TriggerTime time, Boolean value)
+		private TriggerEventEnum(@NonNull TriggerTime time, Boolean value)
 		{
 			this.time = time;
 			this.value = value;
 		}
 
 		@Override
-		public TriggerTime getTime()
+		public @NonNull TriggerTime getTime()
 		{
 			return this.time;
 		}
@@ -48,7 +49,7 @@ public interface TriggerSupport
 			return this.value;
 		}
 		
-		static TriggerEvent valueOf(Boolean value)
+		static @NonNull TriggerEvent valueOf(Boolean value)
 		{
 			for (TriggerEventEnum event: TriggerEventEnum.values())
 			{
@@ -69,23 +70,23 @@ public interface TriggerSupport
 	{
 		BEFORE("OLD"), AFTER("NEW");
 		
-		private final String alias;
+		private final @NonNull String alias;
 		
-		private TriggerTimeEnum(String alias)
+		private TriggerTimeEnum(@NonNull String alias)
 		{
 			this.alias = alias;
 		}
 		
 		@Override
-		public String getAlias()
+		public @NonNull String getAlias()
 		{
 			return this.alias;
 		}
 	}
 	
-	String getTriggerRowAlias(TriggerTime time);
+	@NonNull String getTriggerRowAlias(@NonNull TriggerTime time);
 	
-	String getCreateTriggerSQL(String name, TableProperties table, TriggerEvent event, String action);
+	@NonNull String getCreateTriggerSQL(@NonNull String name, @NonNull TableProperties table, @NonNull TriggerEvent event, @NonNull String action);
 	
-	String getDropTriggerSQL(String name, TableProperties table);
+	@NonNull String getDropTriggerSQL(@NonNull String name, @NonNull TableProperties table);
 }

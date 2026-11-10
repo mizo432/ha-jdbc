@@ -19,6 +19,8 @@ package net.sf.hajdbc;
 
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * データベースの所在地を示す列挙型
  * @author Paul Ferraro
@@ -60,7 +62,7 @@ public enum Locality
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return this.name().toLowerCase(Locale.US);
 	}

@@ -17,6 +17,8 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * 名前を持つオブジェクトのインターフェース
  * @author Paul Ferraro
@@ -29,5 +31,5 @@ public interface Named<N, T extends Named<N, T>> extends Comparable<T>
 	 * 名前を返します
 	 * @return 名前
 	 */
-	N getName();
+	@NonNull N getName();
 }

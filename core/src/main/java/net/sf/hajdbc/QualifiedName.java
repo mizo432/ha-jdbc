@@ -17,6 +17,8 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * 修飾名前のインターフェース
  * @author Paul Ferraro
@@ -27,17 +29,17 @@ public interface QualifiedName extends Named<String, QualifiedName>
 	 * スキーマ名を返します
 	 * @return スキーマ名
 	 */
-	String getSchema();
+	@NonNull String getSchema();
 	
 	/**
 	 * DDLで使用される名前を返します
 	 * @return DDL名前
 	 */
-	String getDDLName();
+	@NonNull String getDDLName();
 	
 	/**
 	 * DMLで使用される名前を返します
 	 * @return DML名前
 	 */
-	String getDMLName();
+	@NonNull String getDMLName();
 }

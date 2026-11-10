@@ -87,8 +87,8 @@ public class SemaphoreLockManager implements LockManager
 	
 	private static class GlobalLock implements Lock
 	{
-		private Lock globalLock;
-		private Lock lock;
+		private final Lock globalLock;
+		private final Lock lock;
 		
 		GlobalLock(Lock globalLock, Lock lock)
 		{

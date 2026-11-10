@@ -20,6 +20,7 @@ package net.sf.hajdbc;
 import java.io.File;
 
 import net.sf.hajdbc.codec.Decoder;
+import org.jspecify.annotations.NonNull;
 
 /**
  * ダンプ・リストア機能のサポートインターフェース
@@ -35,7 +36,7 @@ public interface DumpRestoreSupport
 	 * @param dataOnly データのみをダンプする場合はtrue
 	 * @throws Exception エラーが発生した場合
 	 */
-	<Z, D extends Database<Z>> void dump(D database, Decoder decoder, File file, boolean dataOnly) throws Exception;
+	<Z, D extends Database<Z>> void dump(@NonNull D database, @NonNull Decoder decoder, @NonNull File file, boolean dataOnly) throws Exception;
 
 	/**
 	 * データベースをリストアします
@@ -45,5 +46,5 @@ public interface DumpRestoreSupport
 	 * @param dataOnly データのみをリストアする場合はtrue
 	 * @throws Exception エラーが発生した場合
 	 */
-	<Z, D extends Database<Z>> void restore(D database, Decoder decoder, File file, boolean dataOnly) throws Exception;
+	<Z, D extends Database<Z>> void restore(@NonNull D database, @NonNull Decoder decoder, @NonNull File file, boolean dataOnly) throws Exception;
 }

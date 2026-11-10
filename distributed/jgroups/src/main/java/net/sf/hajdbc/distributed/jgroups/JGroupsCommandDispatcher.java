@@ -171,6 +171,7 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 		}
 		catch (InterruptedException e)
 		{
+			Thread.currentThread().interrupt();
 			return new ExceptionCommandResponse<>(new ExecutionException(e));
 		}
 		catch (ExecutionException e)

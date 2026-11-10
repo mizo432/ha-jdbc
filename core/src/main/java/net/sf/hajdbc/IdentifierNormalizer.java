@@ -17,7 +17,9 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 public interface IdentifierNormalizer
 {
-	String normalize(String raw);
+	@NonNull String normalize(@NonNull String raw);
 }

@@ -19,6 +19,8 @@ package net.sf.hajdbc;
 
 import java.sql.SQLException;
 
+import org.jspecify.annotations.NonNull;
+
 
 /**
  * データベースクラスタファクトリのインターフェース
@@ -36,5 +38,5 @@ public interface DatabaseClusterFactory<Z, D extends Database<Z>>
 	 * @return データベースクラスタ
 	 * @throws SQLException クラスタの作成に失敗した場合
 	 */
-	<B extends DatabaseBuilder<Z, D>> DatabaseCluster<Z, D> createDatabaseCluster(String id, DatabaseClusterConfigurationFactory<Z, D> factory, DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
+	<B extends DatabaseBuilder<Z, D>> @NonNull DatabaseCluster<Z, D> createDatabaseCluster(@NonNull String id, @NonNull DatabaseClusterConfigurationFactory<Z, D> factory, @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
 }

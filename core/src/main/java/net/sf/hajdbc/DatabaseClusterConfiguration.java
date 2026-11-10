@@ -32,56 +32,57 @@ import net.sf.hajdbc.lock.LockManagerFactory;
 import net.sf.hajdbc.management.MBeanRegistrarFactory;
 import net.sf.hajdbc.state.StateManagerFactory;
 import net.sf.hajdbc.util.concurrent.cron.CronExpression;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author Paul Ferraro
  */
 public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 {
-	CommandDispatcherFactory getDispatcherFactory();
+	@NonNull CommandDispatcherFactory getDispatcherFactory();
 	
 	/**
 	 * このクラスタのデータベースを識別子でインデックス付けて返します
 	 * @return データベースのマップ
 	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合
 	 */
-	ConcurrentMap<String, D> getDatabaseMap();
+	@NonNull ConcurrentMap<String, D> getDatabaseMap();
 	
-	Map<String, SynchronizationStrategy> getSynchronizationStrategyMap();
+	@NonNull Map<String, SynchronizationStrategy> getSynchronizationStrategyMap();
 	
-	String getDefaultSynchronizationStrategy();
+	@NonNull String getDefaultSynchronizationStrategy();
 	
 	/**
 	 * このデータベースクラスタで使用されるBalancerの実装を返します。
 	 * @return <code>Balancer</code>の実装
 	 */
-	BalancerFactory getBalancerFactory();
+	@NonNull BalancerFactory getBalancerFactory();
 
-	TransactionMode getTransactionMode();
+	@NonNull TransactionMode getTransactionMode();
 	
-	ExecutorServiceProvider getExecutorProvider();
+	@NonNull ExecutorServiceProvider getExecutorProvider();
 	
 	/**
 	 * データベースベンダー固有の値を返すことができるDialectを返します。
 	 * @return <code>Dialect</code>の実装
 	 */
-	DialectFactory getDialectFactory();
+	@NonNull DialectFactory getDialectFactory();
 	
 	/**
 	 * データベースクラスタの状態を永続化するためのStateManagerを返します。
 	 * @return StateManagerの実装
 	 */
-	StateManagerFactory getStateManagerFactory();
+	@NonNull StateManagerFactory getStateManagerFactory();
 	
 	/**
 	 * DatabaseMetaDataキャッシュを返します。
 	 * @return <code>DatabaseMetaDataCache</code>の実装
 	 */
-	DatabaseMetaDataCacheFactory getDatabaseMetaDataCacheFactory();
+	@NonNull DatabaseMetaDataCacheFactory getDatabaseMetaDataCacheFactory();
 
-	DurabilityFactory getDurabilityFactory();
+	@NonNull DurabilityFactory getDurabilityFactory();
 
-	LockManagerFactory getLockManagerFactory();
+	@NonNull LockManagerFactory getLockManagerFactory();
 	
 	/**
 	 * Indicates whether or not sequence detection is enabled for this cluster.
@@ -119,19 +120,19 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	 */
 	boolean isRandEvaluationEnabled();
 
-	CronExpression getFailureDetectionExpression();
+	@NonNull CronExpression getFailureDetectionExpression();
 	
-	CronExpression getAutoActivationExpression();
+	@NonNull CronExpression getAutoActivationExpression();
 	
-	ThreadFactory getThreadFactory();
+	@NonNull ThreadFactory getThreadFactory();
 	
-	DecoderFactory getDecoderFactory();
+	@NonNull DecoderFactory getDecoderFactory();
 	
-	MBeanRegistrarFactory getMBeanRegistrarFactory();
+	@NonNull MBeanRegistrarFactory getMBeanRegistrarFactory();
 	
 	boolean isEmptyClusterAllowed();
 
-	InputSinkProvider getInputSinkProvider();
+	@NonNull InputSinkProvider getInputSinkProvider();
 
 	/**
 	 * 分散ロックの取得タイムアウトをミリ秒単位で返します。

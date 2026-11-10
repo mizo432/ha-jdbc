@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import net.sf.hajdbc.util.Strings;
+import org.jspecify.annotations.NonNull;
 
 /**
  * バージョン情報を表すクラス
@@ -31,9 +32,9 @@ public class Version
 	/**
 	 * 現在のバージョン
 	 */
-	public static final Version CURRENT = new Version(ResourceBundle.getBundle(Version.class.getName()).getString("version"));
+	public static final @NonNull Version CURRENT = new Version(ResourceBundle.getBundle(Version.class.getName()).getString("version"));
 	
-	private final String version;
+	private final @NonNull String version;
 	private final int major;
 	private final int minor;
 	private final int revision;
@@ -42,7 +43,7 @@ public class Version
 	 * バージョン文字列を指定してコンストラクトします
 	 * @param version バージョン文字列
 	 */
-	Version(String version)
+	Version(@NonNull String version)
 	{
 		this.version = version;
 		this.major = parse(0);
@@ -83,7 +84,7 @@ public class Version
 	}
 	
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return this.version;
 	}

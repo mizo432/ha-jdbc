@@ -17,7 +17,10 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public interface SequencePropertiesFactory
 {
-	SequenceProperties createSequenceProperties(String schema, String name, int increment);
+	@NonNull SequenceProperties createSequenceProperties(@Nullable String schema, @NonNull String name, int increment);
 }

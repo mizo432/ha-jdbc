@@ -17,7 +17,10 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public interface ColumnPropertiesFactory
 {
-	ColumnProperties createColumnProperties(String name, int type, String nativeType, String defaultValue, String remarks, Boolean autoIncrement);
+	@NonNull ColumnProperties createColumnProperties(@NonNull String name, int type, @NonNull String nativeType, @Nullable String defaultValue, @Nullable String remarks, @Nullable Boolean autoIncrement);
 }

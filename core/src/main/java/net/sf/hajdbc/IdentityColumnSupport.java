@@ -19,6 +19,8 @@ package net.sf.hajdbc;
 
 import java.sql.SQLException;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * アイデンティティ列のサポートインターフェース
@@ -33,7 +35,7 @@ public interface IdentityColumnSupport
 	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
-	String parseInsertTable(String sql) throws SQLException;
+	@Nullable String parseInsertTable(@NonNull String sql) throws SQLException;
 	
 	/**
 	 * アイデンティティ列の現在値をリセットするために使用するSQLステートメントを返します
@@ -44,5 +46,5 @@ public interface IdentityColumnSupport
 	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0.2
 	 */
-	String getAlterIdentityColumnSQL(TableProperties table, ColumnProperties column, long value) throws SQLException;
+	@NonNull String getAlterIdentityColumnSQL(@NonNull TableProperties table, @NonNull ColumnProperties column, long value) throws SQLException;
 }

@@ -17,6 +17,8 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * 列プロパティのインターフェース
  * @author Paul Ferraro
@@ -33,7 +35,7 @@ public interface ColumnProperties extends Named<String, ColumnProperties>
 	 * ネイティブタイプ名を返します
 	 * @return ネイティブタイプ名
 	 */
-	String getNativeType();
+	@NonNull String getNativeType();
 	
 	/**
 	 * 自動インクリメントかどうかを返します

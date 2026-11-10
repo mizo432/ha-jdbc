@@ -17,12 +17,14 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * @author Paul Ferraro
  */
 public interface TriggerEvent
 {
-	TriggerTime getTime();
+	@NonNull TriggerTime getTime();
 	
 	Boolean getValue();
 }

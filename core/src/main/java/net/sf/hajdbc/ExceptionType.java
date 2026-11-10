@@ -21,6 +21,7 @@ import net.sf.hajdbc.sql.SQLExceptionFactory;
 import net.sf.hajdbc.sql.io.IOExceptionFactory;
 import net.sf.hajdbc.sql.xa.XAExceptionFactory;
 import net.sf.hajdbc.util.Matcher;
+import org.jspecify.annotations.NonNull;
 
 /**
  * 例外タイプの列挙型
@@ -42,13 +43,13 @@ public enum ExceptionType implements Matcher<ExceptionFactory>
 	 */
 	IO(new IOExceptionFactory())
 	;
-	private final ExceptionFactory<? extends Exception> factory;
+	private final @NonNull ExceptionFactory<? extends Exception> factory;
 	
 	/**
 	 * 例外ファクトリを指定してコンストラクトします
 	 * @param factory 例外ファクトリ
 	 */
-	private ExceptionType(ExceptionFactory<? extends Exception> factory)
+	private ExceptionType(@NonNull ExceptionFactory<? extends Exception> factory)
 	{
 		this.factory = factory;
 	}
@@ -59,7 +60,7 @@ public enum ExceptionType implements Matcher<ExceptionFactory>
 	 * @return 一致する場合はtrue
 	 */
 	@Override
-	public boolean matches(ExceptionFactory factory)
+	public boolean matches(@NonNull ExceptionFactory factory)
 	{
 		return this == factory.getType();
 	}
@@ -70,7 +71,7 @@ public enum ExceptionType implements Matcher<ExceptionFactory>
 	 * @return 例外ファクトリ
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Exception> ExceptionFactory<E> getExceptionFactory()
+	public <E extends Exception> @NonNull ExceptionFactory<E> getExceptionFactory()
 	{
 		return (ExceptionFactory<E>) this.factory;
 	}
@@ -81,7 +82,7 @@ public enum ExceptionType implements Matcher<ExceptionFactory>
 	 * @return 例外タイプ
 	 * @throws IllegalArgumentException 対応するタイプが見つからない場合
 	 */
-	public static ExceptionType valueOf(Class<?> exceptionClass)
+	public static @NonNull ExceptionType valueOf(@NonNull Class<?> exceptionClass)
 	{
 		for (ExceptionType type: ExceptionType.values())
 		{

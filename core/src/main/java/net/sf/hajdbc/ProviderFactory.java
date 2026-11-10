@@ -20,17 +20,18 @@ package net.sf.hajdbc;
 import java.util.ServiceLoader;
 
 import net.sf.hajdbc.messages.simple.SimpleMessages;
+import org.jspecify.annotations.NonNull;
 
 public class ProviderFactory<P extends Provider>
 {
-	private final P provider;
+	private final @NonNull P provider;
 
-	protected ProviderFactory(Class<P> providerClass)
+	protected ProviderFactory(@NonNull Class<P> providerClass)
 	{
 		this.provider = findProvider(providerClass);
 	}
 
-	private static <P extends Provider> P findProvider(Class<P> providerClass)
+	private static <P extends Provider> @NonNull P findProvider(@NonNull Class<P> providerClass)
 	{
 		for (P provider: ServiceLoader.load(providerClass, providerClass.getClassLoader()))
 		{
@@ -42,7 +43,7 @@ public class ProviderFactory<P extends Provider>
 		throw new IllegalStateException(new SimpleMessages().serviceNotFound(providerClass));
 	}
 
-	protected P getProvider()
+	protected @NonNull P getProvider()
 	{
 		return this.provider;
 	}

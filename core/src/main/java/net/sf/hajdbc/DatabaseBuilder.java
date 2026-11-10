@@ -18,6 +18,8 @@
 package net.sf.hajdbc;
 
 import net.sf.hajdbc.configuration.PropertiesBuilder;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * データベースビルダーのインターフェース
@@ -37,14 +39,14 @@ public interface DatabaseBuilder<Z, D extends Database<Z>> extends PropertiesBui
 	 * @param connectionSource 接続ソース
 	 * @return このビルダー
 	 */
-	DatabaseBuilder<Z, D> connectionSource(Z connectionSource);
+	@NonNull DatabaseBuilder<Z, D> connectionSource(@NonNull Z connectionSource);
 
 	/**
 	 * データベースの場所を設定します
 	 * @param location 場所
 	 * @return このビルダー
 	 */
-	DatabaseBuilder<Z, D> location(String location);
+	@NonNull DatabaseBuilder<Z, D> location(@NonNull String location);
 
 	/**
 	 * 認証情報を設定します
@@ -52,19 +54,19 @@ public interface DatabaseBuilder<Z, D extends Database<Z>> extends PropertiesBui
 	 * @param password パスワード
 	 * @return このビルダー
 	 */
-	DatabaseBuilder<Z, D> credentials(String user, String password);
+	@NonNull DatabaseBuilder<Z, D> credentials(@Nullable String user, @Nullable String password);
 
 	/**
 	 * 重みを設定します
 	 * @param weight 重み
 	 * @return このビルダー
 	 */
-	DatabaseBuilder<Z, D> weight(int weight);
+	@NonNull DatabaseBuilder<Z, D> weight(int weight);
 
 	/**
 	 * 所在地を設定します
 	 * @param locality 所在地
 	 * @return このビルダー
 	 */
-	DatabaseBuilder<Z, D> locality(Locality locality);
+	@NonNull DatabaseBuilder<Z, D> locality(@NonNull Locality locality);
 }

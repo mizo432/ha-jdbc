@@ -20,6 +20,8 @@ package net.sf.hajdbc;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * データベースプロパティのインターフェース
@@ -32,7 +34,7 @@ public interface DatabaseProperties
 	 * @return テーブルプロパティのコレクション
 	 * @throws SQLException エラーが発生した場合
 	 */
-	Collection<TableProperties> getTables() throws SQLException;
+	@NonNull Collection<TableProperties> getTables() throws SQLException;
 
 	/**
 	 * SELECT FOR UPDATEをサポートしているかどうかを返します
@@ -54,14 +56,14 @@ public interface DatabaseProperties
 	 * @return テーブルプロパティ
 	 * @throws SQLException エラーが発生した場合
 	 */
-	TableProperties findTable(String table) throws SQLException;
+	@Nullable TableProperties findTable(@NonNull String table) throws SQLException;
 	
 	/**
 	 * シーケンスプロパティのコレクションを返します
 	 * @return シーケンスプロパティのコレクション
 	 * @throws SQLException エラーが発生した場合
 	 */
-	Collection<SequenceProperties> getSequences() throws SQLException;
+	@NonNull Collection<SequenceProperties> getSequences() throws SQLException;
 	
 	/**
 	 * 指定されたシーケンス名のプロパティを検索します
@@ -69,7 +71,7 @@ public interface DatabaseProperties
 	 * @return シーケンスプロパティ
 	 * @throws SQLException エラーが発生した場合
 	 */
-	SequenceProperties findSequence(String sequence) throws SQLException;
+	@Nullable SequenceProperties findSequence(@NonNull String sequence) throws SQLException;
 	
 	/**
 	 * 指定された精度と型に一致する型名を検索します
@@ -78,5 +80,5 @@ public interface DatabaseProperties
 	 * @return 型名
 	 * @throws SQLException エラーが発生した場合
 	 */
-	String findType(int precision, int... types) throws SQLException;
+	@Nullable String findType(int precision, int... types) throws SQLException;
 }

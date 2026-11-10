@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import net.sf.hajdbc.codec.Decoder;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author  Paul Ferraro
@@ -29,20 +30,20 @@ import net.sf.hajdbc.codec.Decoder;
  */
 public interface Database<Z> extends Comparable<Database<Z>>
 {
-	String getId();
+	@NonNull String getId();
 
-	Z getConnectionSource();
+	@NonNull Z getConnectionSource();
 
-	Credentials getCredentials();
+	@NonNull Credentials getCredentials();
 	
 	int getWeight();
 	void setWeight(int weight);
 
-	Locality getLocality();
+	@NonNull Locality getLocality();
 
-	Connection connect(Decoder decoder) throws SQLException;
+	@NonNull Connection connect(@NonNull Decoder decoder) throws SQLException;
 
-	String getLocation();
+	@NonNull String getLocation();
 
-	Properties getProperties();
+	@NonNull Properties getProperties();
 }

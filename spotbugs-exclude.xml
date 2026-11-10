@@ -46,4 +46,9 @@
     <Match>
         <Bug code="Se" />
     </Match>
+
+    <!-- RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE: JSpecify @NonNull annotations cause SpotBugs to flag defensive null checks as redundant -->
+    <Match>
+        <Bug code="RCN" />
+    </Match>
 </FindBugsFilter>

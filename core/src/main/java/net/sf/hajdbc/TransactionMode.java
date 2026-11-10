@@ -19,6 +19,8 @@ package net.sf.hajdbc;
 
 import java.util.concurrent.ExecutorService;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * トランザクションモードのインターフェース
  * @author Paul Ferraro
@@ -31,5 +33,5 @@ public interface TransactionMode
 	 * @param end 終了時にコミットする場合はtrue
 	 * @return トランザクションエグゼキューター
 	 */
-	ExecutorService getTransactionExecutor(ExecutorService executor, boolean end);
+	@NonNull ExecutorService getTransactionExecutor(@NonNull ExecutorService executor, boolean end);
 }

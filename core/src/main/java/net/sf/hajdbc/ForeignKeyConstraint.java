@@ -19,6 +19,8 @@ package net.sf.hajdbc;
 
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * テーブルの外部キー制約を表します
  * 
@@ -31,13 +33,13 @@ public interface ForeignKeyConstraint extends Constraint<ForeignKeyConstraint>
 	 * この外部キーの外部テーブルを返します
 	 * @return 外部テーブル名
 	 */
-	QualifiedName getForeignTable();
+	@NonNull QualifiedName getForeignTable();
 	
 	/**
 	 * この外部キーの外部列を返します
 	 * @return 外部列名のリスト
 	 */
-	List<String> getForeignColumnList();
+	@NonNull List<String> getForeignColumnList();
 	
 	/**
 	 * 削除ルールを返します

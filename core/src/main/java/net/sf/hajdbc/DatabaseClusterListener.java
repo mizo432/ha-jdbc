@@ -20,6 +20,7 @@ package net.sf.hajdbc;
 import java.util.EventListener;
 
 import net.sf.hajdbc.state.DatabaseEvent;
+import org.jspecify.annotations.NonNull;
 
 /**
  * クラスタイベントのリスナーインターフェース
@@ -31,11 +32,11 @@ public interface DatabaseClusterListener extends EventListener
 	 * データベースが正常に有効化された後に呼び出されます
 	 * @param event 有効化されたデータベースを示すイベント
 	 */
-	void activated(DatabaseEvent event);
+	void activated(@NonNull DatabaseEvent event);
 	
 	/**
 	 * データベースが正常に無効化された後に呼び出されます
 	 * @param event 無効化されたデータベースを示すイベント
 	 */
-	void deactivated(DatabaseEvent event);
+	void deactivated(@NonNull DatabaseEvent event);
 }

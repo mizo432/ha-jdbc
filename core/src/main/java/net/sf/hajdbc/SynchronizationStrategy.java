@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 
 import net.sf.hajdbc.sync.SynchronizationContext;
+import org.jspecify.annotations.NonNull;
 
 
 /**
@@ -33,18 +34,18 @@ public interface SynchronizationStrategy extends Identifiable, Serializable
 	 * 同期戦略を初期化します
 	 * @param cluster データベースクラスタ
 	 */
-	<Z, D extends Database<Z>> void init(DatabaseCluster<Z, D> cluster);
+	<Z, D extends Database<Z>> void init(@NonNull DatabaseCluster<Z, D> cluster);
 	
 	/**
 	 * 同期コンテキストで定義されたソースデータベースとターゲットデータベースを同期します
 	 * @param context 同期コンテキスト
 	 * @throws SQLException 同期に失敗した場合
 	 */
-	<Z, D extends Database<Z>> void synchronize(SynchronizationContext<Z, D> context) throws SQLException;
+	<Z, D extends Database<Z>> void synchronize(@NonNull SynchronizationContext<Z, D> context) throws SQLException;
 	
 	/**
 	 * 同期戦略を破棄します
 	 * @param cluster データベースクラスタ
 	 */
-	<Z, D extends Database<Z>> void destroy(DatabaseCluster<Z, D> cluster);	
+	<Z, D extends Database<Z>> void destroy(@NonNull DatabaseCluster<Z, D> cluster);	
 }

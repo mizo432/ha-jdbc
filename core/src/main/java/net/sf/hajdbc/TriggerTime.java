@@ -17,10 +17,12 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * @author Paul Ferraro
  */
 public interface TriggerTime
 {
-	String getAlias();
+	@NonNull String getAlias();
 }

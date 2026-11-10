@@ -20,6 +20,8 @@ package net.sf.hajdbc;
 import java.io.Serializable;
 import java.sql.SQLException;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * データベースクラスタ設定ファクトリのインターフェース
  * @author Paul Ferraro
@@ -34,5 +36,5 @@ public interface DatabaseClusterConfigurationFactory<Z, D extends Database<Z>> e
 	 * @return データベースクラスタ設定
 	 * @throws SQLException 設定の作成に失敗した場合
 	 */
-	<B extends DatabaseBuilder<Z, D>> DatabaseClusterConfiguration<Z, D> createConfiguration(DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
+	<B extends DatabaseBuilder<Z, D>> @NonNull DatabaseClusterConfiguration<Z, D> createConfiguration(@NonNull DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
 }

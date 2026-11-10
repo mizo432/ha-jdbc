@@ -20,6 +20,8 @@ package net.sf.hajdbc;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * エグゼキューターサービスプロバイダーのインターフェース
  * @author Paul Ferraro
@@ -31,11 +33,11 @@ public interface ExecutorServiceProvider
 	 * @param threadFactory スレッドを作成するファクトリ
 	 * @return エグゼキューターサービス
 	 */
-	ExecutorService getExecutor(ThreadFactory threadFactory);
+	@NonNull ExecutorService getExecutor(@NonNull ThreadFactory threadFactory);
 	
 	/**
 	 * 指定されたエグゼキューターをシャットダウンします
 	 * @param service エグゼキューターサービス
 	 */
-	void release(ExecutorService service);
+	void release(@NonNull ExecutorService service);
 }

@@ -17,6 +17,8 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * データベースクラスタ設定の変更を監視するリスナーのインターフェース
  * @author Paul Ferraro
@@ -30,12 +32,12 @@ public interface DatabaseClusterConfigurationListener<Z, D extends Database<Z>>
 	 * @param database 追加されたデータベース
 	 * @param configuration データベースクラスタ設定
 	 */
-	void added(D database, DatabaseClusterConfiguration<Z, D> configuration);
+	void added(@NonNull D database, @NonNull DatabaseClusterConfiguration<Z, D> configuration);
 	
 	/**
 	 * データベースが削除されたときに呼び出されます
 	 * @param database 削除されたデータベース
 	 * @param configuration データベースクラスタ設定
 	 */
-	void removed(D database, DatabaseClusterConfiguration<Z, D> configuration);
+	void removed(@NonNull D database, @NonNull DatabaseClusterConfiguration<Z, D> configuration);
 }

@@ -17,12 +17,14 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public interface QualifiedNameFactory
 {
-	QualifiedName createQualifiedName(String schema, String table);
+	@NonNull QualifiedName createQualifiedName(@Nullable String schema, @NonNull String table);
 
-	IdentifierNormalizer getIdentifierNormalizer();
+	@NonNull IdentifierNormalizer getIdentifierNormalizer();
 
-	QualifiedName parse(String raw);
+	@NonNull QualifiedName parse(@NonNull String raw);
 }

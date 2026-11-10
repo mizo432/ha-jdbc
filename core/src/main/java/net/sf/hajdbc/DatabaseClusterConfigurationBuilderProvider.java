@@ -17,7 +17,9 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 public interface DatabaseClusterConfigurationBuilderProvider<Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>>
 {
-	DatabaseClusterConfigurationBuilder<Z, D, B> getConfigurationBuilder();
+	@NonNull DatabaseClusterConfigurationBuilder<Z, D, B> getConfigurationBuilder();
 }

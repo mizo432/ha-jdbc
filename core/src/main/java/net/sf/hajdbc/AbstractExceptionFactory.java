@@ -19,6 +19,8 @@ package net.sf.hajdbc;
 
 import net.sf.hajdbc.durability.Durability.Phase;
 
+import org.jspecify.annotations.NonNull;
+
 
 /**
  * 例外ファクトリの抽象ベースクラス
@@ -29,13 +31,13 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 {
 	private static final long serialVersionUID = 6715631233424287636L;
 
-	private Class<E> targetClass;
+	private @NonNull Class<E> targetClass;
 	
 	/**
 	 * 対象の例外クラスを指定してコンストラクトします
 	 * @param targetClass 対象の例外クラス
 	 */
-	protected AbstractExceptionFactory(Class<E> targetClass)
+	protected AbstractExceptionFactory(@NonNull Class<E> targetClass)
 	{
 		this.targetClass = targetClass;
 	}
@@ -44,7 +46,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class<E> getTargetClass()
+	public @NonNull Class<E> getTargetClass()
 	{
 		return this.targetClass;
 	}
@@ -53,7 +55,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExceptionType getType()
+	public @NonNull ExceptionType getType()
 	{
 		return ExceptionType.valueOf(this.targetClass);
 	}
@@ -63,7 +65,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 */
 	@Override
 	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "isInstanceチェック後にcastするため安全")
-	public E createException(Throwable e)
+	public @NonNull E createException(@NonNull Throwable e)
 	{
 		if (this.targetClass.isInstance(e))
 		{
@@ -81,7 +83,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean correctHeuristic(E exception, Phase phase)
+	public boolean correctHeuristic(@NonNull E exception, @NonNull Phase phase)
 	{
 		return false;
 	}
@@ -90,7 +92,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(E exception1, E exception2)
+	public boolean equals(@NonNull E exception1, @NonNull E exception2)
 	{
 		String message1 = exception1.getMessage();
 		String message2 = exception2.getMessage();

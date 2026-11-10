@@ -17,10 +17,11 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
 
 public interface ForeignKeyConstraintFactory
 {
-	ForeignKeyConstraint createForeignKeyConstraint(String name, QualifiedName table, QualifiedName foreignTable, int deleteRule, int updateRule, int deferrability);
+	@NonNull ForeignKeyConstraint createForeignKeyConstraint(@NonNull String name, @NonNull QualifiedName table, @NonNull QualifiedName foreignTable, int deleteRule, int updateRule, int deferrability);
 	
-	QualifiedNameFactory getQualifiedNameFactory();
+	@NonNull QualifiedNameFactory getQualifiedNameFactory();
 }

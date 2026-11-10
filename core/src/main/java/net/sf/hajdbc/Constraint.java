@@ -19,17 +19,19 @@ package net.sf.hajdbc;
 
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
+
 public interface Constraint<T extends Constraint<T>> extends Named<String, T>
 {
 	/**
 	 * この制約のテーブルを返します
 	 * @return テーブル名
 	 */
-	QualifiedName getTable();
+	@NonNull QualifiedName getTable();
 	
 	/**
 	 * この一意制約に含まれる列のリストを返します
 	 * @return 列名のリスト
 	 */
-	List<String> getColumnList();
+	@NonNull List<String> getColumnList();
 }

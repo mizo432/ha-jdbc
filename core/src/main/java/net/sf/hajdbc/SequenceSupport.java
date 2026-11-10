@@ -21,6 +21,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 /**
  * シーケンスのサポートインターフェース
  * @author Paul Ferraro
@@ -34,7 +37,7 @@ public interface SequenceSupport
 	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
-	String parseSequence(String sql) throws SQLException;
+	@Nullable String parseSequence(@NonNull String sql) throws SQLException;
 	
 	/**
 	 * ダイアレクト固有のロジックを使用してシーケンスのコレクションを返します
@@ -43,7 +46,7 @@ public interface SequenceSupport
 	 * @return シーケンスのコレクション
 	 * @throws SQLException エラーが発生した場合
 	 */
-	Collection<SequenceProperties> getSequences(DatabaseMetaData metaData, SequencePropertiesFactory factory) throws SQLException;
+	@NonNull Collection<SequenceProperties> getSequences(@NonNull DatabaseMetaData metaData, @NonNull SequencePropertiesFactory factory) throws SQLException;
 	
 	/**
 	 * 指定されたシーケンスの次の値を取得するためのSQLステートメントを返します
@@ -52,7 +55,7 @@ public interface SequenceSupport
 	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
-	String getNextSequenceValueSQL(SequenceProperties sequence) throws SQLException;
+	@NonNull String getNextSequenceValueSQL(@NonNull SequenceProperties sequence) throws SQLException;
 
 	/**
 	 * シーケンスの現在値をリセットするために使用するSQLステートメントを返します
@@ -62,12 +65,12 @@ public interface SequenceSupport
 	 * @throws SQLException エラーが発生した場合
 	 * @since 2.0
 	 */
-	String getAlterSequenceSQL(SequenceProperties sequence, long value) throws SQLException;
+	@NonNull String getAlterSequenceSQL(@NonNull SequenceProperties sequence, long value) throws SQLException;
 
 	/**
 	 * シーケンスプロパティファクトリを作成します
 	 * @param factory 修飾名前ファクトリ
 	 * @return シーケンスプロパティファクトリ
 	 */
-	SequencePropertiesFactory createSequencePropertiesFactory(QualifiedNameFactory factory);
+	@NonNull SequencePropertiesFactory createSequencePropertiesFactory(@NonNull QualifiedNameFactory factory);
 }

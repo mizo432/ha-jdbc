@@ -20,6 +20,9 @@ package net.sf.hajdbc;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 /**
  * テーブルプロパティのインターフェース
  * @author Paul Ferraro
@@ -31,7 +34,7 @@ public interface TableProperties extends Named<QualifiedName, TableProperties>
 	 * @return 列名のコレクション
 	 * @throws SQLException エラーが発生した場合
 	 */
-	Collection<String> getColumns() throws SQLException;
+	@NonNull Collection<String> getColumns() throws SQLException;
 	
 	/**
 	 * 指定された列のプロパティを返します
@@ -39,33 +42,33 @@ public interface TableProperties extends Named<QualifiedName, TableProperties>
 	 * @return 列プロパティ
 	 * @throws SQLException エラーが発生した場合
 	 */
-	ColumnProperties getColumnProperties(String column) throws SQLException;
+	@NonNull ColumnProperties getColumnProperties(@NonNull String column) throws SQLException;
 	
 	/**
 	 * 主キー制約を返します
 	 * @return 主キー制約
 	 * @throws SQLException エラーが発生した場合
 	 */
-	UniqueConstraint getPrimaryKey() throws SQLException;
+	@Nullable UniqueConstraint getPrimaryKey() throws SQLException;
 	
 	/**
 	 * 外部キー制約のコレクションを返します
 	 * @return 外部キー制約のコレクション
 	 * @throws SQLException エラーが発生した場合
 	 */
-	Collection<ForeignKeyConstraint> getForeignKeyConstraints() throws SQLException;
+	@NonNull Collection<ForeignKeyConstraint> getForeignKeyConstraints() throws SQLException;
 	
 	/**
 	 * 一意制約のコレクションを返します
 	 * @return 一意制約のコレクション
 	 * @throws SQLException エラーが発生した場合
 	 */
-	Collection<UniqueConstraint> getUniqueConstraints() throws SQLException;
+	@NonNull Collection<UniqueConstraint> getUniqueConstraints() throws SQLException;
 	
 	/**
 	 * アイデンティティ列名のコレクションを返します
 	 * @return アイデンティティ列名のコレクション
 	 * @throws SQLException エラーが発生した場合
 	 */
-	Collection<String> getIdentityColumns() throws SQLException;
+	@NonNull Collection<String> getIdentityColumns() throws SQLException;
 }

@@ -17,7 +17,9 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 public interface DatabaseBuilderFactory<Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>>
 {
-	B createBuilder(String id);
+	@NonNull B createBuilder(@NonNull String id);
 }
