@@ -30,6 +30,9 @@ import java.text.MessageFormat;
 
 import net.sf.hajdbc.codec.Codec;
 import net.sf.hajdbc.codec.CodecFactory;
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.util.Strings;
 import net.sf.hajdbc.util.SystemProperties;
 
@@ -85,6 +88,7 @@ import net.sf.hajdbc.util.SystemProperties;
 public class CipherCodecFactory implements CodecFactory
 {
 	private static final long serialVersionUID = -4409167180573651279L;
+	private static final Logger log = LoggerFactory.getLogger(CipherCodecFactory.class);
 	
 	public static final String DEFAULT_KEYSTORE_FILE = String.format("%s/.keystore", SystemProperties.getSystemProperty("user.home"));
 	public static final String DEFAULT_KEY_ALIAS = "ha-jdbc";
@@ -188,6 +192,7 @@ public class CipherCodecFactory implements CodecFactory
 		}
 		catch (IOException e)
 		{
+			log.log(Level.WARN, e, "Failed to read password file: {0}", filePath);
 			return null;
 		}
 	}

@@ -67,7 +67,10 @@ public class AllResultsCollector implements InvokeOnManyInvocationStrategy.Resul
 		
 		if (databaseSet.isEmpty())
 		{
-			exceptionFactory.createException(messages.noActiveDatabases(cluster));
+			final SortedMap<D, R> resultMap = new TreeMap<>();
+			final SortedMap<D, E> exceptionMap = new TreeMap<>();
+			exceptionMap.put(null, exceptionFactory.createException(messages.noActiveDatabases(cluster)));
+			return new AbstractMap.SimpleImmutableEntry<>(resultMap, exceptionMap);
 		}
 
 		int size = databaseSet.size();
@@ -102,13 +105,14 @@ public class AllResultsCollector implements InvokeOnManyInvocationStrategy.Resul
 						exceptionMap.put(database, exceptionFactory.createException(e.getCause()));
 					}
 				}
-				catch (InterruptedException e)
-				{
-					Thread.currentThread().interrupt();
-					
-					exceptionMap.put(database, exceptionFactory.createException(e));
-				}
-			}
+ 			catch (InterruptedException e)
+ 			{
+ 				Thread.currentThread().interrupt();
+				
+ 				exceptionMap.put(database, exceptionFactory.createException(e));
+ 				break;
+ 			}
+ 		}
 		
 			return new AbstractMap.SimpleImmutableEntry<>(resultMap, exceptionMap);
 		}

@@ -34,6 +34,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.util.Reversed;
 
 /**
@@ -43,6 +46,8 @@ import net.sf.hajdbc.util.Reversed;
  */
 public class SynchronousExecutor extends AbstractExecutorService
 {
+	private static final Logger log = LoggerFactory.getLogger(SynchronousExecutor.class);
+	
 	private final ExecutorService executor;
 	private final boolean reverse;
 	
@@ -232,18 +237,18 @@ public class SynchronousExecutor extends AbstractExecutorService
 					}
 					catch (ExecutionException e)
 					{
-						// Ignore
+						log.log(Level.DEBUG, e, "Task failed during execution");
 					}
 					catch (CancellationException e)
 					{
-						// Ignore
+						log.log(Level.DEBUG, e, "Task was cancelled");
 					}
 				}
 			}
 		}
 		catch (TimeoutException e)
 		{
-			// Ignore
+			log.log(Level.DEBUG, e, "Task timed out");
 		}
 		finally
 		{

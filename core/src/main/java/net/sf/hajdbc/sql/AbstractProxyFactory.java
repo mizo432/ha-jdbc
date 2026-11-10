@@ -170,10 +170,10 @@ public abstract class AbstractProxyFactory<Z, D extends Database<Z>, TE extends 
 				{
 					invoker.invoke(database, object);
 				}
-				catch (Throwable e)
-				{
-					this.exceptionFactory.createException(e);
-				}
+ 			catch (Throwable e)
+ 			{
+ 				throw this.exceptionFactory.createException(e);
+ 			}
 			}
 		}
 	}
