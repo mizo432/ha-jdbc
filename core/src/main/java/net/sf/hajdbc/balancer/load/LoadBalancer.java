@@ -45,7 +45,7 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	
 	private volatile SortedMap<D, AtomicInteger> databaseMap = Collections.emptySortedMap();
 	
-	private Comparator<Map.Entry<D, AtomicInteger>> comparator = new Comparator<Map.Entry<D, AtomicInteger>>()
+	private final Comparator<Map.Entry<D, AtomicInteger>> comparator = new Comparator<Map.Entry<D, AtomicInteger>>()
 	{
 		@Override
 		public int compare(Map.Entry<D, AtomicInteger> mapEntry1, Map.Entry<D, AtomicInteger> mapEntry2)

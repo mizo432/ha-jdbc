@@ -33,7 +33,7 @@ import net.sf.hajdbc.messages.MessagesFactory;
  */
 public class DatabaseClusterConfigurationReader_3_1<Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> extends DatabaseClusterConfigurationReader_3_0<Z, D, B>
 {
-	private static Messages messages = MessagesFactory.getMessages();
+	private static final Messages messages = MessagesFactory.getMessages();
 	
 	public static final DatabaseClusterConfigurationReaderFactory FACTORY = new DatabaseClusterConfigurationReaderFactory()
 	{

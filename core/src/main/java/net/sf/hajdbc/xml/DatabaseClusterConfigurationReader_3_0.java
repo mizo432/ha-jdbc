@@ -42,7 +42,7 @@ import net.sf.hajdbc.util.ServiceLoaders;
 @SuppressWarnings("deprecation")
 public class DatabaseClusterConfigurationReader_3_0<Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> implements DatabaseClusterConfigurationReader<Z, D, B>, Constants
 {
-	private static Messages messages = MessagesFactory.getMessages();
+	private static final Messages messages = MessagesFactory.getMessages();
 
 	public static final DatabaseClusterConfigurationReaderFactory FACTORY = new DatabaseClusterConfigurationReaderFactory()
 	{
