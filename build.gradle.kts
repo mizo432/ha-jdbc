@@ -1,11 +1,17 @@
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val haJdbcVersion = "4.0.0-alpha-1-SNAPSHOT"
 
 plugins {
     id("com.github.spotbugs") version "6.5.12" apply false
+    jacoco
+}
+
+repositories {
+    mavenCentral()
 }
 
 subprojects {
@@ -51,3 +57,25 @@ subprojects {
         mavenCentral()
     }
 }
+
+// Aggregated JaCoCo test coverage report for all subprojects
+val jacocoTestReport by tasks.registering(JacocoReport::class) {
+    description = "Generates an aggregate JaCoCo test coverage report for all subprojects."
+    group = "verification"
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    subprojects.forEach { subproject ->
+        subproject.plugins.withId("jacoco") {
+            subproject.tasks.withType<JacocoReport>().configureEach {
+                this@registering.executionData(this.executionData)
+            }
+            sourceSets(subproject.extensions.getByType<org.gradle.api.tasks.SourceSetContainer>()
+                .named("main").get())
+        }
+    }
+}
+

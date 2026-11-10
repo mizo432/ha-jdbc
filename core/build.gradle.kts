@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    jacoco
 }
 
 // Resource filtering for .properties files with @token@ syntax
