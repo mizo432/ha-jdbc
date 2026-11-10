@@ -134,10 +134,6 @@ public class Objects
 	 */
 	public static <T> T readObject(ObjectInput input, Class<T> targetClass)
 	{
-//		ClassLoader originalLoader = getThreadContextClassLoader();
-		
-//		setThreadContextClassLoader(targetClass.getClassLoader());
-		
 		try
 		{
 			return targetClass.cast(input.readObject());
@@ -150,44 +146,10 @@ public class Objects
 		{
 			throw new IllegalStateException(e);
 		}
-//		finally
-//		{
-//			setThreadContextClassLoader(originalLoader);
-//		}
 	}
 	
 	private Objects()
 	{
 		// Hide
 	}
-/*
-	private static ClassLoader getThreadContextClassLoader()
-	{
-		PrivilegedAction<ClassLoader> action = new PrivilegedAction<ClassLoader>()
-		{
-			@Override
-			public ClassLoader run()
-			{
-				return Thread.currentThread().getContextClassLoader();
-			}
-		};
-		
-		return Security.run(action);
-	}
-	
-	private static void setThreadContextClassLoader(final ClassLoader loader)
-	{
-		PrivilegedAction<Void> action = new PrivilegedAction<Void>()
-		{
-			@Override
-			public Void run()
-			{
-				Thread.currentThread().setContextClassLoader(loader);
-				return null;
-			}
-		};
-		
-		Security.run(action);
-	}
-*/
 }
