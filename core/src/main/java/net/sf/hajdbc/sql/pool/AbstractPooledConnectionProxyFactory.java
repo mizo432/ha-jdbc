@@ -92,7 +92,7 @@ public abstract class AbstractPooledConnectionProxyFactory<Z, D extends Database
 	@SuppressWarnings("unused")
 	private static class ConnectionEventListenerFilter<Z, D extends Database<Z>, C extends PooledConnection> implements ConnectionEventListener
 	{
-		private AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
+		private final AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
 		private final D database;
 		private final ConnectionEventListener listener;
 		
@@ -142,7 +142,7 @@ public abstract class AbstractPooledConnectionProxyFactory<Z, D extends Database
 	@SuppressWarnings("unused")
 	private static class StatementEventListenerFilter<Z, D extends Database<Z>, C extends PooledConnection> implements StatementEventListener
 	{
-		private AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
+		private final AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
 		private final D database;
 		private final StatementEventListener listener;
 		
