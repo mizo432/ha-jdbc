@@ -115,6 +115,7 @@ public class SemaphoreReadWriteLock implements ReadWriteLock
 						this.semaphore.release(drained);
 					}
 					
+					Thread.currentThread().interrupt();
 					throw e;
 				}
 			}

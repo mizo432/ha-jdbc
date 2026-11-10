@@ -115,6 +115,7 @@ public class SemaphoreLockManager implements LockManager
 			catch (InterruptedException e)
 			{
 				this.globalLock.unlock();
+				Thread.currentThread().interrupt();
 				throw e;
 			}
 		}
