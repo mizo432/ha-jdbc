@@ -30,7 +30,8 @@ import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.sql.ProxyFactory;
 import net.sf.hajdbc.state.StateManager;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -66,9 +67,9 @@ public class InvokeOnManyInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertEquals(2, result.size());
-		Assertions.assertEquals("result1", result.get(db1));
-		Assertions.assertEquals("result2", result.get(db2));
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get(db1)).isEqualTo("result1");
+		assertThat(result.get(db2)).isEqualTo("result2");
 	}
 
 	@Test
@@ -109,8 +110,8 @@ public class InvokeOnManyInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result1", result.get(db1));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(db1)).isEqualTo("result1");
 		verify(cluster).deactivate(eq(db2), eq(stateManager));
 	}
 
@@ -148,12 +149,13 @@ public class InvokeOnManyInvocationStrategyTest {
 
 		InvokeOnManyInvocationStrategy strategy = new InvokeOnManyInvocationStrategy(collector);
 
-		Assertions.assertThrows(RuntimeException.class, () -> strategy.invoke(factory, new Invoker<Void, MockDatabase, String, String, Exception>() {
+		assertThatThrownBy(() -> strategy.invoke(factory, new Invoker<Void, MockDatabase, String, String, Exception>() {
 			@Override
 			public String invoke(MockDatabase database, String object) {
 				return "result";
 			}
-		}));
+		}))
+			.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -194,8 +196,8 @@ public class InvokeOnManyInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result1", result.get(db1));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(db1)).isEqualTo("result1");
 		verify(cluster).deactivate(eq(db2), eq(stateManager));
 	}
 
@@ -218,6 +220,6 @@ public class InvokeOnManyInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertTrue(result.isEmpty());
+		assertThat(result).isEmpty();
 	}
 }

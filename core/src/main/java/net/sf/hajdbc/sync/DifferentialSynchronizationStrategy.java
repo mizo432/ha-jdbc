@@ -486,8 +486,8 @@ public class DifferentialSynchronizationStrategy implements SynchronizationStrat
 										}
 										
 										logger.log(Level.INFO, messages.insertCount(table, insertCount));
-										logger.log(Level.INFO, messages.updateCount(table, insertCount));
-										logger.log(Level.INFO, messages.deleteCount(table, insertCount));
+										logger.log(Level.INFO, messages.updateCount(table, updateCount));
+										logger.log(Level.INFO, messages.deleteCount(table, deleteCount));
 									}
 								}
 							}

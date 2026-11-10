@@ -143,7 +143,10 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		
 		try
 		{
-			XMLStreamReader reader = new PropertyReplacementFilter(XMLInputFactory.newFactory().createXMLStreamReader(this.streamFactory.createSource()));
+			XMLInputFactory factory = XMLInputFactory.newFactory();
+			factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+			factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+			XMLStreamReader reader = new PropertyReplacementFilter(factory.createXMLStreamReader(this.streamFactory.createSource()));
 			reader.nextTag();
 			String uri = reader.getNamespaceURI();
 			Namespace namespace = this.namespaces.get(uri);

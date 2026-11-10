@@ -168,11 +168,9 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 				{
 					statement.executeUpdate(TRUNCATE_STATE_SQL);
 				}
-				
+
 				try (PreparedStatement statement = connection.prepareStatement(INSERT_STATE_SQL))
 				{
-					statement.addBatch(TRUNCATE_STATE_SQL);
-					
 					for (String database: databases)
 					{
 						statement.clearParameters();

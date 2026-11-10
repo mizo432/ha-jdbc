@@ -31,7 +31,8 @@ import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.sql.ProxyFactory;
 import net.sf.hajdbc.state.StateManager;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -72,8 +73,8 @@ public class InvokeOnOneInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result", result.get(database));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(database)).isEqualTo("result");
 	}
 
 	@Test
@@ -106,8 +107,8 @@ public class InvokeOnOneInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result", result.get(database));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(database)).isEqualTo("result");
 	}
 
 	@Test
@@ -155,8 +156,8 @@ public class InvokeOnOneInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result", result.get(database2));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(database2)).isEqualTo("result");
 		verify(cluster).deactivate(eq(database1), eq(stateManager));
 	}
 
@@ -177,12 +178,13 @@ public class InvokeOnOneInvocationStrategyTest {
 
 		InvokeOnOneInvocationStrategy strategy = new InvokeOnOneInvocationStrategy(new NextDatabaseSelector());
 
-		Assertions.assertThrows(RuntimeException.class, () -> strategy.invoke(factory, new Invoker<Void, MockDatabase, String, String, Exception>() {
+		assertThatThrownBy(() -> strategy.invoke(factory, new Invoker<Void, MockDatabase, String, String, Exception>() {
 			@Override
 			public String invoke(MockDatabase database, String object) {
 				return "result";
 			}
-		}));
+		}))
+			.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -224,7 +226,7 @@ public class InvokeOnOneInvocationStrategyTest {
 			}
 		});
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result", result.get(database2));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(database2)).isEqualTo("result");
 	}
 }

@@ -33,7 +33,8 @@ import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.sql.ProxyFactory;
 import net.sf.hajdbc.state.StateManager;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -81,8 +82,8 @@ public class InvokeOnAnyInvocationStrategyTest {
 
 		SortedMap<MockDatabase, String> result = strategy.invoke(factory, invoker);
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result-1", result.get(db1));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(db1)).isEqualTo("result-1");
 		verify(fallbackStrategy, never()).invoke(any(ProxyFactory.class), any(Invoker.class));
 	}
 
@@ -125,12 +126,9 @@ public class InvokeOnAnyInvocationStrategyTest {
 			}
 		};
 
-		try {
-			strategy.invoke(factory, invoker);
-			Assertions.fail("Expected exception");
-		} catch (RuntimeException e) {
-			Assertions.assertEquals("Database failure", e.getMessage());
-		}
+		assertThatThrownBy(() -> strategy.invoke(factory, invoker))
+			.isInstanceOf(RuntimeException.class)
+			.hasMessage("Database failure");
 	}
 
 	@Test
@@ -183,8 +181,8 @@ public class InvokeOnAnyInvocationStrategyTest {
 
 		SortedMap<MockDatabase, String> result = strategy.invoke(factory, invoker);
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result-2", result.get(db2));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(db2)).isEqualTo("result-2");
 		verify(cluster).deactivate(eq(db1), eq(stateManager));
 	}
 
@@ -225,8 +223,8 @@ public class InvokeOnAnyInvocationStrategyTest {
 
 		SortedMap<MockDatabase, String> result = strategy.invoke(factory, invoker);
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("result-2", result.get(db2));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(db2)).isEqualTo("result-2");
 		verify(fallbackStrategy, never()).invoke(any(ProxyFactory.class), any(Invoker.class));
 	}
 
@@ -262,8 +260,8 @@ public class InvokeOnAnyInvocationStrategyTest {
 
 		SortedMap<MockDatabase, String> result = strategy.invoke(factory, invoker);
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals("fallback-result", result.get(db1));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(db1)).isEqualTo("fallback-result");
 		verify(fallbackStrategy).invoke(eq(factory), any(Invoker.class));
 	}
 }

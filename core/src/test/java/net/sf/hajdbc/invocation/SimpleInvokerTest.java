@@ -25,7 +25,7 @@ import net.sf.hajdbc.MockDatabase;
 import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.durability.Durability;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -58,7 +58,7 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker =
 			new SimpleInvoker<>(method, new Object[0], createExceptionFactory());
 
-		Assertions.assertSame(method, invoker.getMethod());
+		assertThat(invoker.getMethod()).isSameAs(method);
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker =
 			new SimpleInvoker<>(method, params, createExceptionFactory());
 
-		Assertions.assertSame(params, invoker.getParameters());
+		assertThat(invoker.getParameters()).isSameAs(params);
 	}
 
 	@Test
@@ -78,7 +78,7 @@ public class SimpleInvokerTest {
 			new SimpleInvoker<>(method, new Object[0], createExceptionFactory());
 
 		String result = invoker.invoke(new MockDatabase("1"), "test");
-		Assertions.assertEquals("test", result);
+		assertThat(result).isEqualTo("test");
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker2 =
 			new SimpleInvoker<>(method, new Object[0], createExceptionFactory());
 
-		Assertions.assertEquals(invoker1, invoker2);
+		assertThat(invoker1).isEqualTo(invoker2);
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker2 =
 			new SimpleInvoker<>(method2, new Object[0], createExceptionFactory());
 
-		Assertions.assertNotEquals(invoker1, invoker2);
+		assertThat(invoker1).isNotEqualTo(invoker2);
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker =
 			new SimpleInvoker<>(method, new Object[0], createExceptionFactory());
 
-		Assertions.assertNotEquals(invoker, null);
+		assertThat(invoker).isNotEqualTo(null);
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker =
 			new SimpleInvoker<>(method, new Object[0], createExceptionFactory());
 
-		Assertions.assertNotEquals(invoker, "string");
+		assertThat(invoker).isNotEqualTo("string");
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker =
 			new SimpleInvoker<>(method, new Object[0], createExceptionFactory());
 
-		Assertions.assertEquals(method.hashCode(), invoker.hashCode());
+		assertThat(invoker.hashCode()).isEqualTo(method.hashCode());
 	}
 
 	@Test
@@ -138,6 +138,6 @@ public class SimpleInvokerTest {
 		SimpleInvoker<Void, MockDatabase, String, String, Exception> invoker =
 			new SimpleInvoker<>(method, new Object[0], createExceptionFactory());
 
-		Assertions.assertEquals(method.toString(), invoker.toString());
+		assertThat(invoker.toString()).isEqualTo(method.toString());
 	}
 }

@@ -19,7 +19,8 @@ package net.sf.hajdbc.lock.semaphore;
 
 import java.util.concurrent.locks.Lock;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -32,10 +33,10 @@ public class SemaphoreLockManagerTest {
 		SemaphoreLockManager lockManager = new SemaphoreLockManager(false);
 		
 		Lock lock = lockManager.readLock(null);
-		Assertions.assertNotNull(lock);
+		assertThat(lock).isNotNull();
 		
 		// Should be able to acquire read lock
-		Assertions.assertTrue(lock.tryLock());
+		assertThat(lock.tryLock()).isTrue();
 		lock.unlock();
 	}
 
@@ -44,10 +45,10 @@ public class SemaphoreLockManagerTest {
 		SemaphoreLockManager lockManager = new SemaphoreLockManager(false);
 		
 		Lock lock = lockManager.writeLock(null);
-		Assertions.assertNotNull(lock);
+		assertThat(lock).isNotNull();
 		
 		// Should be able to acquire write lock
-		Assertions.assertTrue(lock.tryLock());
+		assertThat(lock.tryLock()).isTrue();
 		lock.unlock();
 	}
 
@@ -56,10 +57,10 @@ public class SemaphoreLockManagerTest {
 		SemaphoreLockManager lockManager = new SemaphoreLockManager(false);
 		
 		Lock lock = lockManager.readLock("table1");
-		Assertions.assertNotNull(lock);
+		assertThat(lock).isNotNull();
 		
 		// Should be able to acquire read lock
-		Assertions.assertTrue(lock.tryLock());
+		assertThat(lock.tryLock()).isTrue();
 		lock.unlock();
 	}
 
@@ -68,10 +69,10 @@ public class SemaphoreLockManagerTest {
 		SemaphoreLockManager lockManager = new SemaphoreLockManager(false);
 		
 		Lock lock = lockManager.writeLock("table1");
-		Assertions.assertNotNull(lock);
+		assertThat(lock).isNotNull();
 		
 		// Should be able to acquire write lock
-		Assertions.assertTrue(lock.tryLock());
+		assertThat(lock.tryLock()).isTrue();
 		lock.unlock();
 	}
 
@@ -83,8 +84,8 @@ public class SemaphoreLockManagerTest {
 		Lock lock2 = lockManager.readLock("table1");
 		
 		// Multiple readers should be able to acquire locks
-		Assertions.assertTrue(lock1.tryLock());
-		Assertions.assertTrue(lock2.tryLock());
+		assertThat(lock1.tryLock()).isTrue();
+		assertThat(lock2.tryLock()).isTrue();
 		
 		lock1.unlock();
 		lock2.unlock();
@@ -98,15 +99,15 @@ public class SemaphoreLockManagerTest {
 		Lock readLock = lockManager.readLock("table1");
 		
 		// Acquire write lock
-		Assertions.assertTrue(writeLock.tryLock());
+		assertThat(writeLock.tryLock()).isTrue();
 		
 		// Read lock should not be able to acquire while write lock is held
-		Assertions.assertFalse(readLock.tryLock());
+		assertThat(readLock.tryLock()).isFalse();
 		
 		writeLock.unlock();
 		
 		// Now read lock should be able to acquire
-		Assertions.assertTrue(readLock.tryLock());
+		assertThat(readLock.tryLock()).isTrue();
 		readLock.unlock();
 	}
 
@@ -118,15 +119,15 @@ public class SemaphoreLockManagerTest {
 		Lock writeLock = lockManager.writeLock("table1");
 		
 		// Acquire read lock
-		Assertions.assertTrue(readLock.tryLock());
+		assertThat(readLock.tryLock()).isTrue();
 		
 		// Write lock should not be able to acquire while read lock is held
-		Assertions.assertFalse(writeLock.tryLock());
+		assertThat(writeLock.tryLock()).isFalse();
 		
 		readLock.unlock();
 		
 		// Now write lock should be able to acquire
-		Assertions.assertTrue(writeLock.tryLock());
+		assertThat(writeLock.tryLock()).isTrue();
 		writeLock.unlock();
 	}
 
@@ -138,8 +139,8 @@ public class SemaphoreLockManagerTest {
 		Lock lock2 = lockManager.writeLock("table2");
 		
 		// Different objects should have independent locks
-		Assertions.assertTrue(lock1.tryLock());
-		Assertions.assertTrue(lock2.tryLock());
+		assertThat(lock1.tryLock()).isTrue();
+		assertThat(lock2.tryLock()).isTrue();
 		
 		lock1.unlock();
 		lock2.unlock();
@@ -159,9 +160,9 @@ public class SemaphoreLockManagerTest {
 		SemaphoreLockManager lockManager = new SemaphoreLockManager(true);
 		
 		Lock lock = lockManager.readLock("table1");
-		Assertions.assertNotNull(lock);
+		assertThat(lock).isNotNull();
 		
-		Assertions.assertTrue(lock.tryLock());
+		assertThat(lock.tryLock()).isTrue();
 		lock.unlock();
 	}
 
@@ -172,12 +173,8 @@ public class SemaphoreLockManagerTest {
 		Lock lock = lockManager.readLock("table1");
 		
 		// GlobalLock should not support conditions
-		try {
-			lock.newCondition();
-			Assertions.fail("Expected UnsupportedOperationException");
-		} catch (UnsupportedOperationException e) {
-			// Expected
-		}
+		assertThatThrownBy(() -> lock.newCondition())
+			.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
@@ -204,20 +201,20 @@ public class SemaphoreLockManagerTest {
 		Lock lock2 = lockManager.readLock("table1");
 		Lock lock3 = lockManager.readLock("table1");
 		
-		Assertions.assertTrue(lock1.tryLock());
-		Assertions.assertTrue(lock2.tryLock());
-		Assertions.assertTrue(lock3.tryLock());
+		assertThat(lock1.tryLock()).isTrue();
+		assertThat(lock2.tryLock()).isTrue();
+		assertThat(lock3.tryLock()).isTrue();
 		
 		// Write lock should not be able to acquire
 		Lock writeLock = lockManager.writeLock("table1");
-		Assertions.assertFalse(writeLock.tryLock());
+		assertThat(writeLock.tryLock()).isFalse();
 		
 		lock1.unlock();
 		lock2.unlock();
 		lock3.unlock();
 		
 		// Now write lock should be able to acquire
-		Assertions.assertTrue(writeLock.tryLock());
+		assertThat(writeLock.tryLock()).isTrue();
 		writeLock.unlock();
 	}
 }

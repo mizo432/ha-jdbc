@@ -19,7 +19,7 @@ public enum InvocationStrategies implements InvocationStrategy
 	END_TRANSACTION_INVOKE_ON_ALL(new InvokeOnManyInvocationStrategy(new AllResultsCollector(new TransactionalExecutorProvider(true)))),
 	;
 	
-	private static final Logger logger = LoggerFactory.getLogger(SimpleInvoker.class);
+	private static final Logger logger = LoggerFactory.getLogger(InvocationStrategies.class);
 	
 	private final InvocationStrategy strategy;
 	

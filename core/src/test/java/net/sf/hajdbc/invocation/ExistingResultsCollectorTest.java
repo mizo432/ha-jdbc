@@ -30,7 +30,8 @@ import net.sf.hajdbc.MockDatabase;
 import net.sf.hajdbc.balancer.Balancer;
 import net.sf.hajdbc.sql.ProxyFactory;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -72,10 +73,10 @@ public class ExistingResultsCollectorTest {
 
 		Map.Entry<SortedMap<MockDatabase, String>, SortedMap<MockDatabase, Exception>> result = collector.collectResults(factory, invoker);
 
-		Assertions.assertEquals(2, result.getKey().size());
-		Assertions.assertEquals("result-1", result.getKey().get(db1));
-		Assertions.assertEquals("result-2", result.getKey().get(db2));
-		Assertions.assertTrue(result.getValue().isEmpty());
+		assertThat(result.getKey().size()).isEqualTo(2);
+		assertThat(result.getKey().get(db1)).isEqualTo("result-1");
+		assertThat(result.getKey().get(db2)).isEqualTo("result-2");
+		assertThat(result.getValue()).isEmpty();
 	}
 
 	@Test
@@ -117,10 +118,10 @@ public class ExistingResultsCollectorTest {
 
 		Map.Entry<SortedMap<MockDatabase, String>, SortedMap<MockDatabase, Exception>> result = collector.collectResults(factory, invoker);
 
-		Assertions.assertEquals(1, result.getKey().size());
-		Assertions.assertEquals("result-1", result.getKey().get(db1));
-		Assertions.assertEquals(1, result.getValue().size());
-		Assertions.assertSame(failureException, result.getValue().get(db2));
+		assertThat(result.getKey().size()).isEqualTo(1);
+		assertThat(result.getKey().get(db1)).isEqualTo("result-1");
+		assertThat(result.getValue().size()).isEqualTo(1);
+		assertThat(result.getValue().get(db2)).isSameAs(failureException);
 	}
 
 	@Test
@@ -159,10 +160,10 @@ public class ExistingResultsCollectorTest {
 
 		Map.Entry<SortedMap<MockDatabase, String>, SortedMap<MockDatabase, Exception>> result = collector.collectResults(factory, invoker);
 
-		Assertions.assertEquals(1, result.getKey().size());
-		Assertions.assertEquals("result-1", result.getKey().get(db1));
+		assertThat(result.getKey().size()).isEqualTo(1);
+		assertThat(result.getKey().get(db1)).isEqualTo("result-1");
 		// db2's exception should be ignored since it was concurrently deactivated
-		Assertions.assertTrue(result.getValue().isEmpty());
+		assertThat(result.getValue()).isEmpty();
 	}
 
 	@Test
@@ -181,8 +182,8 @@ public class ExistingResultsCollectorTest {
 
 		Map.Entry<SortedMap<MockDatabase, String>, SortedMap<MockDatabase, Exception>> result = collector.collectResults(factory, invoker);
 
-		Assertions.assertTrue(result.getKey().isEmpty());
-		Assertions.assertTrue(result.getValue().isEmpty());
+		assertThat(result.getKey()).isEmpty();
+		assertThat(result.getValue()).isEmpty();
 	}
 
 	@Test
@@ -224,9 +225,9 @@ public class ExistingResultsCollectorTest {
 
 		Map.Entry<SortedMap<MockDatabase, String>, SortedMap<MockDatabase, Exception>> result = collector.collectResults(factory, invoker);
 
-		Assertions.assertTrue(result.getKey().isEmpty());
-		Assertions.assertEquals(2, result.getValue().size());
-		Assertions.assertSame(failureException1, result.getValue().get(db1));
-		Assertions.assertSame(failureException2, result.getValue().get(db2));
+		assertThat(result.getKey()).isEmpty();
+		assertThat(result.getValue().size()).isEqualTo(2);
+		assertThat(result.getValue().get(db1)).isSameAs(failureException1);
+		assertThat(result.getValue().get(db2)).isSameAs(failureException2);
 	}
 }

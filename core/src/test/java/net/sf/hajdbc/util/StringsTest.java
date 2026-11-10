@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -32,41 +32,41 @@ public class StringsTest {
 	@Test
 	public void joinEmptyCollection() {
 		String result = Strings.join(Collections.<String>emptyList(), ",");
-		Assertions.assertEquals("", result);
+		assertThat(result).isEmpty();
 	}
 
 	@Test
 	public void joinSingleElement() {
 		String result = Strings.join(Collections.singletonList("a"), ",");
-		Assertions.assertEquals("a", result);
+		assertThat(result).isEqualTo("a");
 	}
 
 	@Test
 	public void joinMultipleElements() {
 		List<String> list = Arrays.asList("a", "b", "c");
 		String result = Strings.join(list, ",");
-		Assertions.assertEquals("a,b,c", result);
+		assertThat(result).isEqualTo("a,b,c");
 	}
 
 	@Test
 	public void joinWithCustomDelimiter() {
 		List<String> list = Arrays.asList("a", "b", "c");
 		String result = Strings.join(list, " - ");
-		Assertions.assertEquals("a - b - c", result);
+		assertThat(result).isEqualTo("a - b - c");
 	}
 
 	@Test
 	public void joinArray() {
 		String[] array = new String[] { "a", "b", "c" };
 		String result = Strings.join(array, ",");
-		Assertions.assertEquals("a,b,c", result);
+		assertThat(result).isEqualTo("a,b,c");
 	}
 
 	@Test
 	public void joinEmptyArray() {
 		String[] array = new String[] {};
 		String result = Strings.join(array, ",");
-		Assertions.assertEquals("", result);
+		assertThat(result).isEmpty();
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class StringsTest {
 		List<String> list = Arrays.asList("a", "b", "c");
 		StringBuilder builder = new StringBuilder("prefix:");
 		String result = Strings.join(builder, list, ",").toString();
-		Assertions.assertEquals("prefix:a,b,c", result);
+		assertThat(result).isEqualTo("prefix:a,b,c");
 	}
 
 	@Test
@@ -82,33 +82,33 @@ public class StringsTest {
 		String[] array = new String[] { "a", "b", "c" };
 		StringBuilder builder = new StringBuilder("prefix:");
 		String result = Strings.join(builder, array, ",").toString();
-		Assertions.assertEquals("prefix:a,b,c", result);
+		assertThat(result).isEqualTo("prefix:a,b,c");
 	}
 
 	@Test
 	public void joinWithEmptyDelimiter() {
 		List<String> list = Arrays.asList("a", "b", "c");
 		String result = Strings.join(list, "");
-		Assertions.assertEquals("abc", result);
+		assertThat(result).isEqualTo("abc");
 	}
 
 	@Test
 	public void constants() {
-		Assertions.assertEquals("%", Strings.ANY);
-		Assertions.assertEquals(",", Strings.COMMA);
-		Assertions.assertEquals("-", Strings.DASH);
-		Assertions.assertEquals(".", Strings.DOT);
-		Assertions.assertEquals("", Strings.EMPTY);
-		Assertions.assertEquals(", ", Strings.PADDED_COMMA);
-		Assertions.assertEquals("?", Strings.QUESTION);
-		Assertions.assertEquals("_", Strings.UNDERSCORE);
-		Assertions.assertEquals("\t", Strings.TAB);
+		assertThat(Strings.ANY).isEqualTo("%");
+		assertThat(Strings.COMMA).isEqualTo(",");
+		assertThat(Strings.DASH).isEqualTo("-");
+		assertThat(Strings.DOT).isEqualTo(".");
+		assertThat(Strings.EMPTY).isEmpty();
+		assertThat(Strings.PADDED_COMMA).isEqualTo(", ");
+		assertThat(Strings.QUESTION).isEqualTo("?");
+		assertThat(Strings.UNDERSCORE).isEqualTo("_");
+		assertThat(Strings.TAB).isEqualTo("\t");
 	}
 
 	@Test
 	public void joinWithNullElements() {
 		List<String> list = Arrays.asList("a", null, "c");
 		String result = Strings.join(list, ",");
-		Assertions.assertEquals("a,null,c", result);
+		assertThat(result).isEqualTo("a,null,c");
 	}
 }
