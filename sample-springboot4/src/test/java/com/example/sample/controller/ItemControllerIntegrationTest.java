@@ -2,6 +2,7 @@ package com.example.sample.controller;
 
 import com.example.sample.dto.ApiResponse;
 import com.example.sample.dto.ItemRequest;
+import com.example.sample.dto.ItemRevision;
 import com.example.sample.entity.Item;
 import com.example.sample.repository.ItemRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -515,5 +516,105 @@ class ItemControllerIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isBadRequest();
+    }
+
+    // === Envers audit history tests ===
+
+    @Test
+    void testGetHistory_ShouldReturnRevisions() throws JsonProcessingException {
+        // Create an item (already done in setUp)
+        // Update it to create a new revision
+        ItemRequest updateRequest = new ItemRequest();
+        updateRequest.setName("更新された商品");
+        updateRequest.setDescription("更新された説明");
+        updateRequest.setPrice(3000);
+        updateRequest.setStock(30);
+
+        restTestClient.put()
+                .uri("/api/items/" + createdItemId)
+                .body(updateRequest)
+                .exchange()
+                .expectStatus().isOk();
+
+        // Get history
+        String responseBody = restTestClient.get()
+                .uri("/api/items/" + createdItemId + "/history")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<List<ItemRevision>> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<List<ItemRevision>>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).hasSize(2);  // Initial create + update
+
+        // First revision should have original values
+        ItemRevision firstRevision = response.getData().get(0);
+        assertThat(firstRevision.getRevisionNumber()).isNotNull();
+        assertThat(firstRevision.getName()).isEqualTo("テスト商品");
+        assertThat(firstRevision.getPrice()).isEqualTo(1500);
+
+        // Second revision should have updated values
+        ItemRevision secondRevision = response.getData().get(1);
+        assertThat(secondRevision.getName()).isEqualTo("更新された商品");
+        assertThat(secondRevision.getPrice()).isEqualTo(3000);
+    }
+
+    @Test
+    void testGetHistory_ForNewItem_ShouldReturnSingleRevision() throws JsonProcessingException {
+        // Create a new item
+        ItemRequest request = new ItemRequest();
+        request.setName("履歴テスト商品");
+        request.setDescription("履歴テスト");
+        request.setPrice(2000);
+        request.setStock(15);
+
+        String createResponse = restTestClient.post()
+                .uri("/api/items")
+                .body(request)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<Item> created = objectMapper.readValue(createResponse,
+                new TypeReference<ApiResponse<Item>>() {});
+        Long newItemId = created.getData().getId();
+
+        // Get history - should have only one revision (the initial create)
+        String responseBody = restTestClient.get()
+                .uri("/api/items/" + newItemId + "/history")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<List<ItemRevision>> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<List<ItemRevision>>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).hasSize(1);
+        assertThat(response.getData().get(0).getName()).isEqualTo("履歴テスト商品");
+    }
+
+    @Test
+    void testGetHistory_ForNonExistentItem_ShouldReturnEmptyList() throws JsonProcessingException {
+        String responseBody = restTestClient.get()
+                .uri("/api/items/99999/history")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+
+        ApiResponse<List<ItemRevision>> response = objectMapper.readValue(responseBody,
+                new TypeReference<ApiResponse<List<ItemRevision>>>() {});
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isNotNull();
+        assertThat(response.getData()).isEmpty();
     }
 }

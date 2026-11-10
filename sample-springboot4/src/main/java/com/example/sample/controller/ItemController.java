@@ -2,6 +2,7 @@ package com.example.sample.controller;
 
 import com.example.sample.dto.ApiResponse;
 import com.example.sample.dto.ItemRequest;
+import com.example.sample.dto.ItemRevision;
 import com.example.sample.entity.Item;
 import com.example.sample.service.ItemService;
 import jakarta.validation.Valid;
@@ -71,5 +72,10 @@ public class ItemController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         itemService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<ApiResponse<List<ItemRevision>>> getHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(itemService.getHistory(id)));
     }
 }

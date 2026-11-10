@@ -19,6 +19,7 @@ package net.sf.hajdbc.codec.crypto;
 
 import java.sql.SQLException;
 
+import net.sf.hajdbc.codec.Codec;
 import net.sf.hajdbc.codec.Decoder;
 import net.sf.hajdbc.codec.DecoderFactory;
 import net.sf.hajdbc.codec.MultiplexingDecoderFactory;
@@ -58,8 +59,11 @@ public class MultiplexingCodecFactoryTest extends CipherCodecFactoryTest
 	@Override
 	public void test() throws SQLException
 	{
-		Decoder codec = this.factory.createDecoder(null);
+		// Encrypt "password" using the cipher codec from the parent setup, then decode via multiplexing
+		Codec cipherCodec = new CipherCodecFactory().createCodec("cluster");
+		String encoded = cipherCodec.encode("password");
 		
-		Assert.assertEquals("password", codec.decode("?:wzAkF0hlYUeGhfzRQIxYAQ=="));
+		Decoder codec = this.factory.createDecoder(null);
+		Assert.assertEquals("password", codec.decode("?" + MultiplexingDecoderFactory.DELIMITER + encoded));
 	}
 }

@@ -19,13 +19,12 @@ package net.sf.hajdbc.codec.crypto;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.security.Key;
 import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.sql.SQLException;
-import java.util.Base64;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import net.sf.hajdbc.codec.Codec;
 
@@ -38,20 +37,21 @@ import org.junit.Test;
  */
 public class CipherCodecFactoryTest
 {
-	private static final String KEY = "x4zOovfg7+Y=";
-	private static final String ALGORITHM = "DES";
+	private static final String ALGORITHM = "AES";
+	private static final int KEY_SIZE = 128;
 	private static final String STORE_PASSWORD = "password_store";
 	private static final String KEY_PASSWORD = "password_key";
 	
-	private Key key;
+	private SecretKey key;
 	
 	@Before
 	public void before() throws Exception
 	{
 		File file = File.createTempFile("ha-jdbc", "keystore");
 		
-		SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
-		this.key = factory.generateSecret(new DESKeySpec(Base64.getDecoder().decode(KEY)));
+		KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
+		keyGenerator.init(KEY_SIZE, new SecureRandom(new byte[]{42}));
+		this.key = keyGenerator.generateKey();
 		KeyStore store = KeyStore.getInstance(CipherCodecFactory.Property.KEYSTORE_TYPE.defaultValue);
 		store.load(null, null);
 		store.setKeyEntry(CipherCodecFactory.Property.KEY_ALIAS.defaultValue, this.key, KEY_PASSWORD.toCharArray(), null);

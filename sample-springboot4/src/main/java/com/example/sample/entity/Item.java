@@ -6,10 +6,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.hibernate.envers.Audited;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "items")
+@Audited
 public class Item {
 
     @Id

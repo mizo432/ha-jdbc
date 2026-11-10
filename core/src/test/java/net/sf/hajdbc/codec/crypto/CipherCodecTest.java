@@ -18,11 +18,12 @@
 package net.sf.hajdbc.codec.crypto;
 
 import java.security.Key;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.Base64;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import net.sf.hajdbc.codec.Codec;
 
@@ -31,22 +32,24 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
+ * Tests for CipherCodec AES encryption/decryption.
  * @author Paul Ferraro
  */
 public class CipherCodecTest
 {
-	private static final String KEY = "x4zOovfg7+Y=";
-	private static final String ALGORITHM = "DES";
-	private static final String ENCODED = "wzAkF0hlYUeGhfzRQIxYAQ==";
+	private static final String ALGORITHM = "AES";
+	private static final int KEY_SIZE = 128;
 	private static final String PASSWORD = "password";
 	
 	private Codec codec;
+	private SecretKey key;
 	
 	@Before
 	public void before() throws Exception
 	{
-		SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
-		Key key = factory.generateSecret(new DESKeySpec(Base64.getDecoder().decode(KEY)));
+		KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
+		keyGenerator.init(KEY_SIZE, new SecureRandom(new byte[]{42}));
+		this.key = keyGenerator.generateKey();
 		
 		this.codec = new CipherCodec(key);
 	}
@@ -54,12 +57,54 @@ public class CipherCodecTest
 	@Test
 	public void encode() throws SQLException
 	{
-		Assert.assertEquals(ENCODED, this.codec.encode(PASSWORD));
+		String encoded = this.codec.encode(PASSWORD);
+		Assert.assertNotNull(encoded);
+		Assert.assertNotEquals(PASSWORD, encoded);
+		// Verify it's valid Base64
+		Base64.getDecoder().decode(encoded);
 	}
 	
 	@Test
 	public void decode() throws SQLException
 	{
-		Assert.assertEquals(PASSWORD, this.codec.decode(ENCODED));
+		String encoded = this.codec.encode(PASSWORD);
+		Assert.assertEquals(PASSWORD, this.codec.decode(encoded));
+	}
+	
+	@Test
+	public void encodeDecodeRoundTrip() throws SQLException
+	{
+		String original = "my-secret-password";
+		String encoded = this.codec.encode(original);
+		String decoded = this.codec.decode(encoded);
+		Assert.assertEquals(original, decoded);
+	}
+	
+	@Test
+	public void differentCiphertextForSamePlaintext() throws SQLException
+	{
+		// Each encryption should produce different ciphertext due to random IV
+		String encoded1 = this.codec.encode(PASSWORD);
+		String encoded2 = this.codec.encode(PASSWORD);
+		Assert.assertNotEquals(encoded1, encoded2);
+		// But both should decode to the same value
+		Assert.assertEquals(PASSWORD, this.codec.decode(encoded1));
+		Assert.assertEquals(PASSWORD, this.codec.decode(encoded2));
+	}
+	
+	@Test
+	public void decodeShortInputThrowsException() throws SQLException
+	{
+		// Base64 of 3 bytes — shorter than the 16-byte IV
+		String shortInput = Base64.getEncoder().encodeToString(new byte[]{1, 2, 3});
+		try
+		{
+			this.codec.decode(shortInput);
+			Assert.fail("Expected SQLException for short input");
+		}
+		catch (SQLException e)
+		{
+			Assert.assertTrue(e.getMessage().contains("too short"));
+		}
 	}
 }

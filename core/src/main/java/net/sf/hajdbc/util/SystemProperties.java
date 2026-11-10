@@ -40,6 +40,25 @@ public class SystemProperties
 		return Security.run(action);
 	}
 
+	public static String getEnvironmentVariable(final String name)
+	{
+		return getEnvironmentVariable(name, null);
+	}
+
+	public static String getEnvironmentVariable(final String name, final String defaultValue)
+	{
+		PrivilegedAction<String> action = new PrivilegedAction<String>()
+		{
+			@Override
+			public String run()
+			{
+				return System.getenv(name);
+			}
+		};
+		String result = Security.run(action);
+		return (result != null) ? result : defaultValue;
+	}
+
 	public static Properties getSystemProperties()
 	{
 		PrivilegedAction<Properties> action = new PrivilegedAction<Properties>()

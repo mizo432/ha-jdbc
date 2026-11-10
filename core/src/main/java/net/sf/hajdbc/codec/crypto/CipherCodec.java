@@ -17,33 +17,43 @@
  */
 package net.sf.hajdbc.codec.crypto;
 
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.hajdbc.codec.Codec;
 
 /**
  * 一般的な暗号化コーデックです。
+ * AES/CBC/PKCS5Paddingモードを使用し、各暗号化でランダムなIV（初期化ベクトル）を生成します。
+ * 暗号文は Base64エンコードされ、IVが先頭に付加されます。
  * @author Paul Ferraro
  */
 public class CipherCodec implements Codec
 {
+	/** AESブロックサイズ (128ビット = 16バイト) */
+	private static final int AES_BLOCK_SIZE = 16;
+
+	private static final String CIPHER_TRANSFORMATION = "AES/CBC/PKCS5Padding";
+
 	private final Key key;
-	
+
 	public CipherCodec(Key key)
 	{
 		this.key = key;
 	}
-	
+
 	public Key getKey()
 	{
 		return this.key;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see net.sf.hajdbc.codec.Codec#decode(java.lang.String)
@@ -53,11 +63,23 @@ public class CipherCodec implements Codec
 	{
 		try
 		{
-			Cipher cipher = Cipher.getInstance(this.key.getAlgorithm());
+			byte[] decoded = Base64.getDecoder().decode(value);
 
-			cipher.init(Cipher.DECRYPT_MODE, this.key);
-			
-			return new String(cipher.doFinal(Base64.getDecoder().decode(value)));
+			// IVは暗号文の先頭16バイトに格納されている
+			if (decoded.length < AES_BLOCK_SIZE)
+			{
+				throw new SQLException("Invalid encrypted data: too short");
+			}
+
+			byte[] iv = new byte[AES_BLOCK_SIZE];
+			System.arraycopy(decoded, 0, iv, 0, AES_BLOCK_SIZE);
+
+			Cipher cipher = Cipher.getInstance(CIPHER_TRANSFORMATION);
+			cipher.init(Cipher.DECRYPT_MODE, this.key, new IvParameterSpec(iv));
+
+			byte[] plaintext = cipher.doFinal(decoded, AES_BLOCK_SIZE, decoded.length - AES_BLOCK_SIZE);
+
+			return new String(plaintext, StandardCharsets.UTF_8);
 		}
 		catch (GeneralSecurityException e)
 		{
@@ -74,11 +96,22 @@ public class CipherCodec implements Codec
 	{
 		try
 		{
-			Cipher cipher = Cipher.getInstance(this.key.getAlgorithm());
+			Cipher cipher = Cipher.getInstance(CIPHER_TRANSFORMATION);
 
-			cipher.init(Cipher.ENCRYPT_MODE, this.key);
-			
-			return Base64.getEncoder().encodeToString(cipher.doFinal(value.getBytes()));
+			// ランダムなIVを生成
+			byte[] iv = new byte[AES_BLOCK_SIZE];
+			new SecureRandom().nextBytes(iv);
+
+			cipher.init(Cipher.ENCRYPT_MODE, this.key, new IvParameterSpec(iv));
+
+			byte[] ciphertext = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+
+			// IVと暗号文を結合してBase64エンコード
+			byte[] combined = new byte[iv.length + ciphertext.length];
+			System.arraycopy(iv, 0, combined, 0, iv.length);
+			System.arraycopy(ciphertext, 0, combined, iv.length, ciphertext.length);
+
+			return Base64.getEncoder().encodeToString(combined);
 		}
 		catch (GeneralSecurityException e)
 		{

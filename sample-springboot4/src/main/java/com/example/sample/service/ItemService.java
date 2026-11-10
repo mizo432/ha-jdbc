@@ -1,12 +1,16 @@
 package com.example.sample.service;
 
 import com.example.sample.dto.ItemRequest;
+import com.example.sample.dto.ItemRevision;
 import com.example.sample.entity.Item;
 import com.example.sample.repository.ItemRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.history.Revision;
+import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -56,5 +60,25 @@ public class ItemService {
     public void delete(Long id) {
         Item existing = findById(id);
         itemRepository.delete(existing);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemRevision> getHistory(Long id) {
+        Revisions<Integer, Item> revisions = itemRepository.findRevisions(id);
+        List<ItemRevision> result = new ArrayList<>();
+        for (Revision<Integer, Item> revision : revisions) {
+            ItemRevision dto = new ItemRevision();
+            dto.setRevisionNumber(revision.getRevisionNumber().orElse(null));
+            Item entity = revision.getEntity();
+            dto.setId(entity.getId());
+            dto.setName(entity.getName());
+            dto.setDescription(entity.getDescription());
+            dto.setPrice(entity.getPrice());
+            dto.setStock(entity.getStock());
+            dto.setCreatedAt(entity.getCreatedAt());
+            dto.setUpdatedAt(entity.getUpdatedAt());
+            result.add(dto);
+        }
+        return result;
     }
 }

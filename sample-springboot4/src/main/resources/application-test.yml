@@ -18,6 +18,8 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
+        envers:
+          store_data_at_delete: true
 
   # Flyway settings - disabled for testing
   flyway:

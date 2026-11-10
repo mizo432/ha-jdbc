@@ -32,6 +32,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    // Hibernate Envers for audit trail
+    implementation("org.springframework.data:spring-data-envers")
+
     // PostgreSQL Driver
     runtimeOnly("org.postgresql:postgresql")
 
