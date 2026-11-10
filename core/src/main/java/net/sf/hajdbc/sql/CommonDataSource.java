@@ -68,11 +68,11 @@ public abstract class CommonDataSource<Z extends javax.sql.CommonDataSource, D e
 	public Z getProxy() throws SQLException
 	{
 		Map.Entry<F, Z> entry = this.reference.get();
-		if (entry == null) {
+		while (entry == null) {
 			String id = this.cluster;
 			if (id == null)
 			{
-				throw new SQLException();
+				throw new SQLException("Cluster ID is not configured");
 			}
 			DatabaseClusterConfigurationFactory<Z, D> configurationFactory = this.configurationFactory;
 			DatabaseClusterConfigurationFactory<Z, D> factory = (configurationFactory == null) ? new XMLDatabaseClusterConfigurationFactory<>(id, this.config) : configurationFactory;
@@ -81,12 +81,13 @@ public abstract class CommonDataSource<Z extends javax.sql.CommonDataSource, D e
 			@SuppressWarnings("resource")
 			F proxyFactory = this.createProxyFactory(cluster);
 			entry = new AbstractMap.SimpleImmutableEntry<>(proxyFactory, proxyFactory.createProxy());
-			if (!this.reference.compareAndSet(null, entry))
+			if (this.reference.compareAndSet(null, entry))
 			{
-				proxyFactory.close();
-				cluster.stop();
-				return this.getProxy();
+				break;
 			}
+			proxyFactory.close();
+			cluster.stop();
+			entry = this.reference.get();
 		}
 		return entry.getValue();
 	}

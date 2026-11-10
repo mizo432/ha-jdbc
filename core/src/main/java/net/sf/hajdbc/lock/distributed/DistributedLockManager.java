@@ -114,7 +114,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			default:
 			{
-				throw new IllegalStateException();
+				throw new IllegalStateException("Unknown lock type: " + lock.getType());
 			}
 		}
 	}

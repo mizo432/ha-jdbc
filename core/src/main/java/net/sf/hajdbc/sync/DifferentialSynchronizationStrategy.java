@@ -337,7 +337,7 @@ public class DifferentialSynchronizationStrategy implements SynchronizationStrat
 														{
 															if (!selectAllResultSet.next())
 															{
-																throw new IllegalStateException();
+																throw new IllegalStateException("Row not found for insert synchronization in table: " + table.getName());
 															}
 															for (int i = primaryKeyColumns.size() + 1; i <= allColumns.size(); ++i)
 															{
@@ -415,7 +415,7 @@ public class DifferentialSynchronizationStrategy implements SynchronizationStrat
 														{
 															if (!selectAllResultSet.next())
 															{
-																throw new IllegalStateException();
+																throw new IllegalStateException("Row not found for update synchronization in table: " + table.getName());
 															}
 															for (int i = primaryKeyColumns.size() + 1; i <= allColumns.size(); ++i)
 															{

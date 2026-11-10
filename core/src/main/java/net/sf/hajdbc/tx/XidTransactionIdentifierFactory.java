@@ -18,7 +18,7 @@
 package net.sf.hajdbc.tx;
 
 import java.nio.ByteBuffer;
-import java.util.Random;
+import java.security.SecureRandom;
 
 import javax.transaction.xa.Xid;
 
@@ -29,6 +29,8 @@ import javax.transaction.xa.Xid;
  */
 public class XidTransactionIdentifierFactory implements TransactionIdentifierFactory<Xid>
 {
+	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
 	/**
 	 * {@inheritDoc}
 	 * Only used for testing purposes.
@@ -37,7 +39,7 @@ public class XidTransactionIdentifierFactory implements TransactionIdentifierFac
 	@Override
 	public Xid createTransactionIdentifier()
 	{
-		Random random = new Random(System.currentTimeMillis());
+		SecureRandom random = SECURE_RANDOM;
 		
 		final int formatId = random.nextInt();
 		final byte[] globalTransactionId = new byte[Xid.MAXGTRIDSIZE];
@@ -120,6 +122,6 @@ public class XidTransactionIdentifierFactory implements TransactionIdentifierFac
 	@Override
 	public int size()
 	{
-		return Integer.SIZE + Xid.MAXGTRIDSIZE + Xid.MAXBQUALSIZE;
+		return Integer.BYTES + Xid.MAXGTRIDSIZE + Xid.MAXBQUALSIZE;
 	}
 }

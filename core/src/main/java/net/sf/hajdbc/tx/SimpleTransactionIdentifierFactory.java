@@ -66,6 +66,6 @@ public class SimpleTransactionIdentifierFactory implements TransactionIdentifier
 	@Override
 	public int size()
 	{
-		return Long.SIZE;
+		return Long.BYTES;
 	}
 }

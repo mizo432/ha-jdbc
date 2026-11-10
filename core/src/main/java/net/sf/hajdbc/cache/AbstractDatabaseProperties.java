@@ -153,7 +153,7 @@ public abstract class AbstractDatabaseProperties implements DatabaseProperties
 				return name;
 			}
 		}
-		throw new IllegalStateException();
+		throw new IllegalStateException("No type found for precision " + precision);
 	}
 	
 	protected abstract Map<Integer, Entry<String, Integer>> types() throws SQLException;

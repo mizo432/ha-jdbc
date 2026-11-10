@@ -42,6 +42,8 @@ public class CipherCodec implements Codec
 
 	private static final String CIPHER_TRANSFORMATION = "AES/CBC/PKCS5Padding";
 
+	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
 	private final Key key;
 
 	public CipherCodec(Key key)
@@ -100,7 +102,7 @@ public class CipherCodec implements Codec
 
 			// ランダムなIVを生成
 			byte[] iv = new byte[AES_BLOCK_SIZE];
-			new SecureRandom().nextBytes(iv);
+			SECURE_RANDOM.nextBytes(iv);
 
 			cipher.init(Cipher.ENCRYPT_MODE, this.key, new IvParameterSpec(iv));
 

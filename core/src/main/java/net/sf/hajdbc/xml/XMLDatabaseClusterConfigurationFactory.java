@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -146,6 +147,14 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 			XMLInputFactory factory = XMLInputFactory.newFactory();
 			factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
 			factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+			try
+			{
+				factory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			}
+			catch (IllegalArgumentException e)
+			{
+				// FEATURE_SECURE_PROCESSING is not supported by this XMLInputFactory implementation
+			}
 			XMLStreamReader reader = new PropertyReplacementFilter(factory.createXMLStreamReader(this.streamFactory.createSource()));
 			reader.nextTag();
 			String uri = reader.getNamespaceURI();

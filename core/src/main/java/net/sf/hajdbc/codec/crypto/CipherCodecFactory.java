@@ -27,6 +27,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 import net.sf.hajdbc.codec.Codec;
 import net.sf.hajdbc.codec.CodecFactory;
@@ -219,14 +220,33 @@ public class CipherCodecFactory implements CodecFactory
 		
 		try
 		{
-			KeyStore store = KeyStore.getInstance(type);
-			
-			try (InputStream input = new FileInputStream(file))
+			char[] storePassword = null;
+			char[] keyPass = null;
+			try
 			{
-				store.load(input, (password != null) ? password.toCharArray() : null);
+				storePassword = (password != null) ? password.toCharArray() : null;
+				keyPass = (keyPassword != null) ? keyPassword.toCharArray() : null;
+
+				KeyStore store = KeyStore.getInstance(type);
+
+				try (InputStream input = new FileInputStream(file))
+				{
+					store.load(input, storePassword);
+				}
+
+				return new CipherCodec(store.getKey(keyAlias, keyPass));
 			}
-			
-			return new CipherCodec(store.getKey(keyAlias, (keyPassword != null) ? keyPassword.toCharArray() : null));
+			finally
+			{
+				if (storePassword != null)
+				{
+					Arrays.fill(storePassword, (char) 0);
+				}
+				if (keyPass != null)
+				{
+					Arrays.fill(keyPass, (char) 0);
+				}
+			}
 		}
 		catch (GeneralSecurityException e)
 		{
