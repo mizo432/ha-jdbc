@@ -34,7 +34,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class SQLiteDbPoolProvider extends AbstractPoolProvider<SqlJetDb, SqlJetException>
 {
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final File file;
 

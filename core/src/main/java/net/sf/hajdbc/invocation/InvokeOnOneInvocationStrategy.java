@@ -40,7 +40,7 @@ import net.sf.hajdbc.state.StateManager;
 public class InvokeOnOneInvocationStrategy implements InvocationStrategy
 {
 	private static final Messages messages = MessagesFactory.getMessages();
-	private static Logger logger = LoggerFactory.getLogger(InvokeOnOneInvocationStrategy.class);
+	private static final Logger logger = LoggerFactory.getLogger(InvokeOnOneInvocationStrategy.class);
 	
 	public static interface DatabaseSelector
 	{

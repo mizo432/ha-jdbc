@@ -92,6 +92,7 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 	private volatile boolean detectIdentityColumns = false;
 	private volatile boolean detectSequences = false;
 	private volatile boolean allowEmptyCluster = false;
+	private volatile long lockTimeoutMs = 5 * 60 * 1000; // 5 minutes default
 	
 	protected DatabaseClusterConfigurationBuilder(DatabaseBuilderFactory<Z, D, B> factory)
 	{
@@ -371,6 +372,12 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		return this;
 	}
 
+	public DatabaseClusterConfigurationBuilder<Z, D, B> lockTimeoutMs(long lockTimeoutMs)
+	{
+		this.lockTimeoutMs = lockTimeoutMs;
+		return this;
+	}
+
 	@Override
 	public DatabaseClusterConfigurationBuilder<Z, D, B> read(DatabaseClusterConfiguration<Z, D> configuration)
 	{
@@ -404,6 +411,7 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		final boolean detectIdentityColumns = this.detectIdentityColumns;
 		final boolean detectSequences = this.detectSequences;
 		final boolean allowEmptyCluster = this.allowEmptyCluster;
+		final long lockTimeoutMs = this.lockTimeoutMs;
 		
 		if (this.synchronizationStrategyBuilders.isEmpty())
 		{
@@ -580,11 +588,17 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 				return allowEmptyCluster;
 			}
 
-			@Override
-			public InputSinkProvider getInputSinkProvider()
-			{
-				return inputSinkProvider;
-			}
-		};
-	}
+ 		@Override
+ 		public InputSinkProvider getInputSinkProvider()
+ 		{
+ 			return inputSinkProvider;
+ 		}
+
+ 		@Override
+ 		public long getLockTimeoutMs()
+ 		{
+ 			return lockTimeoutMs;
+ 		}
+ 	};
+ }
 }

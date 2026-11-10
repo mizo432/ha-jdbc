@@ -43,8 +43,7 @@ subprojects {
                 maybeCreate("html").getRequired().set(true)
                 maybeCreate("xml").getRequired().set(true)
             }
-            // SpotBugs has pre-existing warnings; keep ignore failures enabled until they are resolved
-            setIgnoreFailures(true)
+            excludeFilter.set(rootProject.layout.projectDirectory.file("spotbugs-exclude.xml"))
         }
     }
 

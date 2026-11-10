@@ -132,4 +132,10 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	boolean isEmptyClusterAllowed();
 
 	InputSinkProvider getInputSinkProvider();
+
+	/**
+	 * 分散ロックの取得タイムアウトをミリ秒単位で返します。
+	 * @return ロックタイムアウト（ミリ秒）
+	 */
+	long getLockTimeoutMs();
 }

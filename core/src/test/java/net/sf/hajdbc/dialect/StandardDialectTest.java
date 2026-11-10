@@ -534,7 +534,7 @@ public class StandardDialectTest
 		
 		when(database.getCredentials()).thenReturn(credentials);
 		when(credentials.getUser()).thenReturn(user);
-		when(credentials.decodePassword(decoder)).thenReturn(password);
+		when(credentials.decodePassword(decoder)).thenAnswer(invocation -> password.toCharArray());
 		when(database.connect(decoder)).thenReturn(connection);
 		when(connection.getMetaData()).thenReturn(metaData);
 		when(metaData.getURL()).thenReturn(String.format("jdbc:%s://%s:%s/%s?loginTimeout=0&socketTimeout=0&prepareThreshold=5&unknownLength=2147483647&tcpKeepAlive=false&binaryTransfer=true", this.factory.getId(), host, port, databaseName));
@@ -546,7 +546,7 @@ public class StandardDialectTest
 		assertThat(properties.getPort()).isEqualTo(port);
 		assertThat(properties.getDatabase()).isEqualTo(databaseName);
 		assertThat(properties.getUser()).isSameAs(user);
-		assertThat(properties.getPassword()).isSameAs(password);
+		assertThat(properties.getPassword()).isEqualTo(password);
 
 		when(metaData.getURL()).thenReturn(String.format("jdbc:%s:%s?loginTimeout=0&socketTimeout=0&prepareThreshold=5&unknownLength=2147483647&tcpKeepAlive=false&binaryTransfer=true", this.factory.getId(), databaseName));
 		
@@ -556,6 +556,6 @@ public class StandardDialectTest
 		assertThat(properties.getPort()).isNull();
 		assertThat(properties.getDatabase()).isEqualTo(databaseName);
 		assertThat(properties.getUser()).isSameAs(user);
-		assertThat(properties.getPassword()).isSameAs(password);
+		assertThat(properties.getPassword()).isEqualTo(password);
 	}
 }

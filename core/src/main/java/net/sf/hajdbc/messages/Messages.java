@@ -112,4 +112,5 @@ public interface Messages
 	String sendCommandToClusterFailed(Command<?, ?> command);
 	String sendCommandToMemberFailed(Command<?, ?> command, Member member);
 	String executeCommandFailed(Command<?, ?> command, Member member);
+	String acquireLockFailed(Object lockDescriptor);
 }

@@ -348,6 +348,12 @@ public class SimpleMessages implements Messages
 		return this.tr("Failed to execute command '{0}' on member '{1}'. Check member's database state and resources", command, member);
 	}
 
+	@Override
+	public String acquireLockFailed(Object lockDescriptor)
+	{
+		return this.tr("Failed to acquire lock '{0}' during state transfer. The lock may be held by another thread", lockDescriptor);
+	}
+
 	// The awkward method name is intentional so that the strings in this class will be parsed by the gettext-maven-plugin
 	protected String tr(String message)
 	{

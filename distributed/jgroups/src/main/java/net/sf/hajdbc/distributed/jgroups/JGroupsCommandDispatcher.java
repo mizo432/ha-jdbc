@@ -129,6 +129,7 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 			{
 				channel.disconnect();
 			}
+			channel.close();
 		}
 	}
 
@@ -157,6 +158,10 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 	@Override
 	public <R> CommandResponse<R> execute(Command<R, C> command, Member member) throws Exception
 	{
+		if (!(member instanceof AddressMember))
+			{
+				throw new IllegalArgumentException("Member must be an AddressMember: " + member.getClass().getName());
+			}
 		Message message = this.createMessage(((AddressMember) member).getAddress(), command);
 		// Use sendMessageWithFuture(...) instead of sendMessage(...) since we want to differentiate between sender exceptions and receiver exceptions
 		Future<R> future = this.dispatcher.sendMessageWithFuture(message, this.createRequestOptions());
@@ -262,14 +267,19 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 
 	public void getState(OutputStream output) throws Exception
 	{
-		ObjectOutput out = new ObjectOutputStream(output);
-		this.stateful.writeState(out);
-		out.flush();
+		try (ObjectOutput out = new ObjectOutputStream(output))
+		{
+			this.stateful.writeState(out);
+			out.flush();
+		}
 	}
 
 	public void setState(InputStream input) throws Exception
 	{
-		this.stateful.readState(new ObjectInputStream(input, Stateful.class.getClassLoader()));
+		try (ObjectInputStream inputStream = new ObjectInputStream(input, Stateful.class.getClassLoader()))
+		{
+			this.stateful.readState(inputStream);
+		}
 	}
 
 	private class RspCommandResponse<R> implements CommandResponse<R>

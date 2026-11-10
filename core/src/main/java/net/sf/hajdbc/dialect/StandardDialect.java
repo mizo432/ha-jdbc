@@ -952,61 +952,73 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	@Override
 	public <Z, D extends Database<Z>> ConnectionProperties getConnectionProperties(D database, Decoder decoder) throws SQLException
 	{
-		final String password = database.getCredentials().decodePassword(decoder);
-		try (Connection connection = database.connect(decoder))
+		char[] passwordChars = null;
+		try
 		{
-			DatabaseMetaData metaData = connection.getMetaData();
-			String url = metaData.getURL();
-			
-			if (url == null)
+			passwordChars = database.getCredentials().decodePassword(decoder);
+			final String password = new String(passwordChars);
+			try (Connection connection = database.connect(decoder))
 			{
-				throw new UnsupportedOperationException();
-			}
+				DatabaseMetaData metaData = connection.getMetaData();
+				String url = metaData.getURL();
 				
-			Matcher matcher = this.urlPattern.matcher(url);
-			
-			if (!matcher.find())
-			{
-				throw new UnsupportedOperationException(url);
+				if (url == null)
+				{
+					throw new UnsupportedOperationException();
+				}
+					
+				Matcher matcher = this.urlPattern.matcher(url);
+				
+				if (!matcher.find())
+				{
+					throw new UnsupportedOperationException(url);
+				}
+				
+				final String host = matcher.group("host");
+				final String port = matcher.group("port");
+				final String databaseName = matcher.group("database");
+				final String user = metaData.getUserName();
+				
+				return new ConnectionProperties()
+				{
+					@Override
+					public String getHost()
+					{
+						return host;
+					}
+
+					@Override
+					public String getPort()
+					{
+						return port;
+					}
+
+					@Override
+					public String getDatabase()
+					{
+						return databaseName;
+					}
+
+					@Override
+					public String getUser()
+					{
+						return user;
+					}
+
+					@Override
+					public String getPassword()
+					{
+						return password;
+					}
+				};
 			}
-			
-			final String host = matcher.group("host");
-			final String port = matcher.group("port");
-			final String databaseName = matcher.group("database");
-			final String user = metaData.getUserName();
-			
-			return new ConnectionProperties()
+		}
+		finally
+		{
+			if (passwordChars != null)
 			{
-				@Override
-				public String getHost()
-				{
-					return host;
-				}
-	
-				@Override
-				public String getPort()
-				{
-					return port;
-				}
-	
-				@Override
-				public String getDatabase()
-				{
-					return databaseName;
-				}
-	
-				@Override
-				public String getUser()
-				{
-					return user;
-				}
-	
-				@Override
-				public String getPassword()
-				{
-					return password;
-				}
-			};
+				Arrays.fill(passwordChars, (char) 0);
+			}
 		}
 	}
 }

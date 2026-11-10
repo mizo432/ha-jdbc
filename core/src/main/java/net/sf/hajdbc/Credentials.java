@@ -40,10 +40,11 @@ public interface Credentials
 	String getEncodedPassword();
 	
 	/**
-	 * パスワードをデコードします
+	 * パスワードをデコードします。
+	 * char[]を返すことで、使用後にパスワードをメモリから消去できます。
 	 * @param decoder デコーダー
-	 * @return デコードされたパスワード
+	 * @return デコードされたパスワード（使用後にArrays.fill()でゼロ化してください）
 	 * @throws SQLException パスワードのデコードに失敗した場合
 	 */
-	String decodePassword(Decoder decoder) throws SQLException;
+	char[] decodePassword(Decoder decoder) throws SQLException;
 }

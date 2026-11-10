@@ -50,7 +50,9 @@ public enum Namespace
 			throw new IllegalArgumentException(resource);
 		}
 		try {
-			this.schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(url);
+			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			schemaFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			this.schema = schemaFactory.newSchema(url);
 		} catch (SAXException e) {
 			throw new IllegalStateException(e);
 		}

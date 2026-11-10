@@ -95,10 +95,10 @@ public abstract class AbstractStatementProxyFactory<Z, D extends Database<Z>, S 
 			{
 				invoker.invoke(database, object);
 			}
-			catch (Throwable e)
-			{
-				this.getExceptionFactory().createException(e);
-			}
+ 		catch (Throwable e)
+ 		{
+ 			throw this.getExceptionFactory().createException(e);
+ 		}
 		}
 	}
 

@@ -17,11 +17,9 @@
  */
 package net.sf.hajdbc.sql;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
@@ -45,7 +43,7 @@ public abstract class AbstractProxyFactory<Z, D extends Database<Z>, TE extends 
 	
 	private final DatabaseCluster<Z, D> cluster;
 	private final Map<D, T> map;
-	private final Set<ChildProxyFactory<Z, D, T, E, ?, ? extends Exception>> children = Collections.newSetFromMap(new WeakHashMap<ChildProxyFactory<Z, D, T, E, ?, ? extends Exception>, Boolean>());
+	private final Set<ChildProxyFactory<Z, D, T, E, ?, ? extends Exception>> children = new HashSet<>();
 	private final Set<Invoker<Z, D, T, ?, E>> invokers = new HashSet<>();
 	private final ExceptionFactory<E> exceptionFactory;
 	

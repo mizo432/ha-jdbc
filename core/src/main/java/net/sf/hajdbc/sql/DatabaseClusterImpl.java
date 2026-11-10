@@ -185,7 +185,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 				exception = exception.getNextException();
 			}
 
-			throw new IllegalStateException(e.toString());
+			throw new IllegalStateException("Activation failed for " + database, e);
 		}
 		catch (InterruptedException e)
 		{
@@ -361,7 +361,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		}
 		catch (SQLException e)
 		{
-			throw new IllegalStateException(e.toString(), e);
+			throw new IllegalStateException("Failed to flush metadata cache", e);
 		}
 	}
 
@@ -693,7 +693,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			try
 			{
-				this.lockManager = new DistributedLockManager(this, dispatcherFactory);
+				this.lockManager = new DistributedLockManager(this, dispatcherFactory, this.configuration.getLockTimeoutMs());
 				this.stateManager = new DistributedStateManager<>(this, dispatcherFactory);
 			}
 			catch (Exception e)
@@ -824,34 +824,79 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 			}
 		}
 		
-		if (this.registrar != null)
+		try
 		{
-			this.registrar.unregister(this);
-			
-			for (D database: this.configuration.getDatabaseMap().values())
+			if (this.registrar != null)
 			{
-				this.registrar.unregister(this, database);
+				this.registrar.unregister(this);
+				
+				for (D database: this.configuration.getDatabaseMap().values())
+				{
+					this.registrar.unregister(this, database);
+				}
 			}
+		}
+		catch (Exception e)
+		{
+			logger.log(Level.WARN, e, "Failed to unregister MBeans");
 		}
 		
 		if (this.cronExecutor != null)
 		{
-			this.cronExecutor.shutdownNow();
+			this.cronExecutor.shutdown();
+			try
+			{
+				if (!this.cronExecutor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS))
+				{
+					this.cronExecutor.shutdownNow();
+				}
+			}
+			catch (InterruptedException e)
+			{
+				this.cronExecutor.shutdownNow();
+				Thread.currentThread().interrupt();
+			}
 		}
 		
-		if (this.stateManager != null)
+		try
 		{
-			this.stateManager.stop();
+			if (this.stateManager != null)
+			{
+				this.stateManager.stop();
+			}
+		}
+		catch (Exception e)
+		{
+			logger.log(Level.WARN, e, "Failed to stop state manager");
 		}
 		
-		if (this.lockManager != null)
+		try
 		{
-			this.lockManager.stop();
+			if (this.lockManager != null)
+			{
+				this.lockManager.stop();
+			}
+		}
+		catch (Exception e)
+		{
+			logger.log(Level.WARN, e, "Failed to stop lock manager");
 		}
 
 		if (this.executor != null)
 		{
-			this.executor.shutdownNow();
+			this.executor.shutdown();
+			try
+			{
+				if (!this.executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS))
+				{
+					this.executor.shutdownNow();
+				}
+			}
+			catch (InterruptedException e)
+			{
+				this.executor.shutdownNow();
+				Thread.currentThread().interrupt();
+			}
 		}
 
 		if (this.balancer != null)

@@ -19,6 +19,7 @@ package net.sf.hajdbc.state;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.durability.Durability;
@@ -35,9 +36,12 @@ import net.sf.hajdbc.util.Objects;
  */
 public class DurabilityListenerAdapter implements DurabilityListener, SerializedDurabilityEventFactory
 {
-	// TODO prevent memory leak
+	// Maximum number of cached transaction identifiers before triggering cleanup
+	private static final int MAX_CACHE_SIZE = 10000;
+	
 	// Cache serialized transaction identifiers
 	private final ConcurrentMap<Object, byte[]> transactionIdentifiers = new ConcurrentHashMap<>();
+	private final AtomicInteger cacheSize = new AtomicInteger(0);
 	private final SerializedDurabilityListener listener;
 	private final TransactionIdentifierFactory<Object> txIdFactory;
 	private final DurabilityEventFactory eventFactory;
@@ -61,6 +65,10 @@ public class DurabilityListenerAdapter implements DurabilityListener, Serialized
 		byte[] txId = this.txIdFactory.serialize(transactionId);
 		
 		this.transactionIdentifiers.put(transactionId, txId);
+		if (this.cacheSize.incrementAndGet() > MAX_CACHE_SIZE)
+		{
+			this.cleanup();
+		}
 		this.listener.beforeInvocation(txId, (byte) event.getPhase().ordinal(), (byte) event.getExceptionType().ordinal());
 	}
 
@@ -71,7 +79,12 @@ public class DurabilityListenerAdapter implements DurabilityListener, Serialized
 	@Override
 	public void afterInvocation(InvocationEvent event)
 	{
-		this.listener.afterInvocation(this.transactionIdentifiers.remove(event.getTransactionId()), (byte) event.getPhase().ordinal());
+		byte[] removed = this.transactionIdentifiers.remove(event.getTransactionId());
+		if (removed != null)
+		{
+			this.cacheSize.decrementAndGet();
+		}
+		this.listener.afterInvocation(removed, (byte) event.getPhase().ordinal());
 	}
 
 	/**
@@ -104,5 +117,15 @@ public class DurabilityListenerAdapter implements DurabilityListener, Serialized
 	public DurabilityEvent createEvent(byte[] transactionId, byte phase)
 	{
 		return this.eventFactory.createEvent(this.txIdFactory.deserialize(transactionId), Durability.Phase.values()[phase]);
+	}
+
+	/**
+	 * Clean up the transaction identifiers cache to prevent memory leaks.
+	 * This method removes entries that are no longer needed and resets the cache size counter.
+	 */
+	private void cleanup()
+	{
+		this.transactionIdentifiers.clear();
+		this.cacheSize.set(0);
 	}
 }

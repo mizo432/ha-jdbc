@@ -66,10 +66,10 @@ public class FullSynchronizationStrategy implements SynchronizationStrategy, Tab
 {
 	private static final long serialVersionUID = 9190347092842178162L;
 
-	static Messages messages = MessagesFactory.getMessages();
-	static Logger logger = LoggerFactory.getLogger(FullSynchronizationStrategy.class);
+	static final Messages messages = MessagesFactory.getMessages();
+	static final Logger logger = LoggerFactory.getLogger(FullSynchronizationStrategy.class);
 
-	private SynchronizationStrategy strategy = new PerTableSynchronizationStrategy(this);
+	private final SynchronizationStrategy strategy = new PerTableSynchronizationStrategy(this);
 	private int maxBatchSize = 100;
 	private int fetchSize = 0;
 

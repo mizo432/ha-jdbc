@@ -93,7 +93,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 	private static final String CREATE_INVOKER_SQL = MessageFormat.format("CREATE TABLE {0} ({1} {2} NOT NULL, {3} {4} NOT NULL, {5} {6} NOT NULL, {7} {8}, PRIMARY KEY ({1}, {3}, {5}))", INVOKER_TABLE, TRANSACTION_COLUMN, "{0}", PHASE_COLUMN, "{1}", DATABASE_COLUMN, "{2}", RESULT_COLUMN, "{3}");
 	private static final String CREATE_STATE_SQL = MessageFormat.format("CREATE TABLE {0} ({1} {2} NOT NULL, PRIMARY KEY ({1}))", STATE_TABLE, DATABASE_COLUMN, "{0}");
 	
-	private static Logger logger = LoggerFactory.getLogger(SQLStateManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLStateManager.class);
 	
 	final DurabilityEventFactory eventFactory;
 	final DurabilityListenerAdapter listener;

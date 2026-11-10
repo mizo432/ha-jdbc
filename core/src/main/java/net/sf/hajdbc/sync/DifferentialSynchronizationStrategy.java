@@ -75,8 +75,8 @@ public class DifferentialSynchronizationStrategy implements SynchronizationStrat
 {
 	private static final long serialVersionUID = -2785092229503649831L;
 
-	static Messages messages = MessagesFactory.getMessages();
-	static Logger logger = LoggerFactory.getLogger(DifferentialSynchronizationStrategy.class);
+	static final Messages messages = MessagesFactory.getMessages();
+	static final Logger logger = LoggerFactory.getLogger(DifferentialSynchronizationStrategy.class);
 
 	private final SynchronizationStrategy strategy = new PerTableSynchronizationStrategy(this);
 	private int fetchSize = 0;

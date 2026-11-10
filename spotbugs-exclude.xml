@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://github.com/spotbugs/filter/5.0.0"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/5.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/spotbugs-4.1.2/spotbugs/etc/findbugsfilter.xsd">
+
+    <!-- REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS: Builder methods intentionally use reflection to instantiate user-provided classes -->
+    <Match>
+        <Bug code="REFLC" />
+    </Match>
+
+    <!-- EI_EXPOSE_REP, EI_EXPOSE_REP2: Internal APIs where defensive copies add no security value -->
+    <Match>
+        <Bug code="EI" />
+    </Match>
+    <Match>
+        <Bug code="EI2" />
+    </Match>
+
+    <!-- CT_CONSTRUCTOR_THROW: Constructors may throw checked exceptions by design (e.g., SQLException) -->
+    <Match>
+        <Bug code="CT" />
+    </Match>
+
+    <!-- NM_SAME_SIMPLE_NAME_AS_INTERFACE, NM_SAME_SIMPLE_NAME_AS_SUPERCLASS: Intentional naming pattern (implementation classes share name with their interface/superclass) -->
+    <Match>
+        <Bug code="Nm" />
+    </Match>
+
+    <!-- MS_PKGPROTECT, MS_MUTABLE_COLLECTION_PKGPROTECT: Internal classes; package protection is not required -->
+    <Match>
+        <Bug code="MS" />
+    </Match>
+
+    <!-- NP_NONNULL_PARAM_VIOLATION: Intentional null keys in exception maps when no active database exists -->
+    <Match>
+        <Bug code="NP" />
+    </Match>
+
+    <!-- IMSE_DONT_CATCH_IMSE: Intentional catch of InstantiationError for reflection-based instantiation -->
+    <Match>
+        <Bug code="IMSE" />
+    </Match>
+
+    <!-- SE_BAD_FIELD: JGroups Address is Streamable (not Serializable), but AddressMember is serialized via JGroups' own mechanism -->
+    <Match>
+        <Bug code="Se" />
+    </Match>
+</FindBugsFilter>

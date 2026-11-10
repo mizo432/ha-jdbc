@@ -19,6 +19,7 @@ package net.sf.hajdbc.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import javax.sql.DataSource;
 
@@ -47,6 +48,19 @@ public class DataSourceDatabase extends CommonDataSourceDatabase<DataSource>
 	{
 		DataSource dataSource = this.getConnectionSource();
 		Credentials credentials = this.getCredentials();
-		return (credentials != null) ? dataSource.getConnection(credentials.getUser(), credentials.decodePassword(decoder)) : dataSource.getConnection();
+		if (credentials == null) return dataSource.getConnection();
+		char[] password = null;
+		try
+		{
+			password = credentials.decodePassword(decoder);
+			return dataSource.getConnection(credentials.getUser(), new String(password));
+		}
+		finally
+		{
+			if (password != null)
+			{
+				Arrays.fill(password, (char) 0);
+			}
+		}
 	}
 }

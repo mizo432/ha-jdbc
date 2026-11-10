@@ -58,9 +58,9 @@ public abstract class AbstractDatabaseBuilder<Z, D extends Database<Z>> implemen
 			}
 
 			@Override
-			public String decodePassword(Decoder decoder) throws SQLException
+			public char[] decodePassword(Decoder decoder) throws SQLException
 			{
-				return decoder.decode(password);
+				return decoder.decode(password).toCharArray();
 			}
 
 			@Override

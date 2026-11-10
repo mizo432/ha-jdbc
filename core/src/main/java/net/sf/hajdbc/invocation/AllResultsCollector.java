@@ -42,7 +42,7 @@ import net.sf.hajdbc.sql.ProxyFactory;
 public class AllResultsCollector implements InvokeOnManyInvocationStrategy.ResultsCollector
 {
 	private static final Messages messages = MessagesFactory.getMessages();
-
+	
 	public static interface ExecutorProvider
 	{
 		<Z, D extends Database<Z>> ExecutorService getExecutor(DatabaseCluster<Z, D> cluster);
@@ -118,6 +118,7 @@ public class AllResultsCollector implements InvokeOnManyInvocationStrategy.Resul
 		}
 		catch (InterruptedException e)
 		{
+			Thread.currentThread().interrupt();
 			throw new IllegalStateException(e);
 		}
 	}

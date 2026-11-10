@@ -214,6 +214,7 @@ public class SynchronizationSupportImpl<Z, D extends Database<Z>> implements Syn
 					}
 					catch (InterruptedException e)
 					{
+						Thread.currentThread().interrupt();
 						throw new SQLException(e);
 					}
 					catch (ExecutionException e)
