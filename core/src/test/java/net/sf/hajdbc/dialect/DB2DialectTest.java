@@ -40,9 +40,10 @@ import static org.mockito.Mockito.*;
  */
 public class DB2DialectTest extends StandardDialectTest
 {
-	public DB2DialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new DB2DialectFactory());
+		return new DB2DialectFactory();
 	}
 
 	@Override

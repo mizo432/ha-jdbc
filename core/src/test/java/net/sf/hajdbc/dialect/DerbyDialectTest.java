@@ -37,9 +37,10 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("nls")
 public class DerbyDialectTest extends StandardDialectTest
 {
-	public DerbyDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new DerbyDialectFactory());
+		return new DerbyDialectFactory();
 	}
 
 	/**

@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author paul

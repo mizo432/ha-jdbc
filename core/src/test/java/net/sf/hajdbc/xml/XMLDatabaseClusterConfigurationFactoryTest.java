@@ -57,7 +57,7 @@ import net.sf.hajdbc.state.StateManagerFactory;
 import net.sf.hajdbc.state.sql.SQLStateManagerFactory;
 import net.sf.hajdbc.sync.DifferentialSynchronizationStrategy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class XMLDatabaseClusterConfigurationFactoryTest
 {

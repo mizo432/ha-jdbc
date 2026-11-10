@@ -24,7 +24,7 @@ import java.util.UUID;
 import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.util.Objects;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InvocationEventTest
 {

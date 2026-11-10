@@ -21,8 +21,8 @@ import java.util.Arrays;
 
 import javax.transaction.xa.Xid;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -38,12 +38,12 @@ public class XidTransactionIdentifierFactoryTest
 		
 		byte[] bytes = this.factory.serialize(expected);
 		
-		Assert.assertEquals(this.factory.size(), bytes.length);
+		Assertions.assertEquals(this.factory.size(), bytes.length);
 		
 		Xid result = this.factory.deserialize(bytes);
 		
-		Assert.assertEquals(expected.getFormatId(), result.getFormatId());
-		Assert.assertTrue(Arrays.equals(expected.getGlobalTransactionId(), result.getGlobalTransactionId()));
-		Assert.assertTrue(Arrays.equals(expected.getBranchQualifier(), result.getBranchQualifier()));
+		Assertions.assertEquals(expected.getFormatId(), result.getFormatId());
+		Assertions.assertTrue(Arrays.equals(expected.getGlobalTransactionId(), result.getGlobalTransactionId()));
+		Assertions.assertTrue(Arrays.equals(expected.getBranchQualifier(), result.getBranchQualifier()));
 	}
 }

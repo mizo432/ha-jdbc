@@ -18,7 +18,7 @@
 package net.sf.hajdbc.state;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sf.hajdbc.MockDatabase;
 import net.sf.hajdbc.util.Objects;

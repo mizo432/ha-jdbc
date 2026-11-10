@@ -27,10 +27,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.distributed.CommandDispatcherFactory;
@@ -46,7 +46,7 @@ public class DistributedLockManagerTest
 	LockManager manager1;
 	LockManager manager2;
 
-	@Before
+	@BeforeEach
 	public void init() throws Exception
 	{
 		String id = "cluster";
@@ -76,7 +76,7 @@ public class DistributedLockManagerTest
 		return factory;
 	}
 
-	@After
+	@AfterEach
 	public void destroy()
 	{
 		this.manager1.stop();
@@ -86,7 +86,7 @@ public class DistributedLockManagerTest
 	}
 
 	@Test
-	@Ignore("JGroups分散テストはJava 25で不安定")
+	@Disabled("JGroups分散テストはJava 25で不安定")
 	public void simple()
 	{
 		test(this.manager1);
@@ -108,7 +108,7 @@ public class DistributedLockManagerTest
 	}
 
 	@Test
-	@Ignore("JGroups分散テストはJava 25で不安定")
+	@Disabled("JGroups分散テストはJava 25で不安定")
 	public void blocking()
 	{
 		blocking(this.manager1, this.manager2);
@@ -173,7 +173,7 @@ public class DistributedLockManagerTest
 	}
 	
 	@Test
-	@Ignore("JGroups分散テストはJava 25で不安定")
+	@Disabled("JGroups分散テストはJava 25で不安定")
 	public void failover() throws Exception
 	{
 		Lock lock1 = this.manager1.writeLock(null);

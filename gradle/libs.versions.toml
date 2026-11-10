@@ -13,7 +13,6 @@ slf4j-api = "2.0.20"
 logback = "1.5.18"
 sqljet = "1.1.15"
 junit-jupiter = "5.14.4"
-junit-vintage = "5.14.4"
 mockito = "5.24.0"
 assertj = "3.27.3"
 hsqldb = "2.7.4"
@@ -36,7 +35,6 @@ logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback"
 sqljet = { module = "org.tmatesoft.sqljet:sqljet", version.ref = "sqljet" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-jupiter" }
-junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-vintage" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 hsqldb = { module = "org.hsqldb:hsqldb", version.ref = "hsqldb" }

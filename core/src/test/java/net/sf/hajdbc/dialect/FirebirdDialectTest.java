@@ -41,11 +41,12 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("nls")
 public class FirebirdDialectTest extends StandardDialectTest
 {
-	public FirebirdDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new FirebirdDialectFactory());
+		return new FirebirdDialectFactory();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see net.sf.hajdbc.dialect.StandardDialectTest#getSequenceSupport()

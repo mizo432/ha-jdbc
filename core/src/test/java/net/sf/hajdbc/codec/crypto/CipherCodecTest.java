@@ -27,9 +27,9 @@ import javax.crypto.SecretKey;
 
 import net.sf.hajdbc.codec.Codec;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for CipherCodec AES encryption/decryption.
@@ -44,7 +44,7 @@ public class CipherCodecTest
 	private Codec codec;
 	private SecretKey key;
 	
-	@Before
+	@BeforeEach
 	public void before() throws Exception
 	{
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
@@ -58,8 +58,8 @@ public class CipherCodecTest
 	public void encode() throws SQLException
 	{
 		String encoded = this.codec.encode(PASSWORD);
-		Assert.assertNotNull(encoded);
-		Assert.assertNotEquals(PASSWORD, encoded);
+		Assertions.assertNotNull(encoded);
+		Assertions.assertNotEquals(PASSWORD, encoded);
 		// Verify it's valid Base64
 		Base64.getDecoder().decode(encoded);
 	}
@@ -68,7 +68,7 @@ public class CipherCodecTest
 	public void decode() throws SQLException
 	{
 		String encoded = this.codec.encode(PASSWORD);
-		Assert.assertEquals(PASSWORD, this.codec.decode(encoded));
+		Assertions.assertEquals(PASSWORD, this.codec.decode(encoded));
 	}
 	
 	@Test
@@ -77,7 +77,7 @@ public class CipherCodecTest
 		String original = "my-secret-password";
 		String encoded = this.codec.encode(original);
 		String decoded = this.codec.decode(encoded);
-		Assert.assertEquals(original, decoded);
+		Assertions.assertEquals(original, decoded);
 	}
 	
 	@Test
@@ -86,10 +86,10 @@ public class CipherCodecTest
 		// Each encryption should produce different ciphertext due to random IV
 		String encoded1 = this.codec.encode(PASSWORD);
 		String encoded2 = this.codec.encode(PASSWORD);
-		Assert.assertNotEquals(encoded1, encoded2);
+		Assertions.assertNotEquals(encoded1, encoded2);
 		// But both should decode to the same value
-		Assert.assertEquals(PASSWORD, this.codec.decode(encoded1));
-		Assert.assertEquals(PASSWORD, this.codec.decode(encoded2));
+		Assertions.assertEquals(PASSWORD, this.codec.decode(encoded1));
+		Assertions.assertEquals(PASSWORD, this.codec.decode(encoded2));
 	}
 	
 	@Test
@@ -100,11 +100,11 @@ public class CipherCodecTest
 		try
 		{
 			this.codec.decode(shortInput);
-			Assert.fail("Expected SQLException for short input");
+			Assertions.fail("Expected SQLException for short input");
 		}
 		catch (SQLException e)
 		{
-			Assert.assertTrue(e.getMessage().contains("too short"));
+			Assertions.assertTrue(e.getMessage().contains("too short"));
 		}
 	}
 }

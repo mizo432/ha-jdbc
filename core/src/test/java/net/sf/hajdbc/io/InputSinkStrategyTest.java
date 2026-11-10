@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Random;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public abstract class InputSinkStrategyTest<S>
 {
@@ -37,7 +37,7 @@ public abstract class InputSinkStrategyTest<S>
 			
 			input.read(result);
 			
-			Assert.assertArrayEquals(expected, result);
+			Assertions.assertArrayEquals(expected, result);
 		}
 	}
 	
@@ -62,7 +62,7 @@ public abstract class InputSinkStrategyTest<S>
 			
 			reader.read(result);
 			
-			Assert.assertArrayEquals(expected, result);
+			Assertions.assertArrayEquals(expected, result);
 		}
 	}
 }

@@ -44,9 +44,10 @@ import net.sf.hajdbc.dialect.oracle.OracleDialectFactory;
  */
 public class OracleDialectTest extends StandardDialectTest
 {
-	public OracleDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new OracleDialectFactory());
+		return new OracleDialectFactory();
 	}
 
 	/**

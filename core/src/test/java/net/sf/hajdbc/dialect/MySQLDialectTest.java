@@ -42,9 +42,10 @@ import net.sf.hajdbc.dialect.mysql.MySQLDialectFactory;
 @SuppressWarnings("nls")
 public class MySQLDialectTest extends StandardDialectTest
 {
-	public MySQLDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new MySQLDialectFactory());
+		return new MySQLDialectFactory();
 	}
 
 	/**

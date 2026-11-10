@@ -19,24 +19,24 @@ package net.sf.hajdbc.util;
 
 import java.io.Serializable;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ObjectsTest
 {
 	@Test
 	public void equalsWithNulls()
 	{
-		Assert.assertTrue(Objects.equals(null, null));
-		Assert.assertFalse(Objects.equals(null, "test"));
-		Assert.assertFalse(Objects.equals("test", null));
+		Assertions.assertTrue(Objects.equals(null, null));
+		Assertions.assertFalse(Objects.equals(null, "test"));
+		Assertions.assertFalse(Objects.equals("test", null));
 	}
 	
 	@Test
 	public void equalsWithStrings()
 	{
-		Assert.assertTrue(Objects.equals("test", "test"));
-		Assert.assertFalse(Objects.equals("test", "other"));
+		Assertions.assertTrue(Objects.equals("test", "test"));
+		Assertions.assertFalse(Objects.equals("test", "other"));
 	}
 	
 	@Test
@@ -46,8 +46,8 @@ public class ObjectsTest
 		byte[] b = {1, 2, 3};
 		byte[] c = {1, 2, 4};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -57,8 +57,8 @@ public class ObjectsTest
 		int[] b = {1, 2, 3};
 		int[] c = {1, 2, 4};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -68,8 +68,8 @@ public class ObjectsTest
 		boolean[] b = {true, false, true};
 		boolean[] c = {true, false, false};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -79,8 +79,8 @@ public class ObjectsTest
 		double[] b = {1.0, 2.0, 3.0};
 		double[] c = {1.0, 2.0, 3.1};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -90,8 +90,8 @@ public class ObjectsTest
 		float[] b = {1.0f, 2.0f, 3.0f};
 		float[] c = {1.0f, 2.0f, 3.1f};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -101,8 +101,8 @@ public class ObjectsTest
 		long[] b = {1L, 2L, 3L};
 		long[] c = {1L, 2L, 4L};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -112,8 +112,8 @@ public class ObjectsTest
 		short[] b = {1, 2, 3};
 		short[] c = {1, 2, 4};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -123,8 +123,8 @@ public class ObjectsTest
 		char[] b = {'a', 'b', 'c'};
 		char[] c = {'a', 'b', 'd'};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
@@ -134,14 +134,14 @@ public class ObjectsTest
 		String[] b = {"a", "b", "c"};
 		String[] c = {"a", "b", "d"};
 		
-		Assert.assertTrue(Objects.equals(a, b));
-		Assert.assertFalse(Objects.equals(a, c));
+		Assertions.assertTrue(Objects.equals(a, b));
+		Assertions.assertFalse(Objects.equals(a, c));
 	}
 	
 	@Test
 	public void serializeNull()
 	{
-		Assert.assertNull(Objects.serialize(null));
+		Assertions.assertNull(Objects.serialize(null));
 	}
 	
 	@Test
@@ -150,8 +150,8 @@ public class ObjectsTest
 		String original = "test";
 		byte[] serialized = Objects.serialize(original);
 		
-		Assert.assertNotNull(serialized);
-		Assert.assertFalse(serialized.length == 0);
+		Assertions.assertNotNull(serialized);
+		Assertions.assertFalse(serialized.length == 0);
 	}
 	
 	@Test
@@ -161,7 +161,7 @@ public class ObjectsTest
 		byte[] serialized = Objects.serialize(original);
 		String deserialized = Objects.deserialize(serialized, String.class);
 		
-		Assert.assertEquals(original, deserialized);
+		Assertions.assertEquals(original, deserialized);
 	}
 	
 	@Test
@@ -171,13 +171,13 @@ public class ObjectsTest
 		byte[] serialized = Objects.serialize(original);
 		Integer deserialized = Objects.deserialize(serialized, Integer.class);
 		
-		Assert.assertEquals(original, deserialized);
+		Assertions.assertEquals(original, deserialized);
 	}
 	
 	@Test
 	public void deserializeNull()
 	{
-		Assert.assertNull(Objects.deserialize(null, String.class));
+		Assertions.assertNull(Objects.deserialize(null, String.class));
 	}
 	
 	@Test
@@ -187,8 +187,8 @@ public class ObjectsTest
 		byte[] serialized = Objects.serialize(original);
 		TestObject deserialized = Objects.deserialize(serialized, TestObject.class);
 		
-		Assert.assertEquals(original.getName(), deserialized.getName());
-		Assert.assertEquals(original.getValue(), deserialized.getValue());
+		Assertions.assertEquals(original.getName(), deserialized.getName());
+		Assertions.assertEquals(original.getValue(), deserialized.getValue());
 	}
 	
 	public static class TestObject implements Serializable

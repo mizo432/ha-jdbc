@@ -20,8 +20,8 @@ package net.sf.hajdbc.codec;
 import java.sql.SQLException;
 
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -35,7 +35,7 @@ public class SimpleCodecFactoryTest
 	{
 		Codec codec = this.factory.createCodec(null);
 		
-		Assert.assertEquals("password", codec.encode("password"));
+		Assertions.assertEquals("password", codec.encode("password"));
 	}
 	
 	@Test
@@ -43,6 +43,6 @@ public class SimpleCodecFactoryTest
 	{
 		Codec codec = this.factory.createCodec(null);
 		
-		Assert.assertEquals("password", codec.decode("password"));
+		Assertions.assertEquals("password", codec.decode("password"));
 	}
 }

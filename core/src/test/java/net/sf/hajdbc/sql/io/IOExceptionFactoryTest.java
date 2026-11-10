@@ -10,7 +10,7 @@ import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.durability.Durability.Phase;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class IOExceptionFactoryTest

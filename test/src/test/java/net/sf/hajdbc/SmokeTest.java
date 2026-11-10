@@ -32,15 +32,15 @@ import net.sf.hajdbc.state.sql.SQLStateManagerFactory;
 import net.sf.hajdbc.state.sqlite.SQLiteStateManagerFactory;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SmokeTest
 {
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		System.setProperty(StateManager.CLEAR_LOCAL_STATE, Boolean.toString(true));
@@ -81,14 +81,14 @@ public class SmokeTest
 	}
 	
 	@Test
-	@Ignore("state/bdbモジュールはGradleプロジェクトに含まれていない")
+	@Disabled("state/bdbモジュールはGradleプロジェクトに含まれていない")
 	public void berkeleydb() throws Exception
 	{
 		// BerkeleyDBStateManagerFactoryは利用できないためスキップ
 	}
 	
 	@Test
-	@Ignore("Derbyドライバはテスト環境で利用できない")
+	@Disabled("Derbyドライバはテスト環境で利用できない")
 	public void derby() throws Exception
 	{
 		// Derbyドライバは利用できないためスキップ

@@ -25,8 +25,8 @@ import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -43,7 +43,7 @@ public class PropertyReplacementFilterTest
 	private final static String SYSTEM_PROPERTY = String.format("${%s}", PROPERTY_NAME);
 	private final static String PROPERTY_VALUE = "expected";
 	
-	@Before
+	@BeforeEach
 	public void before()
 	{
 		this.properties.setProperty(PROPERTY_NAME, PROPERTY_VALUE);

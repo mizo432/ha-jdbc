@@ -46,9 +46,10 @@ import org.h2.api.ErrorCode;
 @SuppressWarnings("nls")
 public class H2DialectTest extends StandardDialectTest
 {
-	public H2DialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new H2DialectFactory());
+		return new H2DialectFactory();
 	}
 
 	/**

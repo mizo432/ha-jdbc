@@ -20,8 +20,8 @@ package net.sf.hajdbc.util;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class FilesTest
 {
@@ -30,10 +30,10 @@ public class FilesTest
 	{
 		File tempFile = Files.createTempFile(".tmp");
 		
-		Assert.assertNotNull(tempFile);
-		Assert.assertTrue(tempFile.exists());
-		Assert.assertTrue(tempFile.getName().startsWith(Files.TEMP_FILE_PREFIX));
-		Assert.assertTrue(tempFile.getName().endsWith(".tmp"));
+		Assertions.assertNotNull(tempFile);
+		Assertions.assertTrue(tempFile.exists());
+		Assertions.assertTrue(tempFile.getName().startsWith(Files.TEMP_FILE_PREFIX));
+		Assertions.assertTrue(tempFile.getName().endsWith(".tmp"));
 		
 		tempFile.delete();
 	}
@@ -43,9 +43,9 @@ public class FilesTest
 	{
 		File tempFile = Files.createTempFile(".dat");
 		
-		Assert.assertNotNull(tempFile);
-		Assert.assertTrue(tempFile.exists());
-		Assert.assertTrue(tempFile.getName().endsWith(".dat"));
+		Assertions.assertNotNull(tempFile);
+		Assertions.assertTrue(tempFile.exists());
+		Assertions.assertTrue(tempFile.getName().endsWith(".dat"));
 		
 		tempFile.delete();
 	}
@@ -54,10 +54,10 @@ public class FilesTest
 	public void deleteExistingFile() throws IOException
 	{
 		File tempFile = Files.createTempFile(".tmp");
-		Assert.assertTrue(tempFile.exists());
+		Assertions.assertTrue(tempFile.exists());
 		
 		Files.delete(tempFile);
-		Assert.assertFalse(tempFile.exists());
+		Assertions.assertFalse(tempFile.exists());
 	}
 	
 	@Test

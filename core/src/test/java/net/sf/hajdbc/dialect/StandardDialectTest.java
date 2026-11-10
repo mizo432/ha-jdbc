@@ -70,7 +70,8 @@ import net.sf.hajdbc.TableProperties;
 import net.sf.hajdbc.UniqueConstraint;
 import net.sf.hajdbc.codec.Decoder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -78,18 +79,22 @@ import org.junit.Test;
  */
 public class StandardDialectTest
 {
-	private DialectFactory factory;
 	Dialect dialect;
 	
-	public StandardDialectTest()
+	@BeforeEach
+	void initDialect()
 	{
-		this(new StandardDialectFactory());
+		this.dialect = createDialect();
 	}
 	
-	protected StandardDialectTest(DialectFactory factory)
+	protected DialectFactory createDialectFactory()
 	{
-		this.factory = factory;
-		this.dialect = factory.createDialect();
+		return new StandardDialectFactory();
+	}
+	
+	private Dialect createDialect()
+	{
+		return createDialectFactory().createDialect();
 	}
 
 	@Test
@@ -537,7 +542,7 @@ public class StandardDialectTest
 		when(credentials.decodePassword(decoder)).thenAnswer(invocation -> password.toCharArray());
 		when(database.connect(decoder)).thenReturn(connection);
 		when(connection.getMetaData()).thenReturn(metaData);
-		when(metaData.getURL()).thenReturn(String.format("jdbc:%s://%s:%s/%s?loginTimeout=0&socketTimeout=0&prepareThreshold=5&unknownLength=2147483647&tcpKeepAlive=false&binaryTransfer=true", this.factory.getId(), host, port, databaseName));
+		when(metaData.getURL()).thenReturn(String.format("jdbc:%s://%s:%s/%s?loginTimeout=0&socketTimeout=0&prepareThreshold=5&unknownLength=2147483647&tcpKeepAlive=false&binaryTransfer=true", createDialectFactory().getId(), host, port, databaseName));
 		when(metaData.getUserName()).thenReturn(user);
 		
 		ConnectionProperties properties = this.dialect.getConnectionProperties(database, decoder);
@@ -548,7 +553,7 @@ public class StandardDialectTest
 		assertThat(properties.getUser()).isSameAs(user);
 		assertThat(properties.getPassword()).isEqualTo(password);
 
-		when(metaData.getURL()).thenReturn(String.format("jdbc:%s:%s?loginTimeout=0&socketTimeout=0&prepareThreshold=5&unknownLength=2147483647&tcpKeepAlive=false&binaryTransfer=true", this.factory.getId(), databaseName));
+		when(metaData.getURL()).thenReturn(String.format("jdbc:%s:%s?loginTimeout=0&socketTimeout=0&prepareThreshold=5&unknownLength=2147483647&tcpKeepAlive=false&binaryTransfer=true", createDialectFactory().getId(), databaseName));
 		
 		properties = this.dialect.getConnectionProperties(database, decoder);
 		

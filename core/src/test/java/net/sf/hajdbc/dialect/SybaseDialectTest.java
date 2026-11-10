@@ -36,11 +36,12 @@ import static org.mockito.Mockito.*;
  */
 public class SybaseDialectTest extends StandardDialectTest
 {
-	public SybaseDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new SybaseDialectFactory());
+		return new SybaseDialectFactory();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see net.sf.hajdbc.dialect.StandardDialectTest#getIdentityColumnSupport()

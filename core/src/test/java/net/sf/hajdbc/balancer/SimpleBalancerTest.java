@@ -21,7 +21,7 @@ import net.sf.hajdbc.MockDatabase;
 import net.sf.hajdbc.balancer.simple.SimpleBalancerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro

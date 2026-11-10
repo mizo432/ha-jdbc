@@ -28,9 +28,9 @@ import javax.crypto.SecretKey;
 
 import net.sf.hajdbc.codec.Codec;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -44,7 +44,7 @@ public class CipherCodecFactoryTest
 	
 	private SecretKey key;
 	
-	@Before
+	@BeforeEach
 	public void before() throws Exception
 	{
 		File file = File.createTempFile("ha-jdbc", "keystore");
@@ -71,7 +71,7 @@ public class CipherCodecFactoryTest
 	{
 		Codec codec = new CipherCodecFactory().createCodec("cluster");
 		
-		Assert.assertTrue(codec instanceof CipherCodec);
-		Assert.assertEquals(this.key, ((CipherCodec) codec).getKey());
+		Assertions.assertTrue(codec instanceof CipherCodec);
+		Assertions.assertEquals(this.key, ((CipherCodec) codec).getKey());
 	}
 }

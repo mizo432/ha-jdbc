@@ -42,9 +42,10 @@ import net.sf.hajdbc.dialect.ingres.IngresDialectFactory;
 @SuppressWarnings("nls")
 public class IngresDialectTest extends StandardDialectTest
 {
-	public IngresDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new IngresDialectFactory());
+		return new IngresDialectFactory();
 	}
 
 	/**

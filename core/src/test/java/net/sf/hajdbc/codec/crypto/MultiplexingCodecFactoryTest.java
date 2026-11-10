@@ -24,8 +24,8 @@ import net.sf.hajdbc.codec.Decoder;
 import net.sf.hajdbc.codec.DecoderFactory;
 import net.sf.hajdbc.codec.MultiplexingDecoderFactory;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class MultiplexingCodecFactoryTest extends CipherCodecFactoryTest
 {
@@ -36,7 +36,7 @@ public class MultiplexingCodecFactoryTest extends CipherCodecFactoryTest
 	{
 		Decoder codec = this.factory.createDecoder(null);
 		
-		Assert.assertEquals("password", codec.decode("password"));
+		Assertions.assertEquals("password", codec.decode("password"));
 	}
 	
 	@Test
@@ -44,7 +44,7 @@ public class MultiplexingCodecFactoryTest extends CipherCodecFactoryTest
 	{
 		Decoder codec = this.factory.createDecoder(null);
 		
-		Assert.assertEquals("password", codec.decode("16:70617373776f7264"));
+		Assertions.assertEquals("password", codec.decode("16:70617373776f7264"));
 	}
 	
 	@Test
@@ -52,7 +52,7 @@ public class MultiplexingCodecFactoryTest extends CipherCodecFactoryTest
 	{
 		Decoder codec = this.factory.createDecoder(null);
 		
-		Assert.assertEquals("password", codec.decode("64:cGFzc3dvcmQ="));
+		Assertions.assertEquals("password", codec.decode("64:cGFzc3dvcmQ="));
 	}
 	
 	@Test
@@ -64,6 +64,6 @@ public class MultiplexingCodecFactoryTest extends CipherCodecFactoryTest
 		String encoded = cipherCodec.encode("password");
 		
 		Decoder codec = this.factory.createDecoder(null);
-		Assert.assertEquals("password", codec.decode("?" + MultiplexingDecoderFactory.DELIMITER + encoded));
+		Assertions.assertEquals("password", codec.decode("?" + MultiplexingDecoderFactory.DELIMITER + encoded));
 	}
 }

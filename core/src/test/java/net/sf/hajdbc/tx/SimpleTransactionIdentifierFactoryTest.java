@@ -17,8 +17,8 @@
  */
 package net.sf.hajdbc.tx;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -34,10 +34,10 @@ public class SimpleTransactionIdentifierFactoryTest
 		
 		byte[] bytes = this.factory.serialize(expected);
 		
-		Assert.assertEquals(this.factory.size(), bytes.length);
+		Assertions.assertEquals(this.factory.size(), bytes.length);
 		
 		long result = this.factory.deserialize(bytes);
 		
-		Assert.assertEquals(expected, result);
+		Assertions.assertEquals(expected, result);
 	}
 }

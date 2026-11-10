@@ -21,7 +21,7 @@ import net.sf.hajdbc.cache.eager.SharedEagerDatabaseMetaDataCache;
 import net.sf.hajdbc.cache.eager.SharedEagerDatabaseMetaDataCacheFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro

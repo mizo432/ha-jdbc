@@ -42,9 +42,10 @@ import static org.mockito.Mockito.*;
  */
 public class PostgreSQLDialectTest extends StandardDialectTest
 {
-	public PostgreSQLDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new PostgreSQLDialectFactory());
+		return new PostgreSQLDialectFactory();
 	}
 
 	/**

@@ -30,9 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("nls")
 public class MckoiDialectTest extends StandardDialectTest
 {
-	public MckoiDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new MckoiDialectFactory());
+		return new MckoiDialectFactory();
 	}
 
 	/**

@@ -20,8 +20,8 @@ package net.sf.hajdbc.util.concurrent.cron;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CronExpressionTest
 {
@@ -29,68 +29,68 @@ public class CronExpressionTest
 	public void parseEveryMinute() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 * * * * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseEveryHour() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 * * * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseDailyAtMidnight() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 0 * * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWeeklyOnMonday() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 9 ? * MON");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseMonthly() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 0 1 * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWithRange() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 9-17 * * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWithStep() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 */5 * * * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWithMultipleValues() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 9,12,15 * * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseInvalidExpression()
 	{
-		Assert.assertThrows(ParseException.class, () -> new CronExpression("invalid"));
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("invalid"));
 	}
 	
 	@Test
 	public void parseEmptyExpression()
 	{
-		Assert.assertThrows(ParseException.class, () -> new CronExpression(""));
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression(""));
 	}
 	
 	@Test
@@ -100,8 +100,8 @@ public class CronExpressionTest
 		Date now = new Date();
 		Date next = expression.getNextValidTimeAfter(now);
 		
-		Assert.assertNotNull(next);
-		Assert.assertTrue(next.after(now));
+		Assertions.assertNotNull(next);
+		Assertions.assertTrue(next.after(now));
 	}
 	
 	
@@ -109,28 +109,28 @@ public class CronExpressionTest
 	public void parseWithMonthName() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 0 1 JAN ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWithDayName() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 9 ? * MON-FRI");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWithLastDayOfMonth() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 0 L * ?");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWithNthDayOfWeek() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 9 ? * 2#2");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
@@ -139,20 +139,20 @@ public class CronExpressionTest
 		String expressionString = "0 0 9 * * ?";
 		CronExpression expression = new CronExpression(expressionString);
 		
-		Assert.assertEquals(expressionString, expression.toString());
+		Assertions.assertEquals(expressionString, expression.toString());
 	}
 	
 	@Test
 	public void parseWithYear() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 0 1 1 ? 2025");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 	
 	@Test
 	public void parseWithWildcardYear() throws ParseException
 	{
 		CronExpression expression = new CronExpression("0 0 0 1 1 ? *");
-		Assert.assertNotNull(expression);
+		Assertions.assertNotNull(expression);
 	}
 }

@@ -46,9 +46,10 @@ import net.sf.hajdbc.dialect.maxdb.MaxDBDialectFactory;
 @SuppressWarnings("nls")
 public class MaxDBDialectTest extends StandardDialectTest
 {
-	public MaxDBDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new MaxDBDialectFactory());
+		return new MaxDBDialectFactory();
 	}
 
 	/**

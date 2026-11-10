@@ -41,7 +41,7 @@ import net.sf.hajdbc.SequencePropertiesFactory;
 import net.sf.hajdbc.dialect.hsqldb.HSQLDBDialectFactory;
 
 import org.hsqldb.error.ErrorCode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /**
@@ -51,9 +51,10 @@ import org.mockito.Mockito;
 @SuppressWarnings("nls")
 public class HSQLDBDialectTest extends StandardDialectTest
 {
-	public HSQLDBDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new HSQLDBDialectFactory());
+		return new HSQLDBDialectFactory();
 	}
 
 	/**

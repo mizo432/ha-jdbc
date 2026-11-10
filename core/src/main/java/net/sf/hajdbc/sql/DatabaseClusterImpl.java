@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.Lock;
@@ -103,10 +102,8 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	private MBeanRegistrar<Z, D> registrar;
 	
 	private boolean active = false;
-	
-	private final List<DatabaseClusterConfigurationListener<Z, D>> configurationListeners = new CopyOnWriteArrayList<>();	
-	private final List<DatabaseClusterListener> clusterListeners = new CopyOnWriteArrayList<>();
-	private final List<SynchronizationListener> synchronizationListeners = new CopyOnWriteArrayList<>();
+
+	private final ClusterListenerManager<Z, D> listenerManager = new ClusterListenerManager<>();
 	
 	public DatabaseClusterImpl(String id, DatabaseClusterConfiguration<Z, D> configuration)
 	{
@@ -120,7 +117,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		
 		if (listener != null)
 		{
-			this.configurationListeners.add(listener);
+			this.listenerManager.addConfigurationListener(listener);
 		}
 	}
 
@@ -294,7 +291,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		
 		this.configuration.getDatabaseMap().remove(databaseId);
 
-		for (DatabaseClusterConfigurationListener<Z, D> listener: this.configurationListeners)
+		for (DatabaseClusterConfigurationListener<Z, D> listener: this.listenerManager.getConfigurationListeners())
 		{
 			listener.removed(database, this.configuration);
 		}
@@ -373,7 +370,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	@Override
 	public void addConfigurationListener(DatabaseClusterConfigurationListener<Z, D> listener)
 	{
-		this.configurationListeners.add(listener);
+		this.listenerManager.addConfigurationListener(listener);
 	}
 
 	/**
@@ -384,7 +381,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	@Override
 	public void addListener(DatabaseClusterListener listener)
 	{
-		this.clusterListeners.add(listener);
+		this.listenerManager.addListener(listener);
 	}
 
 	/**
@@ -395,7 +392,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	@Override
 	public void addSynchronizationListener(SynchronizationListener listener)
 	{
-		this.synchronizationListeners.add(listener);
+		this.listenerManager.addSynchronizationListener(listener);
 	}
 
 	/**
@@ -406,7 +403,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	@Override
 	public void removeConfigurationListener(DatabaseClusterConfigurationListener<Z, D> listener)
 	{
-		this.configurationListeners.remove(listener);
+		this.listenerManager.removeConfigurationListener(listener);
 	}
 
 	/**
@@ -417,7 +414,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	@Override
 	public void removeListener(DatabaseClusterListener listener)
 	{
-		this.clusterListeners.remove(listener);
+		this.listenerManager.removeListener(listener);
 	}
 
 	/**
@@ -428,7 +425,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	@Override
 	public void removeSynchronizationListener(SynchronizationListener listener)
 	{
-		this.synchronizationListeners.remove(listener);
+		this.listenerManager.removeSynchronizationListener(listener);
 	}
 	
 	/**
@@ -454,7 +451,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 
 			manager.activated(event);
 			
-			for (DatabaseClusterListener listener: this.clusterListeners)
+			for (DatabaseClusterListener listener: this.listenerManager.getClusterListeners())
 			{
 				listener.activated(event);
 			}
@@ -480,7 +477,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 
 			manager.deactivated(event);
 			
-			for (DatabaseClusterListener listener: this.clusterListeners)
+			for (DatabaseClusterListener listener: this.listenerManager.getClusterListeners())
 			{
 				listener.deactivated(event);
 			}
@@ -683,11 +680,25 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	{
 		if (this.active) return;
 		
+		this.initializeComponents();
+		this.initializeDatabases();
+		this.initializeRecovery();
+		this.initializeCache();
+		this.initializeScheduledTasks();
+		this.registerMBeans();
+
+		this.active = true;
+		
+		logger.log(Level.INFO, messages.start(this));
+	}
+
+	private void initializeComponents() throws SQLException
+	{
+		CommandDispatcherFactory dispatcherFactory = this.configuration.getDispatcherFactory();
+		
 		this.decoder = this.configuration.getDecoderFactory().createDecoder(this.id);
 		this.lockManager = this.configuration.getLockManagerFactory().createLockManager();
 		this.stateManager = this.configuration.getStateManagerFactory().createStateManager(this);
-		
-		CommandDispatcherFactory dispatcherFactory = this.configuration.getDispatcherFactory();
 		
 		if (dispatcherFactory != null)
 		{
@@ -711,7 +722,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 
 		this.lockManager.start();
 		this.stateManager.start();
-		
+	}
+
+	private void initializeDatabases()
+	{
 		Set<String> databases = this.stateManager.getActiveDatabases();
 		
 		if (!databases.isEmpty())
@@ -721,7 +735,6 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 			for (String databaseId: databases)
 			{
 				D database = this.getDatabase(databaseId);
-				
 				this.balancer.add(database);
 			}
 		}
@@ -734,17 +747,22 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 				if (this.isAlive(database, Level.WARN))
 				{
 					this.activate(database, this.stateManager);
-//					database.setActive(true);
 				}
 			}
 		}
+	}
 
+	private void initializeRecovery()
+	{
 		Map<InvocationEvent, Map<String, InvokerEvent>> invokers = this.stateManager.recover();
 		if (!invokers.isEmpty())
 		{
 			this.durability.recover(invokers);
 		}
-		
+	}
+
+	private void initializeCache()
+	{
 		this.databaseMetaDataCache = this.configuration.getDatabaseMetaDataCacheFactory().createCache(this);
 		
 		try
@@ -755,7 +773,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			// Ignore - cache will initialize lazily.
 		}
-		
+	}
+
+	private void initializeScheduledTasks()
+	{
 		CronExpression failureDetectionExpression = this.configuration.getFailureDetectionExpression();
 		CronExpression autoActivationExpression = this.configuration.getAutoActivationExpression();
 		int threads = requiredThreads(failureDetectionExpression) + requiredThreads(autoActivationExpression);
@@ -768,13 +789,16 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 			{
 				this.cronExecutor.schedule(new FailureDetectionTask(), failureDetectionExpression);
 			}
-						
+			
 			if (autoActivationExpression != null)
 			{
 				this.cronExecutor.schedule(new AutoActivationTask(), autoActivationExpression);
 			}
 		}
-		
+	}
+
+	private void registerMBeans() throws SQLException
+	{
 		this.registrar = this.configuration.getMBeanRegistrarFactory().createMBeanRegistrar();
 
 		try
@@ -790,10 +814,6 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			throw new SQLException(e);
 		}
-
-		this.active = true;
-		
-		logger.log(Level.INFO, messages.start(this));
 	}
 
 	private static int requiredThreads(CronExpression expression)
@@ -812,9 +832,19 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		
 		this.active = false;
 		
+		this.deactivateEmbeddedDatabases();
+		this.unregisterMBeans();
+		this.shutdownCronExecutor();
+		this.stopStateManager();
+		this.stopLockManager();
+		this.shutdownExecutor();
+		this.clearBalancer();
+	}
+
+	private void deactivateEmbeddedDatabases()
+	{
 		if (this.balancer != null)
 		{
-			// Proactively deactivate any embedded databases
 			for (D database: this.balancer)
 			{
 				if (database.getLocality() == Locality.EMBEDDED)
@@ -823,7 +853,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 				}
 			}
 		}
-		
+	}
+
+	private void unregisterMBeans()
+	{
 		try
 		{
 			if (this.registrar != null)
@@ -840,7 +873,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			logger.log(Level.WARN, e, "Failed to unregister MBeans");
 		}
-		
+	}
+
+	private void shutdownCronExecutor()
+	{
 		if (this.cronExecutor != null)
 		{
 			this.cronExecutor.shutdown();
@@ -857,7 +893,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 				Thread.currentThread().interrupt();
 			}
 		}
-		
+	}
+
+	private void stopStateManager()
+	{
 		try
 		{
 			if (this.stateManager != null)
@@ -869,7 +908,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			logger.log(Level.WARN, e, "Failed to stop state manager");
 		}
-		
+	}
+
+	private void stopLockManager()
+	{
 		try
 		{
 			if (this.lockManager != null)
@@ -881,7 +923,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			logger.log(Level.WARN, e, "Failed to stop lock manager");
 		}
+	}
 
+	private void shutdownExecutor()
+	{
 		if (this.executor != null)
 		{
 			this.executor.shutdown();
@@ -898,7 +943,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 				Thread.currentThread().interrupt();
 			}
 		}
+	}
 
+	private void clearBalancer()
+	{
 		if (this.balancer != null)
 		{
 			this.balancer.clear();
@@ -938,16 +986,16 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 					
 					logger.log(Level.INFO, messages.synchronizationBegin(this, database, strategy));
 					
-					for (SynchronizationListener listener: this.synchronizationListeners)
+					for (SynchronizationListener listener: this.listenerManager.getSynchronizationListeners())
 					{
 						listener.beforeSynchronization(event);
 					}
 					
 					strategy.synchronize(context);
-	
+
 					logger.log(Level.INFO, messages.synchronizationEnd(this, database, strategy));
 					
-					for (SynchronizationListener listener: this.synchronizationListeners)
+					for (SynchronizationListener listener: this.listenerManager.getSynchronizationListeners())
 					{
 						listener.afterSynchronization(event);
 					}
