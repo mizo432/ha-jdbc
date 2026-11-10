@@ -37,7 +37,7 @@ public class RandomBalancer<P, D extends Database<P>> extends AbstractSetBalance
 {
 	private volatile List<D> databaseList;
 
-	private Random random = new Random();
+	private final Random random = new Random();
 
 	/**
 	 * 新しいRandomBalancerを構築します

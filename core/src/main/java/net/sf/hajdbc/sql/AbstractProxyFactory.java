@@ -38,8 +38,8 @@ import net.sf.hajdbc.messages.MessagesFactory;
  */
 public abstract class AbstractProxyFactory<Z, D extends Database<Z>, TE extends Exception, T, E extends Exception> implements ProxyFactory<Z, D, T, E>
 {
-	protected Messages messages = MessagesFactory.getMessages();
-	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected final Messages messages = MessagesFactory.getMessages();
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final DatabaseCluster<Z, D> cluster;
 	private final Map<D, T> map;

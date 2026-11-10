@@ -34,7 +34,7 @@ public class SimpleBalancer<Z, D extends Database<Z>> extends AbstractSetBalance
 {
 	private volatile D nextDatabase = null;
 	
-	private Comparator<D> comparator = new Comparator<D>()
+	private final Comparator<D> comparator = new Comparator<D>()
 	{
 		@Override
 		public int compare(D database1, D database2)
