@@ -14,8 +14,8 @@ subprojects {
 
     plugins.withId("java") {
         configure<JavaPluginExtension> {
-            sourceCompatibility = JavaVersion.VERSION_21
-            targetCompatibility = JavaVersion.VERSION_21
+            sourceCompatibility = JavaVersion.VERSION_25
+            targetCompatibility = JavaVersion.VERSION_25
         }
 
         dependencies {
@@ -43,7 +43,7 @@ subprojects {
                 maybeCreate("html").getRequired().set(true)
                 maybeCreate("xml").getRequired().set(true)
             }
-            // SpotBugsが警告を検出してもビルドが成功するようにする
+            // SpotBugs has pre-existing warnings; keep ignore failures enabled until they are resolved
             setIgnoreFailures(true)
         }
     }
