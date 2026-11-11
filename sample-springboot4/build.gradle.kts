@@ -1,7 +1,6 @@
 plugins {
 	java
 	id("org.springframework.boot") version "4.1.2"
-	id("io.spring.dependency-management") version "1.1.7"
 	id("org.flywaydb.flyway") version "11.1.0"
 }
 
@@ -20,13 +19,10 @@ repositories {
     }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
-    }
-}
-
 dependencies {
+    // Import Spring Boot BOM for dependency version management
+    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+
     // Spring Boot Starters
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
