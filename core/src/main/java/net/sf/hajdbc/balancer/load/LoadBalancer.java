@@ -17,7 +17,6 @@
  */
 package net.sf.hajdbc.balancer.load;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -128,96 +127,7 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#addAll(java.util.Collection)
-	 */
-	@Override
-	public boolean addAll(Collection<? extends D> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedMap<D, AtomicInteger> addMap = new TreeMap<>(this.databaseMap);
-			
-			boolean added = false;
-			
-			for (D database: databases)
-			{
-				added = (addMap.put(database, new AtomicInteger(1)) == null) || added;
-			}
-			
-			if (added)
-			{
-				this.databaseMap = addMap;
-			}
-			
-			return added;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#removeAll(java.util.Collection)
-	 */
-	@Override
-	public boolean removeAll(Collection<?> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedMap<D, AtomicInteger> map = new TreeMap<>(this.databaseMap);
-			
-			boolean removed = map.keySet().removeAll(databases);
-
-			if (removed)
-			{
-				this.databaseMap = map;
-			}
-			
-			return removed;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#retainAll(java.util.Collection)
-	 */
-	@Override
-	public boolean retainAll(Collection<?> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedMap<D, AtomicInteger> map = new TreeMap<>(this.databaseMap);
-			
-			boolean retained = map.keySet().retainAll(databases);
-
-			if (retained)
-			{
-				this.databaseMap = map;
-			}
-			
-			return retained;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#clear()
+	 * @see net.sf.hajdbc.balancer.Balancer#clear()
 	 */
 	@Override
 	public void clear()
@@ -239,10 +149,10 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#remove(java.lang.Object)
+	 * @see net.sf.hajdbc.balancer.Balancer#remove(net.sf.hajdbc.Database)
 	 */
 	@Override
-	public boolean remove(Object database)
+	public boolean remove(D database)
 	{
 		this.lock.lock();
 		
@@ -288,7 +198,7 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#add(java.lang.Object)
+	 * @see net.sf.hajdbc.balancer.Balancer#add(net.sf.hajdbc.Database)
 	 */
 	@Override
 	public boolean add(D database)

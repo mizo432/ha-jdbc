@@ -286,7 +286,7 @@ public class DistributedStateManager<Z, D extends Database<Z>> implements StateM
 	@Override
 	public void writeState(ObjectOutput output) throws IOException
 	{
-		Set<D> databases = this.cluster.getBalancer();
+		Set<D> databases = this.cluster.getBalancer().getActiveDatabases();
 		output.writeInt(databases.size());
 		
 		for (D database: databases)

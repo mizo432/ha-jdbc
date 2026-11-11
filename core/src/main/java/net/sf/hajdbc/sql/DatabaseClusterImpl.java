@@ -1020,7 +1020,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 
 			try
 			{
-				Set<D> activeDatabases = DatabaseClusterImpl.this.getBalancer();
+				Set<D> activeDatabases = DatabaseClusterImpl.this.getBalancer().getActiveDatabases();
 
 				if (!activeDatabases.isEmpty())
 				{
@@ -1063,7 +1063,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			if (!DatabaseClusterImpl.this.getStateManager().isEnabled()) return;
 
-			Set<D> databases = DatabaseClusterImpl.this.getBalancer();
+			Set<D> databases = DatabaseClusterImpl.this.getBalancer().getActiveDatabases();
 
 			int size = databases.size();
 

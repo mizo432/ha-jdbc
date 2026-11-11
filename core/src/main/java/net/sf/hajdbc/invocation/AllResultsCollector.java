@@ -63,7 +63,7 @@ public class AllResultsCollector implements InvokeOnManyInvocationStrategy.Resul
 	{
 		DatabaseCluster<Z, D> cluster = factory.getDatabaseCluster();
 		ExceptionFactory<E> exceptionFactory = factory.getExceptionFactory();
-		Set<D> databaseSet = cluster.getBalancer();
+		Set<D> databaseSet = cluster.getBalancer().getActiveDatabases();
 		
 		if (databaseSet.isEmpty())
 		{

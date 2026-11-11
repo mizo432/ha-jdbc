@@ -17,7 +17,6 @@
  */
 package net.sf.hajdbc.balancer;
 
-import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -106,11 +105,11 @@ public abstract class AbstractSetBalancer<Z, D extends Database<Z>> extends Abst
 	
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#remove(java.lang.Object)
+	 * @see net.sf.hajdbc.balancer.Balancer#remove(net.sf.hajdbc.Database)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean remove(Object database)
+	public boolean remove(D database)
 	{
 		this.lock.lock();
 		
@@ -152,7 +151,7 @@ public abstract class AbstractSetBalancer<Z, D extends Database<Z>> extends Abst
 	
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#add(java.lang.Object)
+	 * @see net.sf.hajdbc.balancer.Balancer#add(net.sf.hajdbc.Database)
 	 */
 	@Override
 	public boolean add(D database)
@@ -197,118 +196,7 @@ public abstract class AbstractSetBalancer<Z, D extends Database<Z>> extends Abst
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#addAll(java.util.Collection)
-	 */
-	@Override
-	public boolean addAll(Collection<? extends D> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedSet<D> addSet = new TreeSet<>(this.databaseSet);
-
-			boolean added = addSet.addAll(databases);
-			
-			if (added)
-			{
-				Set<D> removeSet = new TreeSet<>(addSet);
-				
-				removeSet.removeAll(this.databaseSet);
-				
-				this.databaseSet = addSet;
-				
-				for (D database: removeSet)
-				{
-					this.added(database);
-				}
-			}
-			
-			return added;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#removeAll(java.util.Collection)
-	 */
-	@Override
-	public boolean removeAll(Collection<?> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedSet<D> removeSet = new TreeSet<>(this.databaseSet);
-
-			boolean removed = removeSet.removeAll(databases);
-			
-			if (removed)
-			{
-				Set<D> retainSet = new TreeSet<>(this.databaseSet);
-				
-				retainSet.retainAll(databases);
-				
-				this.databaseSet = removeSet;
-				
-				for (D database: retainSet)
-				{
-					this.removed(database);
-				}
-			}
-			
-			return removed;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#retainAll(java.util.Collection)
-	 */
-	@Override
-	public boolean retainAll(Collection<?> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedSet<D> retainSet = new TreeSet<>(this.databaseSet);
-
-			boolean retained = retainSet.retainAll(databases);
-			
-			if (retained)
-			{
-				Set<D> removeSet = new TreeSet<>(this.databaseSet);
-				
-				removeSet.removeAll(databases);
-				
-				this.databaseSet = retainSet;
-				
-				for (D database: removeSet)
-				{
-					this.removed(database);
-				}
-			}
-			
-			return retained;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#clear()
+	 * @see net.sf.hajdbc.balancer.Balancer#clear()
 	 */
 	@Override
 	public void clear()

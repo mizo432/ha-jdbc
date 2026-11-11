@@ -17,21 +17,75 @@
  */
 package net.sf.hajdbc.balancer;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.invocation.Invoker;
 
 /**
- * A set of active databases and a strategy for determining the next balancing target.
+ * A collection of active databases and a strategy for determining the next balancing target.
+ * Unlike {@link Set}, this interface provides explicit methods for managing active databases,
+ * preventing unintended operations (such as {@code clear()}, {@code removeAll()}, {@code retainAll()})
+ * that could bypass the cluster's activation/deactivation logic.
  * 
  * @author Paul Ferraro
  *
  * @param <Z> database connection source
  * @param <D> database descriptor
  */
-public interface Balancer<Z, D extends Database<Z>> extends Set<D>
+public interface Balancer<Z, D extends Database<Z>> extends Iterable<D>
 {
+	/**
+	 * Adds the specified database as active.
+	 * @param database a database descriptor
+	 * @return true if the database was added, false if it was already active
+	 */
+	boolean add(D database);
+
+	/**
+	 * Removes the specified database from the active set.
+	 * @param database a database descriptor
+	 * @return true if the database was removed, false if it was not active
+	 */
+	boolean remove(D database);
+
+	/**
+	 * Returns whether the specified database is active.
+	 * @param database a database descriptor
+	 * @return true if the database is active
+	 */
+	boolean contains(D database);
+
+	/**
+	 * Returns whether no databases are active.
+	 * @return true if no databases are active
+	 */
+	boolean isEmpty();
+
+	/**
+	 * Returns the number of active databases.
+	 * @return number of active databases
+	 */
+	int size();
+
+	/**
+	 * Returns an iterator over the active databases.
+	 * @return iterator
+	 */
+	Iterator<D> iterator();
+
+	/**
+	 * Returns a snapshot of the active databases as an unmodifiable set.
+	 * @return unmodifiable set of active databases
+	 */
+	Set<D> getActiveDatabases();
+
+	/**
+	 * Clears all active databases.
+	 */
+	void clear();
+
 	/**
 	 * Returns the primary database.
 	 * The database returned by this method must be consistent across all nodes.

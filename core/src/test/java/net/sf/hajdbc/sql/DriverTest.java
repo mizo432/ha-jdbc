@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 
@@ -106,14 +107,14 @@ public class DriverTest
 //			when(this.connection.isValid(anyInt())).thenReturn(true);
 			when(this.factory.createDatabaseCluster(eq(id), same(this.configurationFactory), any(DriverDatabaseClusterConfigurationBuilder.class))).thenReturn(cluster);
 			
+			Set<DriverDatabase> activeDatabases = Collections.singleton(database);
 			when(cluster.isActive()).thenReturn(true);
 			when(cluster.getBalancer()).thenReturn(balancer);
-			when(balancer.iterator()).thenReturn(Collections.singleton(database).iterator());
-			when(cluster.getBalancer()).thenReturn(balancer);
+			when(balancer.iterator()).thenReturn(activeDatabases.iterator());
+			when(balancer.getActiveDatabases()).thenReturn(activeDatabases);
 			when(balancer.contains(database)).thenReturn(true);
 			when(balancer.isEmpty()).thenReturn(false);
 			when(balancer.size()).thenReturn(1);
-			when(balancer.iterator()).thenReturn(Collections.singleton(database).iterator());
 			when(balancer.next()).thenReturn(database);
 			when(cluster.getExecutor()).thenReturn(Executors.newCachedThreadPool());
 			when(cluster.getLockManager()).thenReturn(lockManager);

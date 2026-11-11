@@ -17,7 +17,6 @@
  */
 package net.sf.hajdbc.balancer;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -28,13 +27,13 @@ import net.sf.hajdbc.Database;
 
 /**
  * Thread-safe abstract balancer implementation that implements most of the Balancer interface,
- * except for {@link Balancer#next()}.
- * Uses copy-on-write algorithm for {@link #add(Object)}, {@link #remove(Object)}, and {@link #clear()}.
+ * except for {@link Balancer#next()}, {@link Balancer#add(net.sf.hajdbc.Database)},
+ * {@link Balancer#remove(net.sf.hajdbc.Database)}, and {@link Balancer#clear()}.
  * Calls to {@link #iterator()} are non-blocking.
  * 
  * @author Paul Ferraro
- * @param <Z>
- * @param <D>
+ * @param <Z> database connection source
+ * @param <D> database descriptor
  */
 public abstract class AbstractBalancer<Z, D extends Database<Z>> implements Balancer<Z, D>
 {
@@ -70,7 +69,7 @@ public abstract class AbstractBalancer<Z, D extends Database<Z>> implements Bala
 	
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#iterator()
+	 * @see net.sf.hajdbc.balancer.Balancer#iterator()
 	 */
 	@Override
 	public Iterator<D> iterator()
@@ -80,27 +79,17 @@ public abstract class AbstractBalancer<Z, D extends Database<Z>> implements Bala
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#contains(java.lang.Object)
+	 * @see net.sf.hajdbc.balancer.Balancer#contains(net.sf.hajdbc.Database)
 	 */
 	@Override
-	public boolean contains(Object database)
+	public boolean contains(D database)
 	{
 		return this.getDatabases().contains(database);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#containsAll(java.util.Collection)
-	 */
-	@Override
-	public boolean containsAll(Collection<?> databases)
-	{
-		return this.getDatabases().containsAll(databases);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#isEmpty()
+	 * @see net.sf.hajdbc.balancer.Balancer#isEmpty()
 	 */
 	@Override
 	public boolean isEmpty()
@@ -110,7 +99,7 @@ public abstract class AbstractBalancer<Z, D extends Database<Z>> implements Bala
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#size()
+	 * @see net.sf.hajdbc.balancer.Balancer#size()
 	 */
 	@Override
 	public int size()
@@ -120,20 +109,14 @@ public abstract class AbstractBalancer<Z, D extends Database<Z>> implements Bala
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#toArray()
+	 * @see net.sf.hajdbc.balancer.Balancer#getActiveDatabases()
 	 */
 	@Override
-	public Object[] toArray()
+	public Set<D> getActiveDatabases()
 	{
-		return this.getDatabases().toArray();
+		return Collections.unmodifiableSet(this.getDatabases());
 	}
 
-	@Override
-	public <T> T[] toArray(T[] array)
-	{
-		return this.getDatabases().toArray(array);
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -141,12 +124,13 @@ public abstract class AbstractBalancer<Z, D extends Database<Z>> implements Bala
 	@Override
 	public boolean equals(Object object)
 	{
-		if (!(object instanceof Collection)) return false;
+		if (!(object instanceof Balancer)) return false;
+		if (this == object) return true;
 		
 		@SuppressWarnings("unchecked")
-		Collection<D> set = (Collection<D>) object;
+		Balancer<Z, D> other = (Balancer<Z, D>) object;
 		
-		return this.getDatabases().equals(set);
+		return this.getDatabases().equals(other.getActiveDatabases());
 	}
 
 	/**
