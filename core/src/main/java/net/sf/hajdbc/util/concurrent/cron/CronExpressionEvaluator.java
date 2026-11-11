@@ -94,7 +94,7 @@ final class CronExpressionEvaluator {
                 hr++;
             }
             if (min != t) {
-                cl.set(Calendar.SECOND, 0);
+                resetTimeFields(cl);
                 cl.set(Calendar.MINUTE, min);
                 setCalendarHour(cl, hr);
                 continue;
@@ -115,8 +115,7 @@ final class CronExpressionEvaluator {
                 day++;
             }
             if (hr != t) {
-                cl.set(Calendar.SECOND, 0);
-                cl.set(Calendar.MINUTE, 0);
+                resetTimeFields(cl);
                 cl.set(Calendar.DAY_OF_MONTH, day);
                 setCalendarHour(cl, hr);
                 continue;
@@ -237,9 +236,7 @@ final class CronExpressionEvaluator {
                 }
                 
                 if (day != t || mon != tmon) {
-                    cl.set(Calendar.SECOND, 0);
-                    cl.set(Calendar.MINUTE, 0);
-                    cl.set(Calendar.HOUR_OF_DAY, 0);
+                    resetTimeFields(cl);
                     cl.set(Calendar.DAY_OF_MONTH, day);
                     cl.set(Calendar.MONTH, mon - 1);
                     // '- 1' because calendar is 0-based for this field, and we
@@ -264,9 +261,7 @@ final class CronExpressionEvaluator {
 
                     if (day + daysToAdd > lDay) { // did we already miss the
                         // last one?
-                        cl.set(Calendar.SECOND, 0);
-                        cl.set(Calendar.MINUTE, 0);
-                        cl.set(Calendar.HOUR_OF_DAY, 0);
+                        resetTimeFields(cl);
                         cl.set(Calendar.DAY_OF_MONTH, 1);
                         cl.set(Calendar.MONTH, mon);
                         // no '- 1' here because we are promoting the month
@@ -281,9 +276,7 @@ final class CronExpressionEvaluator {
                     day += daysToAdd;
 
                     if (daysToAdd > 0) {
-                        cl.set(Calendar.SECOND, 0);
-                        cl.set(Calendar.MINUTE, 0);
-                        cl.set(Calendar.HOUR_OF_DAY, 0);
+                        resetTimeFields(cl);
                         cl.set(Calendar.DAY_OF_MONTH, day);
                         cl.set(Calendar.MONTH, mon - 1);
                         // '- 1' here because we are not promoting the month
@@ -318,17 +311,13 @@ final class CronExpressionEvaluator {
                     if (daysToAdd < 0
                             || day > getLastDayOfMonth(mon, cl
                                     .get(Calendar.YEAR))) {
-                        cl.set(Calendar.SECOND, 0);
-                        cl.set(Calendar.MINUTE, 0);
-                        cl.set(Calendar.HOUR_OF_DAY, 0);
+                        resetTimeFields(cl);
                         cl.set(Calendar.DAY_OF_MONTH, 1);
                         cl.set(Calendar.MONTH, mon);
                         // no '- 1' here because we are promoting the month
                         continue;
                     } else if (daysToAdd > 0 || dayShifted) {
-                        cl.set(Calendar.SECOND, 0);
-                        cl.set(Calendar.MINUTE, 0);
-                        cl.set(Calendar.HOUR_OF_DAY, 0);
+                        resetTimeFields(cl);
                         cl.set(Calendar.DAY_OF_MONTH, day);
                         cl.set(Calendar.MONTH, mon - 1);
                         // '- 1' here because we are NOT promoting the month
@@ -355,17 +344,13 @@ final class CronExpressionEvaluator {
 
                     if (day + daysToAdd > lDay) { // will we pass the end of
                         // the month?
-                        cl.set(Calendar.SECOND, 0);
-                        cl.set(Calendar.MINUTE, 0);
-                        cl.set(Calendar.HOUR_OF_DAY, 0);
+                        resetTimeFields(cl);
                         cl.set(Calendar.DAY_OF_MONTH, 1);
                         cl.set(Calendar.MONTH, mon);
                         // no '- 1' here because we are promoting the month
                         continue;
-                    } else if (daysToAdd > 0) { // are we swithing days?
-                        cl.set(Calendar.SECOND, 0);
-                        cl.set(Calendar.MINUTE, 0);
-                        cl.set(Calendar.HOUR_OF_DAY, 0);
+                    } else if (daysToAdd > 0) { // are we switching days?
+                        resetTimeFields(cl);
                         cl.set(Calendar.DAY_OF_MONTH, day + daysToAdd);
                         cl.set(Calendar.MONTH, mon - 1);
                         // '- 1' because calendar is 0-based for this field,
@@ -401,9 +386,7 @@ final class CronExpressionEvaluator {
                 year++;
             }
             if (mon != t) {
-                cl.set(Calendar.SECOND, 0);
-                cl.set(Calendar.MINUTE, 0);
-                cl.set(Calendar.HOUR_OF_DAY, 0);
+                resetTimeFields(cl);
                 cl.set(Calendar.DAY_OF_MONTH, 1);
                 cl.set(Calendar.MONTH, mon - 1);
                 // '- 1' because calendar is 0-based for this field, and we are
@@ -428,9 +411,7 @@ final class CronExpressionEvaluator {
             }
 
             if (year != t) {
-                cl.set(Calendar.SECOND, 0);
-                cl.set(Calendar.MINUTE, 0);
-                cl.set(Calendar.HOUR_OF_DAY, 0);
+                resetTimeFields(cl);
                 cl.set(Calendar.DAY_OF_MONTH, 1);
                 cl.set(Calendar.MONTH, 0);
                 // '- 1' because calendar is 0-based for this field, and we are
@@ -444,6 +425,18 @@ final class CronExpressionEvaluator {
         } // while( !done )
 
         return cl.getTime();
+    }
+
+    /**
+     * Resets the time fields (second, minute, hour) of the calendar to zero.
+     * This is a common pattern used throughout the getTimeAfter method.
+     * 
+     * @param cal the calendar to reset
+     */
+    void resetTimeFields(Calendar cal) {
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
     }
 
     /**
