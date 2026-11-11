@@ -15,33 +15,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.sf.hajdbc.distributed.zookeeper;
+package net.sf.hajdbc.distributed.pekko;
+
+import java.io.Serializable;
 
 import net.sf.hajdbc.distributed.Member;
 
+import org.apache.pekko.actor.Address;
+
 /**
- * Zookeeperのephemeralノードパスでグループメンバーを識別します。
+ * PekkoのAddressでグループメンバーを識別します。
  * 
  * @author Paul Ferraro
  */
-public class ZookeeperMember implements Member
+public class PekkoMember implements Member, Serializable
 {
 	private static final long serialVersionUID = -5777399287019796607L;
 	
-	private final String nodePath;
+	private final Address address;
 	
 	/**
-	 * Constructs a new ZookeeperMember
-	 * @param nodePath the ephemeral node path identifying this member
+	 * Constructs a new PekkoMember
+	 * @param address the Pekko Address identifying this member
 	 */
-	public ZookeeperMember(String nodePath)
+	public PekkoMember(Address address)
 	{
-		this.nodePath = nodePath;
+		this.address = address;
 	}
 
-	public String getNodePath()
+	public Address getAddress()
 	{
-		return this.nodePath;
+		return this.address;
 	}
 
 	/**
@@ -51,11 +55,11 @@ public class ZookeeperMember implements Member
 	@Override
 	public boolean equals(Object object)
 	{
-		if (!(object instanceof ZookeeperMember)) return false;
+		if (!(object instanceof PekkoMember)) return false;
 
-		ZookeeperMember member = (ZookeeperMember) object;
+		PekkoMember member = (PekkoMember) object;
 		
-		return this.nodePath.equals(member.nodePath);
+		return this.address.equals(member.address);
 	}
 
 	/**
@@ -65,7 +69,7 @@ public class ZookeeperMember implements Member
 	@Override
 	public int hashCode()
 	{
-		return this.nodePath.hashCode();
+		return this.address.hashCode();
 	}
 
 	/**
@@ -75,7 +79,7 @@ public class ZookeeperMember implements Member
 	@Override
 	public String toString()
 	{
-		return this.nodePath;
+		return this.address.toString();
 	}
 
 	/**
@@ -85,6 +89,6 @@ public class ZookeeperMember implements Member
 	@Override
 	public int compareTo(Member member)
 	{
-		return this.nodePath.compareTo(((ZookeeperMember) member).nodePath);
+		return this.address.toString().compareTo(((PekkoMember) member).address.toString());
 	}
 }

@@ -15,7 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.sf.hajdbc.distributed.zookeeper;
+package net.sf.hajdbc.distributed.pekko;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.hajdbc.distributed.CommandDispatcher;
 import net.sf.hajdbc.distributed.CommandDispatcherFactory;
@@ -23,57 +26,44 @@ import net.sf.hajdbc.distributed.MembershipListener;
 import net.sf.hajdbc.distributed.Stateful;
 
 /**
- * ZookeeperベースのCommandDispatcherを作成するファクトリです。
+ * Apache PekkoベースのCommandDispatcherを作成するファクトリです。
  *
  * @author Paul Ferraro
  */
-public class ZookeeperCommandDispatcherFactory implements CommandDispatcherFactory
+public class PekkoCommandDispatcherFactory implements CommandDispatcherFactory
 {
 	private static final long serialVersionUID = 5135621114239237377L;
 	
 	public static final long DEFAULT_TIMEOUT = 60000;
-	public static final String DEFAULT_CONNECTION_STRING = "localhost:2181";
+	public static final String DEFAULT_SYSTEM_NAME = "ha-jdbc";
+	public static final int DEFAULT_PORT = 25520;
 	
-	private String connectionString = DEFAULT_CONNECTION_STRING;
+	private String systemName = DEFAULT_SYSTEM_NAME;
 	private long timeout = DEFAULT_TIMEOUT;
-	private String name;
-	private int baseSleepTime = 1000;
-	private int maxRetries = 5;
+	private int port = DEFAULT_PORT;
+	private List<String> seedNodes = new ArrayList<>();
 
 	@Override
 	public String getId()
 	{
-		return "zookeeper";
+		return "pekko";
 	}
 
 	@Override
 	public <C> CommandDispatcher<C> createCommandDispatcher(String id, C context, Stateful stateful, MembershipListener membershipListener) throws Exception
 	{
-		ZookeeperCommandDispatcher<C> dispatcher = new ZookeeperCommandDispatcher<>(
-			id, this.connectionString, this.timeout, context, stateful, membershipListener);
-		dispatcher.setBaseSleepTime(this.baseSleepTime);
-		dispatcher.setMaxRetries(this.maxRetries);
-		return dispatcher;
+		return new PekkoCommandDispatcher<>(
+			id, this.systemName, this.port, this.timeout, this.seedNodes, context, stateful, membershipListener);
 	}
 
-	public String getName()
+	public String getSystemName()
 	{
-		return this.name;
+		return this.systemName;
 	}
 
-	public void setName(String name)
+	public void setSystemName(String systemName)
 	{
-		this.name = name;
-	}
-
-	public String getConnectionString()
-	{
-		return this.connectionString;
-	}
-
-	public void setConnectionString(String connectionString)
-	{
-		this.connectionString = connectionString;
+		this.systemName = systemName;
 	}
 
 	public long getTimeout()
@@ -86,23 +76,23 @@ public class ZookeeperCommandDispatcherFactory implements CommandDispatcherFacto
 		this.timeout = timeout;
 	}
 
-	public int getBaseSleepTime()
+	public int getPort()
 	{
-		return this.baseSleepTime;
+		return this.port;
 	}
 
-	public void setBaseSleepTime(int baseSleepTime)
+	public void setPort(int port)
 	{
-		this.baseSleepTime = baseSleepTime;
+		this.port = port;
 	}
 
-	public int getMaxRetries()
+	public List<String> getSeedNodes()
 	{
-		return this.maxRetries;
+		return this.seedNodes;
 	}
 
-	public void setMaxRetries(int maxRetries)
+	public void setSeedNodes(List<String> seedNodes)
 	{
-		this.maxRetries = maxRetries;
+		this.seedNodes = seedNodes;
 	}
 }

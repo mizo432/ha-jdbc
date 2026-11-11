@@ -213,9 +213,9 @@ public class ObjectInputStream extends java.io.ObjectInputStream
 		// Identifier list
 		if (name.equals("net.sf.hajdbc.dialect.IdentifierList")) return true;
 		
-		// Zookeeper distributed classes
-		if (name.equals("net.sf.hajdbc.distributed.zookeeper.ZookeeperMember")) return true;
-		if (name.equals("net.sf.hajdbc.distributed.zookeeper.ZookeeperCommandDispatcherFactory")) return true;
+		// Pekko distributed classes
+		if (name.equals("net.sf.hajdbc.distributed.pekko.PekkoMember")) return true;
+		if (name.equals("net.sf.hajdbc.distributed.pekko.PekkoCommandDispatcherFactory")) return true;
 		
 		// Cron expression
 		if (name.equals("net.sf.hajdbc.util.concurrent.cron.CronExpression")) return true;

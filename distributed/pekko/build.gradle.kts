@@ -5,10 +5,11 @@ plugins {
 
 dependencies {
     api(project(":core"))
-    api("org.apache.curator:curator-x-discovery:5.7.1")
-    api("org.apache.curator:curator-framework:5.7.1")
-    api("org.apache.curator:curator-client:5.7.1")
-    api("org.apache.curator:curator-recipes:5.7.1")
+    api(libs.pekko.actor)
+    api(libs.pekko.actor.typed)
+    api(libs.pekko.cluster.typed)
+    api(libs.pekko.remote)
+    api(libs.pekko.cluster.tools)
 
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
