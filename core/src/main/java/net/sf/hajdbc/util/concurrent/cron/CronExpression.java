@@ -26,6 +26,10 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
+
 /**
  * Provides a parser and evaluator for unix-like cron expressions. Cron 
  * expressions provide the ability to specify complex time combinations such as
@@ -629,14 +633,17 @@ public final class CronExpression implements Serializable, Cloneable {
     }
     
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CronExpression.class);
+
     private void readObject(java.io.ObjectInputStream stream)
         throws java.io.IOException, ClassNotFoundException {
         
         stream.defaultReadObject();
         try {
             buildExpression(cronExpression);
-        } catch (Exception ignore) {
-        } // never happens
+        } catch (Exception e) {
+            LOGGER.log(Level.WARN, e, "Failed to rebuild cron expression during deserialization");
+        }
     }    
     
     @Override
