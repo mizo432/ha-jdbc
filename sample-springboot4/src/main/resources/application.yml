@@ -12,22 +12,20 @@ spring:
 
   # JPA / Hibernate settings
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: none
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         envers:
           store_data_at_delete: true
 
-  # Flyway settings
+  # Flyway settings - disabled because we run migrations manually via FlywayConfig
+  # to migrate both master and slave databases directly, bypassing ha-jdbc proxy
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-    clean-disabled: true
+    enabled: false
 
   # Virtual Threads
   threads:
@@ -57,4 +55,5 @@ logging:
     root: WARN
     com.example.sample: INFO
     net.sf.hajdbc: INFO
-    org.hibernate.SQL: WARN
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

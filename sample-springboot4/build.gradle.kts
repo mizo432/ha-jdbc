@@ -1,7 +1,6 @@
 plugins {
 	java
-	id("org.springframework.boot") version "4.0.0"
-	id("io.spring.dependency-management") version "1.1.7"
+	id("org.springframework.boot") version "4.1.2"
 	id("org.flywaydb.flyway") version "11.1.0"
 }
 
@@ -20,17 +19,18 @@ repositories {
     }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
-    }
-}
-
 dependencies {
+    // Import Spring Boot BOM for dependency version management
+    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+    developmentOnly(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+
     // Spring Boot Starters
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // Spring Boot DevTools for automatic restart and live reload
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // Hibernate Envers for audit trail
     implementation("org.springframework.data:spring-data-envers")

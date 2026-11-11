@@ -4,8 +4,8 @@ Spring Boot 4 + JPA + PostgreSQL のサンプルプロジェクトです。
 
 ## 技術スタック
 
-- **Java 21**
-- **Spring Boot 4.0.0**
+- **Java 25**
+- **Spring Boot 4.1.2**
 - **Spring Data JPA**
 - **PostgreSQL 17**
 - **Flyway** (データベースマイグレーション)
@@ -86,7 +86,15 @@ sample-springboot4/
     │       └── db/migration/
     │           └── V1__init_items.sql     # Flyway マイグレーション
     └── test/
-        └── java/com/example/sample/
+        ├── java/com/example/sample/
+        │   ├── config/
+        │   │   ├── TestPostgreSQLContainer.java    # TestContainer コンテナ定義
+        │   │   └── TestcontainerHaJdbcConfig.java  # TestContainer 用 HA-JDBC 設定
+        │   └── controller/
+        │       └── ItemControllerTestcontainerIntegrationTest.java
+        └── resources/
+            ├── application-testcontainer.yml       # TestContainer 用設定
+            └── test-schema.sql                     # テスト用スキーマ
 ```
 
 ## データベース接続情報
@@ -96,4 +104,54 @@ sample-springboot4/
 | URL | `jdbc:postgresql://localhost:5432/sample_db` |
 | ユーザー | `sample_user` |
 | パスワード | `sample_password` |
+
+## TestContainer でのテスト
+
+TestContainer を使用すると、Docker コンテナ上の PostgreSQL で統合テストを実行できます。
+ローカルのデータベース環境が不要で、CI 環境でも同じ条件でテストできます。
+
+### 設定ファイル
+
+TestContainer 用の設定は以下のファイルで構成されています。
+
+| ファイル | 説明 |
+|----------|------|
+| `src/test/java/.../config/TestPostgreSQLContainer.java` | PostgreSQL 17 のマスター/スレーブコンテナ定義 |
+| `src/test/java/.../config/TestcontainerHaJdbcConfig.java` | `testcontainer` プロファイル用の HA-JDBC DataSource 設定 |
+| `src/test/resources/application-testcontainer.yml` | TestContainer 用のアプリケーション設定 |
+| `src/test/resources/test-schema.sql` | テスト用のスキーマ定義 |
+
+### 依存関係
+
+`build.gradle.kts` に Testcontainers の依存関係が追加されています。
+
+```kotlin
+testImplementation("org.testcontainers:testcontainers-postgresql")
+testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+```
+
+### テストの実行
+
+```bash
+# TestContainer テストのみ実行
+./gradlew :sample-springboot4:test --tests "ItemControllerTestcontainerIntegrationTest"
+
+# 全テスト実行（H2 テストと TestContainer テストの両方）
+./gradlew :sample-springboot4:test
+```
+
+### テストの仕組み
+
+1. `@ActiveProfiles("testcontainer")` で `testcontainer` プロファイルを有効化
+2. `@DynamicPropertySource` で PostgreSQL コンテナを起動し、JDBC URL を動的に設定
+3. `TestcontainerHaJdbcConfig` が HA-JDBC の DataSource を PostgreSQL TestContainer 用に構築
+4. テスト終了時にコンテナは自動的に停止・削除されます
+
+### プロファイルの違い
+
+| プロファイル | データベース | 用途 |
+|-------------|-------------|------|
+| (デフォルト) | H2 インメモリ | 高速なローカルテスト |
+| `testcontainer` | PostgreSQL 17 (TestContainer) | 本番環境に近い統合テスト |
+| `mssql-test` | H2 (MSSQLServer モード) | MSSQL 互換性テスト |
 
