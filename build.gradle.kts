@@ -59,7 +59,16 @@ subprojects {
 }
 
 // Aggregated JaCoCo test coverage report for all subprojects
-val jacocoTestReport by tasks.registering(JacocoReport::class) {
+val jacocoCoverageData = files()
+subprojects.forEach { subproject ->
+    subproject.plugins.withId("jacoco") {
+        subproject.tasks.withType<org.gradle.testing.jacoco.tasks.JacocoReport>().configureEach {
+            jacocoCoverageData.from(provider { this@configureEach.executionData })
+        }
+    }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo test coverage report for all subprojects."
     group = "verification"
 
@@ -68,11 +77,10 @@ val jacocoTestReport by tasks.registering(JacocoReport::class) {
         html.required.set(true)
     }
 
+    executionData(jacocoCoverageData)
+
     subprojects.forEach { subproject ->
         subproject.plugins.withId("jacoco") {
-            subproject.tasks.withType<JacocoReport>().configureEach {
-                this@registering.executionData(this.executionData)
-            }
             sourceSets(subproject.extensions.getByType<org.gradle.api.tasks.SourceSetContainer>()
                 .named("main").get())
         }
