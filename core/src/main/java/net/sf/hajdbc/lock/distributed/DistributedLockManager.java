@@ -512,7 +512,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command));
+				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command) + " - Exception type: " + e.getClass().getSimpleName());
 				return false;
 			}
 		}
@@ -527,7 +527,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, coordinator));
+				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, coordinator) + " - Exception type: " + e.getClass().getSimpleName());
 				return false;
 			}
 		}
@@ -570,7 +570,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command));
+				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command) + " - Exception type: " + e.getClass().getSimpleName());
 			}
 		}
 
@@ -584,7 +584,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, member));
+				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, member) + " - Exception type: " + e.getClass().getSimpleName());
 			}
 		}
 		
@@ -601,13 +601,13 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.executeCommandFailed(command, member));
+				logger.log(Level.WARN, e, messages.executeCommandFailed(command, member) + " - Exception type: " + e.getClass().getSimpleName());
 				return failureResult;
 			}
 		}
 		
 		@Override
-		public Condition newCondition()
+			public Condition newCondition()
 		{
 			throw new UnsupportedOperationException();
 		}

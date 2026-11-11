@@ -110,7 +110,7 @@ public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispa
 		}
 		catch (Exception e)
 		{
-			throw new SQLException(e);
+			throw new SQLException("Failed to connect to JGroups channel '" + this.id + "': " + e.getMessage(), e);
 		}
 	}
 
