@@ -5,10 +5,8 @@ import com.example.sample.dto.ItemRequest;
 import com.example.sample.dto.ItemRevision;
 import com.example.sample.entity.Item;
 import com.example.sample.repository.ItemRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +31,7 @@ class ItemControllerIntegrationTest {
     @Autowired
     private ItemRepository itemRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final JsonMapper objectMapper = JsonMapper.builder().build();
 
     private Long createdItemId;
 
@@ -56,7 +54,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testGetAllItems() throws JsonProcessingException {
+    void testGetAllItems() {
         String responseBody = restTestClient.get()
                 .uri("/api/items")
                 .exchange()
@@ -73,7 +71,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testGetItemById() throws JsonProcessingException {
+    void testGetItemById() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/" + createdItemId)
                 .exchange()
@@ -99,7 +97,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testCreateItem() throws JsonProcessingException {
+    void testCreateItem() {
         ItemRequest request = new ItemRequest();
         request.setName("新規商品");
         request.setDescription("新規に作成した商品");
@@ -143,7 +141,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testUpdateItem() throws JsonProcessingException {
+    void testUpdateItem() {
         ItemRequest request = new ItemRequest();
         request.setName("更新された商品");
         request.setDescription("更新された説明");
@@ -180,7 +178,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testSearchByName() throws JsonProcessingException {
+    void testSearchByName() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/search/name?name=テスト")
                 .exchange()
@@ -198,7 +196,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testSearchByPriceRange() throws JsonProcessingException {
+    void testSearchByPriceRange() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/search/price?minPrice=1000&maxPrice=2000")
                 .exchange()
@@ -219,7 +217,7 @@ class ItemControllerIntegrationTest {
     // === Edge case tests ===
 
     @Test
-    void testSearchByName_NoMatch_ShouldReturnEmptyList() throws JsonProcessingException {
+    void testSearchByName_NoMatch_ShouldReturnEmptyList() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/search/name?name=存在しない商品名")
                 .exchange()
@@ -236,7 +234,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testSearchByPriceRange_NoMatch_ShouldReturnEmptyList() throws JsonProcessingException {
+    void testSearchByPriceRange_NoMatch_ShouldReturnEmptyList() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/search/price?minPrice=99999&maxPrice=999999")
                 .exchange()
@@ -253,7 +251,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testSearchByPriceRange_MinGreaterThanMax_ShouldReturnBadRequest() throws JsonProcessingException {
+    void testSearchByPriceRange_MinGreaterThanMax_ShouldReturnBadRequest() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/search/price?minPrice=2000&maxPrice=1000")
                 .exchange()
@@ -269,7 +267,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testSearchByName_TooLongName_ShouldReturnBadRequest() throws JsonProcessingException {
+    void testSearchByName_TooLongName_ShouldReturnBadRequest() {
         String longName = "A".repeat(101);
         String responseBody = restTestClient.get()
                 .uri("/api/items/search/name?name=" + longName)
@@ -286,7 +284,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testSearchByName_Exactly100Chars_ShouldSucceed() throws JsonProcessingException {
+    void testSearchByName_Exactly100Chars_ShouldSucceed() {
         String name = "A".repeat(100);
         restTestClient.get()
                 .uri("/api/items/search/name?name=" + name)
@@ -307,7 +305,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testCreateItem_WithZeroPriceAndStock_ShouldSucceed() throws JsonProcessingException {
+    void testCreateItem_WithZeroPriceAndStock_ShouldSucceed() {
         ItemRequest request = new ItemRequest();
         request.setName("無料商品");
         request.setDescription("無料のサンプル");
@@ -331,7 +329,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testCreateItem_WithLongName_ShouldSucceed() throws JsonProcessingException {
+    void testCreateItem_WithLongName_ShouldSucceed() {
         ItemRequest request = new ItemRequest();
         request.setName("A".repeat(100));  // Maximum allowed length
         request.setDescription("説明");
@@ -354,7 +352,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testCreateItem_WithLongDescription_ShouldSucceed() throws JsonProcessingException {
+    void testCreateItem_WithLongDescription_ShouldSucceed() {
         ItemRequest request = new ItemRequest();
         request.setName("商品");
         request.setDescription("B".repeat(500));  // Maximum allowed length
@@ -430,7 +428,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testGetAllItems_AfterDelete_ShouldNotContainDeletedItem() throws JsonProcessingException {
+    void testGetAllItems_AfterDelete_ShouldNotContainDeletedItem() {
         // Create a new item
         ItemRequest request = new ItemRequest();
         request.setName("削除対象商品");
@@ -471,7 +469,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testSearchByPriceRange_EqualMinMax_ShouldReturnMatchingItems() throws JsonProcessingException {
+    void testSearchByPriceRange_EqualMinMax_ShouldReturnMatchingItems() {
         // The test item has price 1500
         String responseBody = restTestClient.get()
                 .uri("/api/items/search/price?minPrice=1500&maxPrice=1500")
@@ -521,7 +519,7 @@ class ItemControllerIntegrationTest {
     // === Envers audit history tests ===
 
     @Test
-    void testGetHistory_ShouldReturnRevisions() throws JsonProcessingException {
+    void testGetHistory_ShouldReturnRevisions() {
         // Create an item (already done in setUp)
         // Update it to create a new revision
         ItemRequest updateRequest = new ItemRequest();
@@ -564,7 +562,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testGetHistory_ForNewItem_ShouldReturnSingleRevision() throws JsonProcessingException {
+    void testGetHistory_ForNewItem_ShouldReturnSingleRevision() {
         // Create a new item
         ItemRequest request = new ItemRequest();
         request.setName("履歴テスト商品");
@@ -602,7 +600,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    void testGetHistory_ForNonExistentItem_ShouldReturnEmptyList() throws JsonProcessingException {
+    void testGetHistory_ForNonExistentItem_ShouldReturnEmptyList() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/99999/history")
                 .exchange()

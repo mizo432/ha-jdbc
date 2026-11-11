@@ -4,10 +4,8 @@ import com.example.sample.dto.ApiResponse;
 import com.example.sample.dto.ItemRequest;
 import com.example.sample.entity.Item;
 import com.example.sample.repository.ItemRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +35,7 @@ class ItemControllerMSSQLIntegrationTest {
     @Autowired
     private ItemRepository itemRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final JsonMapper objectMapper = JsonMapper.builder().build();
 
     private Long createdItemId;
 
@@ -58,7 +56,7 @@ class ItemControllerMSSQLIntegrationTest {
     }
 
     @Test
-    void testGetAllItems() throws JsonProcessingException {
+    void testGetAllItems() {
         String responseBody = restTestClient.get()
                 .uri("/api/items")
                 .exchange()
@@ -75,7 +73,7 @@ class ItemControllerMSSQLIntegrationTest {
     }
 
     @Test
-    void testGetItemById() throws JsonProcessingException {
+    void testGetItemById() {
         String responseBody = restTestClient.get()
                 .uri("/api/items/" + createdItemId)
                 .exchange()
@@ -101,7 +99,7 @@ class ItemControllerMSSQLIntegrationTest {
     }
 
     @Test
-    void testCreateItem() throws JsonProcessingException {
+    void testCreateItem() {
         ItemRequest request = new ItemRequest();
         request.setName("New MSSQL Item");
         request.setDescription("Created via MSSQL integration test");
@@ -127,7 +125,7 @@ class ItemControllerMSSQLIntegrationTest {
     }
 
     @Test
-    void testUpdateItem() throws JsonProcessingException {
+    void testUpdateItem() {
         ItemRequest request = new ItemRequest();
         request.setName("Updated MSSQL Item");
         request.setDescription("Updated via MSSQL integration test");
@@ -166,7 +164,7 @@ class ItemControllerMSSQLIntegrationTest {
     }
 
     @Test
-    void testItemWithIdentityColumn() throws JsonProcessingException {
+    void testItemWithIdentityColumn() {
         /*
          * MSSQL uses IDENTITY columns for auto-increment.
          * This test verifies that the IDENTITY column works correctly
@@ -197,7 +195,7 @@ class ItemControllerMSSQLIntegrationTest {
     }
 
     @Test
-    void testBatchInsert() throws JsonProcessingException {
+    void testBatchInsert() {
         /*
          * Verify batch insert works with MSSQL-compatible SQL.
          */

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.dataformat.xml.XmlFactory;
 import tools.jackson.dataformat.xml.XmlMapper;
 import tools.jackson.dataformat.xml.XmlWriteFeature;
@@ -190,6 +191,10 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 			return builder.build();
 		}
 		catch (IOException e)
+		{
+			throw new SQLException(e);
+		}
+		catch (JacksonException e)
 		{
 			throw new SQLException(e);
 		}
@@ -370,6 +375,10 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 			this.xmlMapper.writeValue(os, config);
 		}
 		catch (IOException e)
+		{
+			logger.log(Level.WARN, e);
+		}
+		catch (JacksonException e)
 		{
 			logger.log(Level.WARN, e);
 		}

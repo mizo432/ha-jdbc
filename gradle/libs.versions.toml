@@ -18,7 +18,7 @@ assertj = "3.27.3"
 hsqldb = "2.7.4"
 h2 = "2.5.252"
 postgresql = "42.7.14"
-jackson3 = "3.2.4"
+jackson3 = "3.3.0"
 
 [plugins]
 spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs-gradle" }
