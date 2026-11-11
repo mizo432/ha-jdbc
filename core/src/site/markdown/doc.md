@@ -113,13 +113,6 @@ HA-JDBC includes dialects for the following databases:
 		<td></td>
 	</tr>
 	<tr>
-		<td>**derby**</td>
-		<td>Apache Derby</td>
-		<td>&#x2714;</td>
-		<td>&#x2714;</td>
-		<td></td>
-	</tr>
-	<tr>
 		<td>**firebird**</td>
 		<td>Firebird, InterBase</td>
 		<td>&#x2714;</td>
@@ -360,8 +353,7 @@ simple
 			<td>**urlPattern**</td>
 			<td>
 				<div class="nobr">jdbc:h2:{1}/{0}</div><br/>
-				<div class="nobr">jdbc:hsqldb:{1}/{0}</div><br/>
-				<div class="nobr">jdbc:derby:{1}/{0};create=true</div>
+				<div class="nobr">jdbc:hsqldb:{1}/{0}</div>
 			</td>
 			<td>
 				A MessageFormat pattern indicating the JDBC url of the embedded database.

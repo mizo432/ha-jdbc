@@ -321,7 +321,7 @@ public class SimpleMessages implements Messages
 	@Override
 	public String noEmbeddedDriverFound()
 	{
-		return this.tr("Failed to detect an embedded database driver on the classpath. Add H2, HSQLDB, or Derby JDBC driver to your classpath");
+		return this.tr("Failed to detect an embedded database driver on the classpath. Add H2 or HSQLDB JDBC driver to your classpath");
 	}
 
 	@Override
