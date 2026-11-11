@@ -1,5 +1,6 @@
 name-template: 'HA-JDBC $RESOLVED_VERSION'
 tag-template: '$RESOLVED_VERSION'
+dry-run: true
 category-template: '### $TITLE'
 change-template: '- $TITLE (#$NUMBER)'
 change-title-escapes: '\<\>{}[]`~&$#@!'
