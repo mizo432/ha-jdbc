@@ -38,6 +38,9 @@ dependencies {
     // PostgreSQL Driver
     runtimeOnly("org.postgresql:postgresql")
 
+    // Microsoft SQL Server Driver
+    runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
+
     // HikariCP Connection Pool
     runtimeOnly("com.zaxxer:HikariCP")
 
@@ -52,6 +55,7 @@ dependencies {
     // Flyway for database migration
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.flywaydb:flyway-sqlserver")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
