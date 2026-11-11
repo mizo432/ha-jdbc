@@ -54,22 +54,26 @@ categories:
       - 'documentation'
   - title: '📦 Other Changes'
     labels: []
-version-resolver:
-  major:
+  - title: '⬆️ Major Version'
+    type: version-resolver
+    semver-increment: major
     labels:
       - 'major'
       - 'breaking'
-  minor:
+  - title: '⬆️ Minor Version'
+    type: version-resolver
+    semver-increment: minor
     labels:
       - 'minor'
       - 'feature'
-  patch:
+  - title: '⬆️ Patch Version'
+    type: version-resolver
+    semver-increment: patch
     labels:
       - 'patch'
       - 'bugfix'
       - 'fix'
       - 'improvement'
-  default: patch
 template: |
   ## What's Changed
 
