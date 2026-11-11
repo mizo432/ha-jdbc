@@ -3,7 +3,6 @@ net.sf.hajdbc.dialect.db2.DB2DialectFactory
 net.sf.hajdbc.dialect.firebird.FirebirdDialectFactory
 net.sf.hajdbc.dialect.h2.H2DialectFactory
 net.sf.hajdbc.dialect.hsqldb.HSQLDBDialectFactory
-net.sf.hajdbc.dialect.ingres.IngresDialectFactory
 net.sf.hajdbc.dialect.mckoi.MckoiDialectFactory
 net.sf.hajdbc.dialect.mssql.MSSQLDialectFactory
 net.sf.hajdbc.dialect.mysql.MySQLDialectFactory
