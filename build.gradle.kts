@@ -85,5 +85,11 @@ tasks.register<JacocoReport>("jacocoTestReport") {
                 .named("main").get())
         }
     }
+
+    subprojects.forEach { subproject ->
+        subproject.plugins.withId("jacoco") {
+            dependsOn(subproject.tasks.named("test"))
+        }
+    }
 }
 
