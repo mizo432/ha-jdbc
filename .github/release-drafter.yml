@@ -53,8 +53,7 @@ categories:
     labels:
       - 'documentation'
   - title: '📦 Other Changes'
-    labels:
-      - false
+    labels: []
 version-resolver:
   major:
     labels:
