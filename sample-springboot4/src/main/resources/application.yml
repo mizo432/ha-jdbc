@@ -55,4 +55,5 @@ logging:
     root: WARN
     com.example.sample: INFO
     net.sf.hajdbc: INFO
-    org.hibernate.SQL: WARN
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

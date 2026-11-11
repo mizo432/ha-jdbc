@@ -35,14 +35,14 @@ public class FlywayConfig {
             // Migrate master database directly
             Flyway masterFlyway = Flyway.configure()
                     .dataSource(masterUrl, masterUsername, masterPassword)
-                    .locations("classpath:db/migration")
+                    .locations("classpath:db/migration/postgresql")
                     .load();
             masterFlyway.migrate();
 
             // Migrate slave database directly
             Flyway slaveFlyway = Flyway.configure()
                     .dataSource(slaveUrl, slaveUsername, slavePassword)
-                    .locations("classpath:db/migration")
+                    .locations("classpath:db/migration/postgresql")
                     .load();
             slaveFlyway.migrate();
         };
