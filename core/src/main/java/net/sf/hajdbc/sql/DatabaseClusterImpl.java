@@ -674,39 +674,41 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 			clearBalancer();
 		}
 
-		private void initializeComponents() throws SQLException
-		{
-			CommandDispatcherFactory dispatcherFactory = DatabaseClusterImpl.this.configuration.getDispatcherFactory();
+ 	private void initializeComponents() throws SQLException
+ 	{
+ 		CommandDispatcherFactory dispatcherFactory = DatabaseClusterImpl.this.configuration.getDispatcherFactory();
 
-			DatabaseClusterImpl.this.decoder = DatabaseClusterImpl.this.configuration.getDecoderFactory().createDecoder(DatabaseClusterImpl.this.getId());
-			LockManager lockManager = DatabaseClusterImpl.this.configuration.getLockManagerFactory().createLockManager();
-			StateManager stateManager = DatabaseClusterImpl.this.configuration.getStateManagerFactory().createStateManager(DatabaseClusterImpl.this);
+ 		// Initialize txIdentifierFactory and durability first, as they may be accessed by StateManager during creation
+ 		DatabaseClusterImpl.this.txIdentifierFactory = (dispatcherFactory != null) ? new UUIDTransactionIdentifierFactory() : new SimpleTransactionIdentifierFactory();
+ 		DatabaseClusterImpl.this.durability = DatabaseClusterImpl.this.configuration.getDurabilityFactory().createDurability(DatabaseClusterImpl.this);
 
-			if (dispatcherFactory != null)
-			{
-				try
-				{
-					lockManager = new DistributedLockManager(DatabaseClusterImpl.this, dispatcherFactory, DatabaseClusterImpl.this.configuration.getLockTimeoutMs());
-					stateManager = new DistributedStateManager<>(DatabaseClusterImpl.this, dispatcherFactory);
-				}
-				catch (Exception e)
-				{
-					throw new SQLException(e);
-				}
-			}
+ 		DatabaseClusterImpl.this.decoder = DatabaseClusterImpl.this.configuration.getDecoderFactory().createDecoder(DatabaseClusterImpl.this.getId());
+ 		LockManager lockManager = DatabaseClusterImpl.this.configuration.getLockManagerFactory().createLockManager();
+ 		StateManager stateManager = DatabaseClusterImpl.this.configuration.getStateManagerFactory().createStateManager(DatabaseClusterImpl.this);
 
-			DatabaseClusterImpl.this.lockManager = lockManager;
-			DatabaseClusterImpl.this.stateManager = stateManager;
-			DatabaseClusterImpl.this.balancer = DatabaseClusterImpl.this.configuration.getBalancerFactory().createBalancer(new java.util.TreeSet<D>());
-			DatabaseClusterImpl.this.dialect = DatabaseClusterImpl.this.configuration.getDialectFactory().createDialect();
-			DatabaseClusterImpl.this.durability = DatabaseClusterImpl.this.configuration.getDurabilityFactory().createDurability(DatabaseClusterImpl.this);
-			DatabaseClusterImpl.this.executor = DatabaseClusterImpl.this.configuration.getExecutorProvider().getExecutor(DatabaseClusterImpl.this.configuration.getThreadFactory());
-			DatabaseClusterImpl.this.sinkSourceFactory = DatabaseClusterImpl.this.configuration.getInputSinkProvider().createInputSinkStrategy();
-			DatabaseClusterImpl.this.txIdentifierFactory = (dispatcherFactory != null) ? new UUIDTransactionIdentifierFactory() : new SimpleTransactionIdentifierFactory();
+ 		if (dispatcherFactory != null)
+ 		{
+ 			try
+ 			{
+ 				lockManager = new DistributedLockManager(DatabaseClusterImpl.this, dispatcherFactory, DatabaseClusterImpl.this.configuration.getLockTimeoutMs());
+ 				stateManager = new DistributedStateManager<>(DatabaseClusterImpl.this, dispatcherFactory);
+ 			}
+ 			catch (Exception e)
+ 			{
+ 				throw new SQLException(e);
+ 			}
+ 		}
 
-			lockManager.start();
-			stateManager.start();
-		}
+ 		DatabaseClusterImpl.this.lockManager = lockManager;
+ 		DatabaseClusterImpl.this.stateManager = stateManager;
+ 		DatabaseClusterImpl.this.balancer = DatabaseClusterImpl.this.configuration.getBalancerFactory().createBalancer(new java.util.TreeSet<D>());
+ 		DatabaseClusterImpl.this.dialect = DatabaseClusterImpl.this.configuration.getDialectFactory().createDialect();
+ 		DatabaseClusterImpl.this.executor = DatabaseClusterImpl.this.configuration.getExecutorProvider().getExecutor(DatabaseClusterImpl.this.configuration.getThreadFactory());
+ 		DatabaseClusterImpl.this.sinkSourceFactory = DatabaseClusterImpl.this.configuration.getInputSinkProvider().createInputSinkStrategy();
+
+ 		lockManager.start();
+ 		stateManager.start();
+ 	}
 
 		private void initializeDatabases()
 		{
