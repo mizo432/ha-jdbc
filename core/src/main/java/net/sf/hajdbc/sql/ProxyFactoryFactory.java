@@ -23,8 +23,26 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.invocation.Invoker;
 
 /**
- * 
+ * A factory for creating proxy factories.
+ * <p>
+ * This interface uses 6 type parameters to support creating child proxy factories:
+ * </p>
+ * <ul>
+ *   <li>{@code Z} - The root SQL object type (e.g., {@code Driver}, {@code DataSource})</li>
+ *   <li>{@code D} - The database type, extending {@link Database}&lt;{@code Z}&gt;</li>
+ *   <li>{@code P} - The parent object type</li>
+ *   <li>{@code PE} - The exception type thrown when accessing the parent</li>
+ *   <li>{@code R} - The result object type (child)</li>
+ *   <li>{@code RE} - The exception type thrown by the result object</li>
+ * </ul>
+ *
  * @author Paul Ferraro
+ * @param <Z> the root SQL object type
+ * @param <D> the database type, extending Database&lt;Z&gt;
+ * @param <P> the parent object type
+ * @param <PE> the exception type thrown when accessing the parent
+ * @param <R> the result object type (child)
+ * @param <RE> the exception type thrown by the result object
  */
 public interface ProxyFactoryFactory<Z, D extends Database<Z>, P, PE extends Exception, R, RE extends Exception>
 {

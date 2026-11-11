@@ -33,8 +33,20 @@ import net.sf.hajdbc.messages.Messages;
 import net.sf.hajdbc.messages.MessagesFactory;
 
 /**
- * 
+ * Abstract base for proxy factories.
+ * <p>
+ * This class uses 5 type parameters. The {@code TE} parameter represents the exception
+ * type thrown by the {@link #create(Database)} method, while {@code E} is the exception
+ * type used for all other operations. In most subclasses, {@code TE} and {@code E} are
+ * the same type (typically {@code SQLException}).
+ * </p>
+ *
  * @author Paul Ferraro
+ * @param <Z> the root SQL object type
+ * @param <D> the database type, extending Database&lt;Z&gt;
+ * @param <TE> the exception type thrown by create() method
+ * @param <T> the SQL object type being proxied
+ * @param <E> the exception type for all other operations
  */
 public abstract class AbstractProxyFactory<Z, D extends Database<Z>, TE extends Exception, T, E extends Exception> implements ProxyFactory<Z, D, T, E>
 {

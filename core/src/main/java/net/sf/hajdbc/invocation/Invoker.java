@@ -20,11 +20,30 @@ package net.sf.hajdbc.invocation;
 import net.sf.hajdbc.Database;
 
 /**
- * データベースに対するSQLオブジェクトのメソッド呼び出しを表します。
+ * Represents a method invocation against a SQL object in a database.
+ * <p>
+ * This interface uses 5 type parameters to support the proxy pattern across
+ * multiple databases in a cluster. The type parameters follow a consistent
+ * convention throughout HA-JDBC:
+ * </p>
+ * <ul>
+ *   <li>{@code Z} - The root SQL object type (e.g., {@code Driver}, {@code DataSource})</li>
+ *   <li>{@code D} - The database type, which extends {@link Database} parameterized by {@code Z}</li>
+ *   <li>{@code T} - The target object type on which the method is invoked (e.g., {@code Connection}, {@code Statement})</li>
+ *   <li>{@code R} - The return type of the invoked method</li>
+ *   <li>{@code E} - The exception type that may be thrown (typically {@code SQLException})</li>
+ * </ul>
+ * <p>
+ * Example: {@code Invoker<DataSource, DataSourceDatabase, Connection, Statement, SQLException>}
+ * represents invoking {@code Connection.createStatement()} where the result is a {@code Statement}.
+ * </p>
+ *
  * @author Paul Ferraro
- * @param <D> ルートオブジェクトの型（例: ドライバー、データソース）
- * @param <T> 呼び出しのターゲットオブジェクトの型
- * @param <R> この呼び出しの戻り値の型
+ * @param <Z> the root SQL object type (e.g., Driver, DataSource)
+ * @param <D> the database type, extending Database<Z>
+ * @param <T> the target object type on which the method is invoked
+ * @param <R> the return type of the invoked method
+ * @param <E> the exception type that may be thrown
  */
 public interface Invoker<Z, D extends Database<Z>, T, R, E extends Exception>
 {
