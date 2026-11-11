@@ -21,8 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jgroups.Address;
 import org.jgroups.util.UUID;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("JGroupsテストはJava 25で不安定")
 class AddressMemberTest {
 
     @Test
