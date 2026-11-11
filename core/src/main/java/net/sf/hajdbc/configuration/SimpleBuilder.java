@@ -17,9 +17,9 @@
  */
 package net.sf.hajdbc.configuration;
 
-public class SimpleBuilder<T> implements Builder<T>
+	public class SimpleBuilder<T> implements Builder<T>
 {
-	private volatile T configuration;
+	private T configuration;
 
 	public SimpleBuilder(T configuration)
 	{

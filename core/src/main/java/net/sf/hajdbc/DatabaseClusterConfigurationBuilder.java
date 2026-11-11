@@ -68,33 +68,33 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 	private final List<Builder<SynchronizationStrategy>> synchronizationStrategyBuilders = new LinkedList<>();
 	private final List<Builder<D>> databaseBuilders = new LinkedList<>();
 
-	private volatile Builder<CommandDispatcherFactory> commandDispatcherFactoryBuilder;
-	private volatile Builder<StateManagerFactory> stateManagerFactoryBuilder = new SimpleBuilder<>(new SQLStateManagerFactory());
-	private volatile Builder<LockManagerFactory> lockManagerFactoryBuilder = new SimpleBuilder<>(new SemaphoreLockManagerFactory());
-	private volatile Builder<BalancerFactory> balancerFactoryBuilder = new SimpleBuilder<>(new LoadBalancerFactory());
-	private volatile Builder<DialectFactory> dialectFactoryBuilder = new SimpleBuilder<>(new StandardDialectFactory());
-	private volatile Builder<DurabilityFactory> durabilityFactoryBuilder = new SimpleBuilder<>(new CoarseDurabilityFactory());
-	private volatile Builder<InputSinkProvider> inputSinkProviderBuilder = new SimpleBuilder<>(new FileInputSinkProvider());
-	private volatile Builder<DatabaseMetaDataCacheFactory> metaDataCacheFactoryBuilder = new SimpleBuilder<>(new EagerDatabaseMetaDataCacheFactory());
+	private Builder<CommandDispatcherFactory> commandDispatcherFactoryBuilder;
+	private Builder<StateManagerFactory> stateManagerFactoryBuilder = new SimpleBuilder<>(new SQLStateManagerFactory());
+	private Builder<LockManagerFactory> lockManagerFactoryBuilder = new SimpleBuilder<>(new SemaphoreLockManagerFactory());
+	private Builder<BalancerFactory> balancerFactoryBuilder = new SimpleBuilder<>(new LoadBalancerFactory());
+	private Builder<DialectFactory> dialectFactoryBuilder = new SimpleBuilder<>(new StandardDialectFactory());
+	private Builder<DurabilityFactory> durabilityFactoryBuilder = new SimpleBuilder<>(new CoarseDurabilityFactory());
+	private Builder<InputSinkProvider> inputSinkProviderBuilder = new SimpleBuilder<>(new FileInputSinkProvider());
+	private Builder<DatabaseMetaDataCacheFactory> metaDataCacheFactoryBuilder = new SimpleBuilder<>(new EagerDatabaseMetaDataCacheFactory());
 
-	private volatile Builder<DecoderFactory> decoderFactoryBuilder = new SimpleBuilder<>(new MultiplexingDecoderFactory());
-	private volatile Builder<MBeanRegistrarFactory> mbeanRegistrarFactoryBuilder = new SimpleBuilder<>(new DefaultMBeanRegistrarFactory());
-	private volatile Builder<ThreadFactory> threadFactoryBuilder = new SimpleBuilder<>(Executors.defaultThreadFactory());
-	private volatile Builder<ExecutorServiceProvider> executorProviderBuilder = new SimpleBuilder<>(new DefaultExecutorServiceProvider());
+	private Builder<DecoderFactory> decoderFactoryBuilder = new SimpleBuilder<>(new MultiplexingDecoderFactory());
+	private Builder<MBeanRegistrarFactory> mbeanRegistrarFactoryBuilder = new SimpleBuilder<>(new DefaultMBeanRegistrarFactory());
+	private Builder<ThreadFactory> threadFactoryBuilder = new SimpleBuilder<>(Executors.defaultThreadFactory());
+	private Builder<ExecutorServiceProvider> executorProviderBuilder = new SimpleBuilder<>(new DefaultExecutorServiceProvider());
 
-	private volatile CronExpressionBuilder autoActivateScheduleBuilder = new CronExpressionBuilder();
-	private volatile CronExpressionBuilder failureDetectScheduleBuilder = new CronExpressionBuilder();
+	private CronExpressionBuilder autoActivateScheduleBuilder = new CronExpressionBuilder();
+	private CronExpressionBuilder failureDetectScheduleBuilder = new CronExpressionBuilder();
 	
-	private volatile String defaultSynchronizationStrategy;
-	private volatile TransactionMode transactionMode = TransactionModeEnum.SERIAL;
-	private volatile boolean evalCurrentDate = false;
-	private volatile boolean evalCurrentTime = false;
-	private volatile boolean evalCurrentTimestamp = false;
-	private volatile boolean evalRand = false;
-	private volatile boolean detectIdentityColumns = false;
-	private volatile boolean detectSequences = false;
-	private volatile boolean allowEmptyCluster = false;
-	private volatile long lockTimeoutMs = 5 * 60 * 1000; // 5 minutes default
+	private String defaultSynchronizationStrategy;
+	private TransactionMode transactionMode = TransactionModeEnum.SERIAL;
+	private boolean evalCurrentDate = false;
+	private boolean evalCurrentTime = false;
+	private boolean evalCurrentTimestamp = false;
+	private boolean evalRand = false;
+	private boolean detectIdentityColumns = false;
+	private boolean detectSequences = false;
+	private boolean allowEmptyCluster = false;
+	private long lockTimeoutMs = 5 * 60 * 1000; // 5 minutes default
 	
 	protected DatabaseClusterConfigurationBuilder(DatabaseBuilderFactory<Z, D, B> factory)
 	{

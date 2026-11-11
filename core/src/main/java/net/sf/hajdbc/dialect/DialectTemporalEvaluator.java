@@ -30,6 +30,9 @@ import java.util.regex.Pattern;
  */
 final class DialectTemporalEvaluator
 {
+	// Maximum SQL length to prevent ReDoS attacks
+	private static final int MAX_SQL_LENGTH = 1024 * 1024; // 1MB
+
 	private final Pattern currentDatePattern;
 	private final Pattern currentTimePattern;
 	private final Pattern currentTimestampPattern;
@@ -85,6 +88,11 @@ final class DialectTemporalEvaluator
 	 */
 	String evaluateRand(String sql)
 	{
+		// Guard against excessively long SQL strings to prevent ReDoS
+		if (sql.length() > MAX_SQL_LENGTH) {
+			return sql;
+		}
+		
 		StringBuffer buffer = new StringBuffer();
 		Matcher matcher = this.randomPattern.matcher(sql);
 
@@ -98,6 +106,11 @@ final class DialectTemporalEvaluator
 
 	private static String evaluateTemporal(String sql, Pattern pattern, java.util.Date date, String format)
 	{
+		// Guard against excessively long SQL strings to prevent ReDoS
+		if (sql.length() > MAX_SQL_LENGTH) {
+			return sql;
+		}
+		
 		return pattern.matcher(sql).replaceAll(MessageFormat.format(format, date.toString()));
 	}
 }

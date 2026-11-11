@@ -23,9 +23,9 @@ import javax.sql.XADataSource;
 
 import net.sf.hajdbc.sql.CommonDataSourceDatabaseBuilder;
 
-public class XADataSourceDatabaseBuilder extends CommonDataSourceDatabaseBuilder<XADataSource, XADataSourceDatabase>
+	public class XADataSourceDatabaseBuilder extends CommonDataSourceDatabaseBuilder<XADataSource, XADataSourceDatabase>
 {
-	private volatile boolean force2PC = false;
+	private boolean force2PC = false;
 	
 	public XADataSourceDatabaseBuilder(String id)
 	{

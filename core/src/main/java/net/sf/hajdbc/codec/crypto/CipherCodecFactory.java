@@ -178,6 +178,7 @@ public class CipherCodecFactory implements CodecFactory
 	 * ファイルからパスワードを読み取ります。
 	 * ファイルの内容をトリムして返します。
 	 * 空または空白のみのコンテンツの場合は null を返します。
+	 * ファイル権限をチェックし、他のユーザーから読み書き可能な場合は警告をログに記録します。
 	 */
 	private static String readPasswordFromFile(String filePath)
 	{
@@ -188,6 +189,8 @@ public class CipherCodecFactory implements CodecFactory
 			{
 				return null;
 			}
+			// Check file permissions for security
+			checkPasswordFilePermissions(file);
 			String content = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8).trim();
 			return content.isEmpty() ? null : content;
 		}
@@ -195,6 +198,58 @@ public class CipherCodecFactory implements CodecFactory
 		{
 			log.log(Level.WARN, e, "Failed to read password file: {0}", filePath);
 			return null;
+		}
+	}
+	
+	/**
+	 * パスワードファイルの権限をチェックします。
+	 * 他のユーザーから読み書き可能な場合は警告をログに記録します。
+	 */
+	private static void checkPasswordFilePermissions(File file)
+	{
+		if (!file.canRead())
+		{
+			log.log(Level.WARN, "Password file is not readable: {0}", file.getAbsolutePath());
+			return;
+		}
+		
+		// Check if file is readable by others
+		if (file.canWrite())
+		{
+			// Additional check: verify file permissions using POSIX file attributes if available
+			try
+			{
+				java.nio.file.Path path = file.toPath();
+				if (Files.isReadable(path) && Files.isWritable(path))
+				{
+					// Check POSIX file permissions if available
+					try
+					{
+						java.nio.file.attribute.PosixFileAttributes fileAttrs = 
+							java.nio.file.Files.readAttributes(path, java.nio.file.attribute.PosixFileAttributes.class);
+						java.util.Set<java.nio.file.attribute.PosixFilePermission> perms = fileAttrs.permissions();
+						
+						// Check if others have read or write permissions
+						boolean othersCanRead = perms.contains(java.nio.file.attribute.PosixFilePermission.OTHERS_READ);
+						boolean othersCanWrite = perms.contains(java.nio.file.attribute.PosixFilePermission.OTHERS_WRITE);
+						
+						if (othersCanRead || othersCanWrite)
+						{
+							log.log(Level.WARN, "Password file has insecure permissions (others can read/write): {0}. Recommended: 600 (rw-------)", file.getAbsolutePath());
+						}
+					}
+					catch (UnsupportedOperationException e)
+					{
+						// POSIX file attributes not supported on this filesystem (e.g., Windows)
+						// Skip detailed permission check
+					}
+				}
+			}
+			catch (IOException e)
+			{
+				// Ignore permission check errors
+				log.log(Level.TRACE, e, "Failed to check password file permissions: {0}", file.getAbsolutePath());
+			}
 		}
 	}
 	

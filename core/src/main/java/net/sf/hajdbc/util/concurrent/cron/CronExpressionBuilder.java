@@ -4,9 +4,9 @@ import java.text.ParseException;
 
 import net.sf.hajdbc.configuration.Builder;
 
-public class CronExpressionBuilder implements Builder<CronExpression>
+	public class CronExpressionBuilder implements Builder<CronExpression>
 {
-	private volatile String expression;
+	private String expression;
 	
 	public CronExpressionBuilder expression(String expression)
 	{
