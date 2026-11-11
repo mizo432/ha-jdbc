@@ -94,8 +94,144 @@ public class ObjectInputStream extends java.io.ObjectInputStream
 		if (isAllowedTimeClass(clazz)) return true;
 		// Allow specific java.util.Collections inner classes (using name matching for private classes)
 		if (isAllowedCollectionsInnerClass(name)) return true;
-		// Allow net.sf.hajdbc classes (internal classes)
-		if (name.startsWith("net.sf.hajdbc.")) return true;
+		// Allow specific net.sf.hajdbc classes (internal classes that need deserialization)
+		if (isAllowedHajdbcClass(name)) return true;
+		return false;
+	}
+
+	/**
+	 * Check if a net.sf.hajdbc class is allowed for deserialization.
+	 * Uses a whitelist approach to prevent deserialization of untrusted classes.
+	 * Only allows classes that are actually used for serialization in the application.
+	 */
+	private static boolean isAllowedHajdbcClass(String name)
+	{
+		// Event classes
+		if (name.equals("net.sf.hajdbc.util.Event")) return true;
+		if (name.equals("net.sf.hajdbc.durability.DurabilityEventImpl")) return true;
+		if (name.equals("net.sf.hajdbc.durability.InvocationEventAdapter")) return true;
+		if (name.equals("net.sf.hajdbc.durability.InvocationEventImpl")) return true;
+		if (name.equals("net.sf.hajdbc.durability.InvokerEventImpl")) return true;
+		if (name.equals("net.sf.hajdbc.state.DatabaseEvent")) return true;
+		
+		// Codec classes
+		if (name.equals("net.sf.hajdbc.codec.AbstractCodec")) return true;
+		if (name.equals("net.sf.hajdbc.codec.MultiplexingDecoderFactory")) return true;
+		if (name.equals("net.sf.hajdbc.codec.SimpleCodecFactory")) return true;
+		if (name.equals("net.sf.hajdbc.codec.base64.Base64CodecFactory")) return true;
+		if (name.equals("net.sf.hajdbc.codec.hex.HexCodecFactory")) return true;
+		if (name.equals("net.sf.hajdbc.codec.crypto.CipherCodecFactory")) return true;
+		
+		// Dialect factories
+		if (name.equals("net.sf.hajdbc.dialect.StandardDialectFactory")) return true;
+		if (name.equals("net.sf.hajdbc.dialect.db2.DB2DialectFactory")) return true;
+		if (name.equals("net.sf.hajdbc.dialect.h2.H2DialectFactory")) return true;
+		if (name.equals("net.sf.hajdbc.dialect.hsqldb.HSQLDBDialectFactory")) return true;
+		if (name.equals("net.sf.hajdbc.dialect.mssql.MSSQLDialectFactory")) return true;
+		if (name.equals("net.sf.hajdbc.dialect.mysql.MySQLDialectFactory")) return true;
+		if (name.equals("net.sf.hajdbc.dialect.oracle.OracleDialectFactory")) return true;
+		if (name.equals("net.sf.hajdbc.dialect.postgresql.PostgreSQLDialectFactory")) return true;
+		
+		// Balancer factories
+		if (name.equals("net.sf.hajdbc.balancer.load.LoadBalancerFactory")) return true;
+		if (name.equals("net.sf.hajdbc.balancer.random.RandomBalancerFactory")) return true;
+		if (name.equals("net.sf.hajdbc.balancer.roundrobin.RoundRobinBalancerFactory")) return true;
+		if (name.equals("net.sf.hajdbc.balancer.simple.SimpleBalancerFactory")) return true;
+		
+		// Lock manager factories
+		if (name.equals("net.sf.hajdbc.lock.semaphore.SemaphoreLockManagerFactory")) return true;
+		
+		// State manager factories
+		if (name.equals("net.sf.hajdbc.state.simple.SimpleStateManagerFactory")) return true;
+		
+		// Cache factories
+		if (name.equals("net.sf.hajdbc.cache.eager.EagerDatabaseMetaDataCacheFactory")) return true;
+		if (name.equals("net.sf.hajdbc.cache.eager.SharedEagerDatabaseMetaDataCacheFactory")) return true;
+		if (name.equals("net.sf.hajdbc.cache.lazy.LazyDatabaseMetaDataCacheFactory")) return true;
+		if (name.equals("net.sf.hajdbc.cache.lazy.SharedLazyDatabaseMetaDataCacheFactory")) return true;
+		if (name.equals("net.sf.hajdbc.cache.simple.SimpleDatabaseMetaDataCacheFactory")) return true;
+		
+		// Durability factories
+		if (name.equals("net.sf.hajdbc.durability.coarse.CoarseDurabilityFactory")) return true;
+		if (name.equals("net.sf.hajdbc.durability.fine.FineDurabilityFactory")) return true;
+		if (name.equals("net.sf.hajdbc.durability.none.NoDurabilityFactory")) return true;
+		
+		// Exception factories
+		if (name.equals("net.sf.hajdbc.sql.SQLExceptionFactory")) return true;
+		if (name.equals("net.sf.hajdbc.sql.io.IOExceptionFactory")) return true;
+		if (name.equals("net.sf.hajdbc.sql.xa.XAExceptionFactory")) return true;
+		
+		// XML stream factories
+		if (name.equals("net.sf.hajdbc.xml.FileXMLStreamFactory")) return true;
+		if (name.equals("net.sf.hajdbc.xml.URLXMLStreamFactory")) return true;
+		
+		// Configuration factories
+		if (name.equals("net.sf.hajdbc.SimpleDatabaseClusterConfigurationFactory")) return true;
+		if (name.equals("net.sf.hajdbc.xml.XMLDatabaseClusterConfigurationFactory")) return true;
+		
+		// Synchronization strategies
+		if (name.equals("net.sf.hajdbc.sync.DifferentialSynchronizationStrategy")) return true;
+		if (name.equals("net.sf.hajdbc.sync.DumpRestoreSynchronizationStrategy")) return true;
+		if (name.equals("net.sf.hajdbc.sync.FastDifferentialSynchronizationStrategy")) return true;
+		if (name.equals("net.sf.hajdbc.sync.FullSynchronizationStrategy")) return true;
+		if (name.equals("net.sf.hajdbc.sync.PassiveSynchronizationStrategy")) return true;
+		if (name.equals("net.sf.hajdbc.sync.PerTableSynchronizationStrategy")) return true;
+		
+		// Durability classes
+		if (name.equals("net.sf.hajdbc.durability.InvokerResultImpl")) return true;
+		
+		// Executor service provider
+		if (name.equals("net.sf.hajdbc.sql.DefaultExecutorServiceProvider")) return true;
+		
+		// Distributed state manager inner classes
+		if (name.equals("net.sf.hajdbc.state.distributed.DistributedStateManager$RemoteDescriptor")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.DistributedStateManager$RemoteInvocationDescriptorImpl")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.DistributedStateManager$RemoteInvokerDescriptorImpl")) return true;
+		
+		// Distributed lock manager inner classes
+		if (name.equals("net.sf.hajdbc.lock.distributed.DistributedLockManager$RemoteLockDescriptorImpl")) return true;
+		
+		// Command classes
+		if (name.equals("net.sf.hajdbc.lock.distributed.AcquireLockCommand")) return true;
+		if (name.equals("net.sf.hajdbc.lock.distributed.ReleaseLockCommand")) return true;
+		if (name.equals("net.sf.hajdbc.lock.distributed.LockInterruptedException")) return true;
+		if (name.equals("net.sf.hajdbc.lock.distributed.LockTimeoutException")) return true;
+		
+		// State command classes
+		if (name.equals("net.sf.hajdbc.state.distributed.ActivationCommand")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.DeactivationCommand")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.InvocationCommand")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.InvokerCommand")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.PostInvocationCommand")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.PreInvocationCommand")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.StateCommand")) return true;
+		if (name.equals("net.sf.hajdbc.state.distributed.StopCommand")) return true;
+		
+		// State manager factory
+		if (name.equals("net.sf.hajdbc.state.sql.SQLStateManagerFactory")) return true;
+		
+		// Identifier list
+		if (name.equals("net.sf.hajdbc.dialect.IdentifierList")) return true;
+		
+		// JGroups distributed classes
+		if (name.equals("net.sf.hajdbc.distributed.jgroups.AddressMember")) return true;
+		if (name.equals("net.sf.hajdbc.distributed.jgroups.JGroupsCommandDispatcherFactory")) return true;
+		
+		// Cron expression
+		if (name.equals("net.sf.hajdbc.util.concurrent.cron.CronExpression")) return true;
+		
+		// Collections inner classes
+		if (name.equals("net.sf.hajdbc.util.Collections$NaturalComparator")) return true;
+		if (name.equals("net.sf.hajdbc.util.Collections$EmptySortedSet")) return true;
+		if (name.equals("net.sf.hajdbc.util.Collections$EmptySortedMap")) return true;
+		if (name.equals("net.sf.hajdbc.util.Collections$NullComparator")) return true;
+		if (name.equals("net.sf.hajdbc.util.Collections$SingletonSortedSet")) return true;
+		if (name.equals("net.sf.hajdbc.util.Collections$SingletonSortedMap")) return true;
+		
+		// Test classes (used in unit tests for serialization)
+		if (name.equals("net.sf.hajdbc.util.ObjectInputStreamTest$TestSerializable")) return true;
+		if (name.equals("net.sf.hajdbc.util.ObjectsTest$TestObject")) return true;
+		
 		return false;
 	}
 
