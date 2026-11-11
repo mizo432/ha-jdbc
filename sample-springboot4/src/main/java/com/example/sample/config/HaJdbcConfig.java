@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!test & !mssql-test")
+@Profile("!test & !mssql-test & !testcontainer")
 public class HaJdbcConfig {
 
     private static final String POSTGRESQL_DRIVER = "org.postgresql.Driver";

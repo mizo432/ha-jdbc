@@ -62,6 +62,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-resttestclient")
     testImplementation("org.springframework.boot:spring-boot-restclient")
     testRuntimeOnly("com.h2database:h2")
+
+    // Testcontainers for integration tests with PostgreSQL
+    testImplementation("org.testcontainers:testcontainers-postgresql")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testRuntimeOnly("org.postgresql:postgresql")
 }
 
 tasks.withType<Test> {
