@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Compose: sample-springboot4" type="DockerComposeConfigurationType" factoryName="Docker Compose" folderName="Docker">
+    <module name="ha-jdbc" />
+    <option name="envFilePath" value="$PROJECT_DIR$/sample-springboot4/.env" />
+    <option name="interactive" value="false" />
+    <option name="sourceFile" value="$PROJECT_DIR$/sample-springboot4/docker-compose.yml" />
+    <method v="2" />
+  </configuration>
+</component>

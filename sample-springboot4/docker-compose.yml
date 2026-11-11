@@ -1,12 +1,10 @@
-version: '3.8'
-
 # Note: This setup uses independent PostgreSQL instances for HA-JDBC testing.
 # For production, configure streaming replication between master and slave.
 # See: https://www.postgresql.org/docs/current/warm-standby.html
 
 services:
   postgres-master:
-    image: postgres:16
+    image: postgres:17
     container_name: sample-springboot4-postgres-master
     env_file:
       - .env
@@ -21,7 +19,7 @@ services:
       retries: 5
 
   postgres-slave:
-    image: postgres:16
+    image: postgres:17
     container_name: sample-springboot4-postgres-slave
     env_file:
       - .env
@@ -35,44 +33,6 @@ services:
       timeout: 5s
       retries: 5
 
-  mssql-master:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sample-springboot4-mssql-master
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Sample@1234
-      - MSSQL_PID=Developer
-    ports:
-      - "1433:1433"
-    volumes:
-      - mssql_master_data:/var/opt/mssql
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Sample@1234' -C -Q 'SELECT 1' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  mssql-slave:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sample-springboot4-mssql-slave
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Sample@1234
-      - MSSQL_PID=Developer
-    ports:
-      - "1434:1433"
-    volumes:
-      - mssql_slave_data:/var/opt/mssql
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Sample@1234' -C -Q 'SELECT 1' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
 volumes:
   postgres_master_data:
   postgres_slave_data:
-  mssql_master_data:
-  mssql_slave_data:
