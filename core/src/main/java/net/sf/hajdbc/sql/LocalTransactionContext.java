@@ -28,6 +28,9 @@ import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.durability.Durability;
 import net.sf.hajdbc.invocation.InvocationStrategy;
 import net.sf.hajdbc.invocation.Invoker;
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.tx.TransactionIdentifierFactory;
 
 /**
@@ -37,6 +40,8 @@ import net.sf.hajdbc.tx.TransactionIdentifierFactory;
  */
 public class LocalTransactionContext<Z, D extends Database<Z>> implements TransactionContext<Z, D>
 {
+	static final Logger logger = LoggerFactory.getLogger(LocalTransactionContext.class);
+	
 	final Durability<Z, D> durability;
 	private final ReentrantLock lock;
 	private final TransactionIdentifierFactory<? extends Object> transactionIdFactory;
@@ -173,6 +178,7 @@ public class LocalTransactionContext<Z, D extends Database<Z>> implements Transa
 		// Tsk, tsk... User neglected to commit/rollback transaction
 		if (this.lock.isHeldByCurrentThread())
 		{
+			logger.log(Level.WARN, "Transaction completed without explicit commit/rollback - releasing lock");
 			this.unlock();
 		}
 	}
