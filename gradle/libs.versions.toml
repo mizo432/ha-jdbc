@@ -7,7 +7,6 @@ commons-pool2 = "2.13.1"
 commons-logging = "1.3.5"
 gettext-commons = "0.9.8"
 leveldb-api = "0.12"
-jboss-logging = "3.6.3.Final"
 jgroups = "5.5.1.Final"
 slf4j-api = "2.0.20"
 logback = "1.5.18"
@@ -28,7 +27,6 @@ commons-pool2 = { module = "org.apache.commons:commons-pool2", version.ref = "co
 commons-logging = { module = "commons-logging:commons-logging", version.ref = "commons-logging" }
 gettext-commons = { module = "com.googlecode.gettext-commons:gettext-commons", version.ref = "gettext-commons" }
 leveldb-api = { module = "org.iq80.leveldb:leveldb-api", version.ref = "leveldb-api" }
-jboss-logging = { module = "org.jboss.logging:jboss-logging", version.ref = "jboss-logging" }
 jgroups = { module = "org.jgroups:jgroups", version.ref = "jgroups" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }

@@ -5,36 +5,26 @@
 # Gradle
 build/
 .gradle/
-!**/.gitignore
-
-# Maven
-**/target
 
 # ====================
 # IDE settings
 # ====================
 
 # IntelliJ IDEA
-.idea/
+# Ignore user-specific settings
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/datasources/
+.idea/dataSources/
+.idea/drush_stats.iml
+.idea/.name
+.idea/assetWizardSettings.xml
+.idea/dynamic.xml
+.idea/externalDependencies.xml
+.idea/modules.xml
 *.iml
-*.iws
-*.ipr
-
-# Eclipse
-**/.classpath
-**/.project
-**/.settings
-
-# NetBeans
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
-
-# VS Code
-.vscode/
 
 # ====================
 # OS generated files
@@ -87,3 +77,12 @@ coverage/
 *.ear
 *.nar
 *.par
+
+# ====================
+# JUnit
+# ====================
+
+# Cache JUnit results
+# https://www.jetbrains.com/rj/help/unit-test-results-caching.html
+.idea/cache/files
+.idea/junit
