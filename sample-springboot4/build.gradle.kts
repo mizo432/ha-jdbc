@@ -28,6 +28,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    // Spring Boot DevTools for automatic restart and live reload
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
     // Hibernate Envers for audit trail
     implementation("org.springframework.data:spring-data-envers")
 
