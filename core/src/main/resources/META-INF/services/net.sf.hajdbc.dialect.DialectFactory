@@ -9,4 +9,3 @@ net.sf.hajdbc.dialect.mssql.MSSQLDialectFactory
 net.sf.hajdbc.dialect.mysql.MySQLDialectFactory
 net.sf.hajdbc.dialect.oracle.OracleDialectFactory
 net.sf.hajdbc.dialect.postgresql.PostgreSQLDialectFactory
-net.sf.hajdbc.dialect.sybase.SybaseDialectFactory

@@ -169,13 +169,6 @@ HA-JDBC includes dialects for the following databases:
 		<td>&#x2714;</td>
 	</tr>
 	<tr>
-		<td>**sybase**</td>
-		<td>Sybase</td>
-		<td></td>
-		<td>&#x2714;</td>
-		<td></td>
-	</tr>
-	<tr>
 		<td>***standard***</td>
 		<td>SQL-92 compliant database</td>
 		<td></td>
