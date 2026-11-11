@@ -21,6 +21,7 @@ subprojects {
     version = haJdbcVersion
 
     plugins.withId("java") {
+        apply(plugin = "jacoco")
         plugins.apply("maven-publish")
 
         val projectExt = the<org.gradle.api.plugins.JavaPluginExtension>()
