@@ -141,13 +141,6 @@ HA-JDBC includes dialects for the following databases:
 		<td></td>
 	</tr>
 	<tr>
-		<td>**maxdb**</td>
-		<td>MySQL MaxDB, SAP DB</td>
-		<td>&#x2714;</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
 		<td>**mckoi**</td>
 		<td>Mckoi SQL Database</td>
 		<td>&#x2714;</td>
