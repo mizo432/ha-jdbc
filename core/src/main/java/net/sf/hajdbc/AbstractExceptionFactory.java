@@ -67,6 +67,11 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "isInstanceチェック後にcastするため安全")
 	public @NonNull E createException(@NonNull Throwable e)
 	{
+		if (e == null)
+		{
+			return this.createException("Unknown error");
+		}
+		
 		if (this.targetClass.isInstance(e))
 		{
 			return this.targetClass.cast(e);

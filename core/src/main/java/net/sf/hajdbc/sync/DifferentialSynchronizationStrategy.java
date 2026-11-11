@@ -251,15 +251,20 @@ public class DifferentialSynchronizationStrategy implements SynchronizationStrat
 					}
 				}
 			}
-			catch (InterruptedException e)
-			{
-				Thread.currentThread().interrupt();
-				throw new SQLException(e);
-			}
-			catch (ExecutionException e)
-			{
-				throw ExceptionType.SQL.<SQLException>getExceptionFactory().createException(e.getCause());
-			}
+ 		catch (InterruptedException e)
+ 		{
+ 			Thread.currentThread().interrupt();
+ 			throw new SQLException("Synchronization interrupted", e);
+ 		}
+ 		catch (ExecutionException e)
+ 		{
+ 			Throwable cause = e.getCause();
+ 			if (cause instanceof SQLException)
+ 			{
+ 				throw (SQLException) cause;
+ 			}
+ 			throw ExceptionType.SQL.<SQLException>getExceptionFactory().createException(cause != null ? cause : e);
+ 		}
 		}
 	}
 	
