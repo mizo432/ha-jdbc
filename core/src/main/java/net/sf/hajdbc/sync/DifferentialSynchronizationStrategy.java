@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -43,7 +42,6 @@ import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.messages.Messages;
 import net.sf.hajdbc.messages.MessagesFactory;
 import net.sf.hajdbc.util.Objects;
-import net.sf.hajdbc.util.Strings;
 
 /**
  * Database-independent synchronization strategy that only updates differences between two databases.
@@ -182,12 +180,11 @@ public class DifferentialSynchronizationStrategy implements SynchronizationStrat
 		}
 		
 		// Retrieve table rows in primary key order
-		final String selectSQL = String.format("SELECT %s FROM %s ORDER BY %s", Strings.join(selectColumns, Strings.PADDED_COMMA), tableName, Strings.join(primaryKeyColumns, Strings.PADDED_COMMA)); //$NON-NLS-1$
-		String primaryKeyWhereClause = Strings.join(new StringBuilder(), primaryKeyColumns, " = ? AND ").append(" = ?").toString(); //$NON-NLS-1$
-		String selectAllSQL = !versionColumns.isEmpty() ? String.format("SELECT %s FROM %s WHERE %s", Strings.join(nonPrimaryKeyColumns, Strings.PADDED_COMMA), tableName, primaryKeyWhereClause) : null;
-		String deleteSQL = String.format("DELETE FROM %s WHERE %s", tableName, primaryKeyWhereClause);
-		String insertSQL = String.format("INSERT INTO %s (%s) VALUES (%s)", tableName, Strings.join(allColumns, Strings.PADDED_COMMA), Strings.join(Collections.nCopies(allColumns.size(), Strings.QUESTION), Strings.PADDED_COMMA)); //$NON-NLS-1$
-		String updateSQL = !nonPrimaryKeyColumns.isEmpty() ? String.format("UPDATE %s SET %s = ? WHERE %s", tableName, Strings.join(nonPrimaryKeyColumns, " = ?, "), primaryKeyWhereClause) : null;
+		final String selectSQL = SynchronizationSQLBuilder.buildSelectOrderBySQL(selectColumns, tableName, primaryKeyColumns);
+		String selectAllSQL = !versionColumns.isEmpty() ? SynchronizationSQLBuilder.buildSelectByPKSQL(nonPrimaryKeyColumns, tableName, primaryKeyColumns) : null;
+		String deleteSQL = SynchronizationSQLBuilder.buildDeleteSQL(tableName, primaryKeyColumns);
+		String insertSQL = SynchronizationSQLBuilder.buildInsertSQL(tableName, allColumns);
+		String updateSQL = !nonPrimaryKeyColumns.isEmpty() ? SynchronizationSQLBuilder.buildUpdateSQL(tableName, nonPrimaryKeyColumns, primaryKeyColumns) : null;
 		
 		Connection targetConnection = context.getConnection(context.getTargetDatabase());
 		Connection sourceConnection = context.getConnection(context.getSourceDatabase());
