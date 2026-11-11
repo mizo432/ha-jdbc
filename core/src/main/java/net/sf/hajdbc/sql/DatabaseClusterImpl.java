@@ -95,7 +95,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	private TransactionIdentifierFactory<? extends Object> txIdentifierFactory;
 	private MBeanRegistrar<Z, D> registrar;
 	
-	private boolean active = false;
+	private volatile boolean active = false;
 
 	private final ClusterListenerManager<Z, D> listenerManager = new ClusterListenerManager<>();
 	private final LifecycleManager lifecycleManager;

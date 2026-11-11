@@ -6,7 +6,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 val haJdbcVersion = "4.0.0-alpha-1-SNAPSHOT"
 
 plugins {
-    id("com.github.spotbugs") version "6.5.12" apply false
+    id("com.github.spotbugs") version "6.5.13" apply false
     jacoco
 }
 
