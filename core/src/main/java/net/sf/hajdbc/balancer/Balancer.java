@@ -17,50 +17,105 @@
  */
 package net.sf.hajdbc.balancer;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.invocation.Invoker;
+import org.jspecify.annotations.NonNull;
 
 /**
- * アクティブなデータベースのセットと、次のバランシングターゲットを決定する戦略です。
+ * A collection of active databases and a strategy for determining the next balancing target.
+ * Unlike {@link Set}, this interface provides explicit methods for managing active databases,
+ * preventing unintended operations (such as {@code clear()}, {@code removeAll()}, {@code retainAll()})
+ * that could bypass the cluster's activation/deactivation logic.
  * 
  * @author Paul Ferraro
  *
- * @param <Z> データベース接続ソース
- * @param <D> データベース記述子
+ * @param <Z> database connection source
+ * @param <D> database descriptor
  */
-public interface Balancer<Z, D extends Database<Z>> extends Set<D>
+public interface Balancer<Z, D extends Database<Z>> extends Iterable<D>
 {
 	/**
-	 * プライマリデータベースを返します。
-	 * このメソッドが返すデータベースは、すべてのノード間で一貫している必要があります。
-	 * @return プライマリデータベース
+	 * Adds the specified database as active.
+	 * @param database a database descriptor
+	 * @return true if the database was added, false if it was already active
 	 */
-	D primary();
-	
-	/**
-	 * プライマリ以外のデータベースです。
-	 * @return イテレート可能なデータベースのコレクション
-	 */
-	Iterable<D> backups();
-	
-	/**
-	 * このバランサーから次のデータベースを返します
-	 * @return 次のデータベース
-	 */
-	D next();
+	boolean add(@NonNull D database);
 
 	/**
-	 * 指定されたデータベースに対して指定されたオブジェクトで指定されたインボーカーを実行し、バランサーに通知する可能性があります。
-	 * @param <T> インボーカーのターゲットオブジェクト型
-	 * @param <R> インボーカーの戻り値型
-	 * @param <E> インボーカーの例外型
-	 * @param invoker インボーカー
-	 * @param database データベース
-	 * @param object ターゲットオブジェクト
-	 * @return 実行結果
-	 * @throws E 例外
+	 * Removes the specified database from the active set.
+	 * @param database a database descriptor
+	 * @return true if the database was removed, false if it was not active
 	 */
-	<T, R, E extends Exception> R invoke(Invoker<Z, D, T, R, E> invoker, D database, T object) throws E;
+	boolean remove(@NonNull D database);
+
+	/**
+	 * Returns whether the specified database is active.
+	 * @param database a database descriptor
+	 * @return true if the database is active
+	 */
+	boolean contains(@NonNull D database);
+
+	/**
+	 * Returns whether no databases are active.
+	 * @return true if no databases are active
+	 */
+	boolean isEmpty();
+
+	/**
+	 * Returns the number of active databases.
+	 * @return number of active databases
+	 */
+	int size();
+
+	/**
+	 * Returns an iterator over the active databases.
+	 * @return iterator
+	 */
+	@NonNull Iterator<D> iterator();
+
+	/**
+	 * Returns a snapshot of the active databases as an unmodifiable set.
+	 * @return unmodifiable set of active databases
+	 */
+	@NonNull Set<D> getActiveDatabases();
+
+	/**
+	 * Clears all active databases.
+	 */
+	void clear();
+
+	/**
+	 * Returns the primary database.
+	 * The database returned by this method must be consistent across all nodes.
+	 * @return primary database
+	 */
+	@NonNull D primary();
+	
+	/**
+	 * Returns the non-primary databases.
+	 * @return iterable collection of databases
+	 */
+	@NonNull Iterable<D> backups();
+	
+	/**
+	 * Returns the next database from this balancer.
+	 * @return next database
+	 */
+	@NonNull D next();
+
+	/**
+	 * Executes the given invoker on the given object for the specified database, and may notify the balancer.
+	 * @param <T> invoker target object type
+	 * @param <R> invoker return type
+	 * @param <E> invoker exception type
+	 * @param invoker invoker
+	 * @param database database
+	 * @param object target object
+	 * @return execution result
+	 * @throws E exception
+	 */
+	<T, R, E extends Exception> R invoke(@NonNull Invoker<Z, D, T, R, E> invoker, @NonNull D database, @NonNull T object) throws E;
 }

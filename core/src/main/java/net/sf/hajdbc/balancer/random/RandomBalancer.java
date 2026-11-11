@@ -27,21 +27,21 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.balancer.AbstractSetBalancer;
 
 /**
- * {@link #next()}の実装でランダムなデータベースを返すバランサーの実装です。
- * 特定のデータベースが返される確率は: <em>weight / total-weight</em> です。
+ * Balancer implementation that returns a random database in its {@link #next()} implementation.
+ * The probability of a specific database being returned is: <em>weight / total-weight</em>.
  * 
  * @author  Paul Ferraro
- * @param <D> java.sql.Driverまたはjavax.sql.DataSourceのいずれか
+ * @param <D> either java.sql.Driver or javax.sql.DataSource
  */
 public class RandomBalancer<P, D extends Database<P>> extends AbstractSetBalancer<P, D>
 {
 	private volatile List<D> databaseList;
 
-	private Random random = new Random();
+	private final Random random = new Random();
 
 	/**
-	 * 新しいRandomBalancerを構築します
-	 * @param databases データベースのセット
+	 * Constructs a new RandomBalancer.
+	 * @param databases set of databases
 	 */
 	public RandomBalancer(Set<D> databases)
 	{

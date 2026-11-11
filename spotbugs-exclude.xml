@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://github.com/spotbugs/filter/5.0.0"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/5.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/spotbugs-4.1.2/spotbugs/etc/findbugsfilter.xsd">
+
+    <!-- REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS: Builder methods intentionally use reflection to instantiate user-provided classes -->
+    <Match>
+        <Bug code="REFLC" />
+    </Match>
+
+    <!-- EI_EXPOSE_REP, EI_EXPOSE_REP2: Internal APIs where defensive copies add no security value -->
+    <Match>
+        <Bug code="EI" />
+    </Match>
+    <Match>
+        <Bug code="EI2" />
+    </Match>
+
+    <!-- CT_CONSTRUCTOR_THROW: Constructors may throw checked exceptions by design (e.g., SQLException) -->
+    <Match>
+        <Bug code="CT" />
+    </Match>
+
+    <!-- NM_SAME_SIMPLE_NAME_AS_INTERFACE, NM_SAME_SIMPLE_NAME_AS_SUPERCLASS: Intentional naming pattern (implementation classes share name with their interface/superclass) -->
+    <Match>
+        <Bug code="Nm" />
+    </Match>
+
+    <!-- MS_PKGPROTECT, MS_MUTABLE_COLLECTION_PKGPROTECT: Internal classes; package protection is not required -->
+    <Match>
+        <Bug code="MS" />
+    </Match>
+
+    <!-- NP_NONNULL_PARAM_VIOLATION: Intentional null keys in exception maps when no active database exists -->
+    <Match>
+        <Bug code="NP" />
+    </Match>
+
+    <!-- IMSE_DONT_CATCH_IMSE: Intentional catch of InstantiationError for reflection-based instantiation -->
+    <Match>
+        <Bug code="IMSE" />
+    </Match>
+
+    <!-- SE_BAD_FIELD: AddressMember fields are serialized via HA-JDBC's own mechanism -->
+    <Match>
+        <Bug code="Se" />
+    </Match>
+
+    <!-- AT_STALE_THREAD_WRITE_OF_PRIMITIVE: JGroupsCommandDispatcher config fields are set before start() -->
+    <Match>
+        <Bug code="AT" />
+    </Match>
+
+    <!-- RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE: JSpecify @NonNull annotations cause SpotBugs to flag defensive null checks as redundant -->
+    <Match>
+        <Bug code="RCN" />
+    </Match>
+
+    <!-- Test code exclusions -->
+    <!-- NN_NAKED_NOTIFY: Test code uses notify/notifyAll without condition checks -->
+    <Match>
+        <Bug code="NN" />
+    </Match>
+
+    <!-- UW_UNCOND_WAIT, WA_NOT_IN_LOOP: Test code uses wait() without proper loop conditions -->
+    <Match>
+        <Bug code="UW" />
+    </Match>
+    <Match>
+        <Bug code="Wa" />
+    </Match>
+
+    <!-- OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE: Test code may not clean up resources on exception paths -->
+    <Match>
+        <Bug code="OBL" />
+    </Match>
+
+    <!-- BC_VACUOUS_INSTANCEOF: Test code uses instanceof with types that can never match -->
+    <Match>
+        <Bug code="BC" />
+    </Match>
+
+    <!-- RV_RETURN_VALUE_IGNORED*: Test code ignores return values intentionally -->
+    <Match>
+        <Bug code="RV" />
+    </Match>
+
+    <!-- RR_NOT_CHECKED: Test code does not check return values of read() -->
+    <Match>
+        <Bug code="RR" />
+    </Match>
+
+    <!-- DM_STRING_CTOR, DM_GC: Test code performance issues -->
+    <Match>
+        <Bug code="Dm" />
+    </Match>
+
+    <!-- EQ_COMPARETO_USE_OBJECT_EQUALS: Test code compareTo/equals inconsistency -->
+    <Match>
+        <Bug code="Eq" />
+    </Match>
+</FindBugsFilter>

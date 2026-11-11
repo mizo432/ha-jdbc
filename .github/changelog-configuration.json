@@ -1,0 +1,59 @@
+{
+  "template": "# Changelog\n\n$CHANGES\n\n**Full Changelog**: https://github.com/mizo432/ha-jdbc/compare/$FROM_TAG...$TO_TAG",
+  "categories": [
+    {
+      "title": "🔒 Security",
+      "labels": ["security"]
+    },
+    {
+      "title": "⚠️ Breaking Changes",
+      "labels": ["breaking", "breaking-change"]
+    },
+    {
+      "title": "🚀 Features",
+      "labels": ["feature", "enhancement"]
+    },
+    {
+      "title": "🐛 Bug Fixes",
+      "labels": ["bugfix", "bug"]
+    },
+    {
+      "title": "✨ Improvements",
+      "labels": ["improvement", "refactor", "performance"]
+    },
+    {
+      "title": "📝 Documentation",
+      "labels": ["documentation"]
+    },
+    {
+      "title": "📦 Dependencies",
+      "labels": ["dependencies"]
+    },
+    {
+      "title": "📦 Other Changes",
+      "labels": ["default"]
+    }
+  ],
+  "ignore_labels": [
+    "skip-changelog",
+    "wontfix"
+  ],
+  "sort": {
+    "order": "ASC"
+  },
+  "label_extractor": [
+    {
+      "pattern": "^(.+)",
+      "target": "$1",
+      "flags": "i"
+    }
+  ],
+  "transformers": [
+    {
+      "pattern": "#(\\d+)",
+      "target": "- [#$ISSUE_NUMBER]($ISSUE_URL)"
+    }
+  ],
+  "max_pull_requests": 500,
+  "max_back_track_time_days": 365
+}

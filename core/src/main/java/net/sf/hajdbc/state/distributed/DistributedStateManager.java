@@ -175,17 +175,17 @@ public class DistributedStateManager<Z, D extends Database<Z>> implements StateM
 				{
 					entry.getValue().get();
 				}
-				catch (Exception e)
-				{
-					this.logger.log(Level.WARN, e, "Failed to execute {0} on {1}", command, member);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			this.logger.log(Level.WARN, e, "Failed to send {0} to cluster", command);
-		}
-	}
+ 				catch (Exception e)
+ 				{
+ 					this.logger.log(Level.WARN, e, "Failed to execute {0} on {1}. Exception type: {2}", command, member, e.getClass().getSimpleName());
+ 				}
+ 			}
+ 		}
+ 		catch (Exception e)
+ 		{
+ 			this.logger.log(Level.WARN, e, "Failed to send {0} to cluster. Exception type: {1}", command, e.getClass().getSimpleName());
+ 		}
+ 	}
 
 	private RemoteInvocationDescriptor getRemoteDescriptor(InvocationEvent event)
 	{
@@ -286,7 +286,7 @@ public class DistributedStateManager<Z, D extends Database<Z>> implements StateM
 	@Override
 	public void writeState(ObjectOutput output) throws IOException
 	{
-		Set<D> databases = this.cluster.getBalancer();
+		Set<D> databases = this.cluster.getBalancer().getActiveDatabases();
 		output.writeInt(databases.size());
 		
 		for (D database: databases)

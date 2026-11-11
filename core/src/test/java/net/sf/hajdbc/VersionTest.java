@@ -17,9 +17,9 @@
  */
 package net.sf.hajdbc;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class VersionTest
 {
@@ -61,8 +61,8 @@ public class VersionTest
 
 	private static void parse(Version version, int major, int minor, int revision)
 	{
-		assertEquals(major, version.getMajor());
-		assertEquals(minor, version.getMinor());
-		assertEquals(revision, version.getRevision());
+		assertThat(version.getMajor()).isEqualTo(major);
+		assertThat(version.getMinor()).isEqualTo(minor);
+		assertThat(version.getRevision()).isEqualTo(revision);
 	}
 }

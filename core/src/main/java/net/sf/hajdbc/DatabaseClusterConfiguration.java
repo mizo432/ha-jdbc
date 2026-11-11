@@ -19,117 +19,58 @@ package net.sf.hajdbc;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ThreadFactory;
 
-import net.sf.hajdbc.balancer.BalancerFactory;
-import net.sf.hajdbc.cache.DatabaseMetaDataCacheFactory;
-import net.sf.hajdbc.codec.DecoderFactory;
-import net.sf.hajdbc.dialect.DialectFactory;
-import net.sf.hajdbc.distributed.CommandDispatcherFactory;
-import net.sf.hajdbc.durability.DurabilityFactory;
-import net.sf.hajdbc.io.InputSinkProvider;
-import net.sf.hajdbc.lock.LockManagerFactory;
-import net.sf.hajdbc.management.MBeanRegistrarFactory;
-import net.sf.hajdbc.state.StateManagerFactory;
-import net.sf.hajdbc.util.concurrent.cron.CronExpression;
+import org.jspecify.annotations.NonNull;
 
 /**
+ * Configuration for a database cluster.
+ * This interface extends four sub-interfaces that isolate distinct configuration concerns:
+ * <ul>
+ *   <li>{@link DatabaseClusterFactoryConfiguration} — factory instances for cluster components</li>
+ *   <li>{@link DatabaseClusterTemporalEvaluationConfiguration} — temporal SQL evaluation settings</li>
+ *   <li>{@link DatabaseClusterDetectionConfiguration} — database feature detection settings</li>
+ *   <li>{@link DatabaseClusterSchedulingConfiguration} — scheduling and operational settings</li>
+ * </ul>
+ * Components should depend on the smallest sub-interface they need rather than this aggregate interface.
+ *
  * @author Paul Ferraro
+ * @param <Z> database connection source
+ * @param <D> database descriptor
  */
-public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
+public interface DatabaseClusterConfiguration<Z, D extends Database<Z>> extends
+    DatabaseClusterFactoryConfiguration,
+    DatabaseClusterTemporalEvaluationConfiguration,
+    DatabaseClusterDetectionConfiguration,
+    DatabaseClusterSchedulingConfiguration
 {
-	CommandDispatcherFactory getDispatcherFactory();
-	
 	/**
-	 * このクラスタのデータベースを識別子でインデックス付けて返します
-	 * @return データベースのマップ
-	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合
+	 * Returns the databases of this cluster indexed by identifier.
+	 * @return map of databases
+	 * @throws IllegalArgumentException if no database exists with the specified identifier
 	 */
-	ConcurrentMap<String, D> getDatabaseMap();
-	
-	Map<String, SynchronizationStrategy> getSynchronizationStrategyMap();
-	
-	String getDefaultSynchronizationStrategy();
-	
-	/**
-	 * このデータベースクラスタで使用されるBalancerの実装を返します。
-	 * @return <code>Balancer</code>の実装
-	 */
-	BalancerFactory getBalancerFactory();
+	@NonNull ConcurrentMap<String, D> getDatabaseMap();
 
-	TransactionMode getTransactionMode();
-	
-	ExecutorServiceProvider getExecutorProvider();
-	
 	/**
-	 * データベースベンダー固有の値を返すことができるDialectを返します。
-	 * @return <code>Dialect</code>の実装
+	 * Returns the synchronization strategies indexed by name.
+	 * @return map of synchronization strategies
 	 */
-	DialectFactory getDialectFactory();
-	
-	/**
-	 * データベースクラスタの状態を永続化するためのStateManagerを返します。
-	 * @return StateManagerの実装
-	 */
-	StateManagerFactory getStateManagerFactory();
-	
-	/**
-	 * DatabaseMetaDataキャッシュを返します。
-	 * @return <code>DatabaseMetaDataCache</code>の実装
-	 */
-	DatabaseMetaDataCacheFactory getDatabaseMetaDataCacheFactory();
+	@NonNull Map<String, SynchronizationStrategy> getSynchronizationStrategyMap();
 
-	DurabilityFactory getDurabilityFactory();
+	/**
+	 * Returns the default synchronization strategy name.
+	 * @return default synchronization strategy name
+	 */
+	@NonNull String getDefaultSynchronizationStrategy();
 
-	LockManagerFactory getLockManagerFactory();
-	
 	/**
-	 * Indicates whether or not sequence detection is enabled for this cluster.
-	 * @return true, if sequence detection is enabled, false otherwise.
+	 * Returns the transaction mode for this cluster.
+	 * @return transaction mode
 	 */
-	boolean isSequenceDetectionEnabled();
-	
-	/**
-	 * Indicates whether or not identity column detection is enabled for this cluster.
-	 * @return true, if identity column detection is enabled, false otherwise.
-	 */
-	boolean isIdentityColumnDetectionEnabled();
-	
-	/**
-	 * Indicates whether or not non-deterministic CURRENT_DATE SQL functions will be evaluated to deterministic static values.
-	 * @return true, if temporal SQL replacement is enabled, false otherwise.
-	 */
-	boolean isCurrentDateEvaluationEnabled();
-	
-	/**
-	 * Indicates whether or not non-deterministic CURRENT_TIME functions will be evaluated to deterministic static values.
-	 * @return true, if temporal SQL replacement is enabled, false otherwise.
-	 */
-	boolean isCurrentTimeEvaluationEnabled();
-	
-	/**
-	 * Indicates whether or not non-deterministic CURRENT_TIMESTAMP functions will be evaluated to deterministic static values.
-	 * @return true, if temporal SQL replacement is enabled, false otherwise.
-	 */
-	boolean isCurrentTimestampEvaluationEnabled();
-	
-	/**
-	 * Indicates whether or not non-deterministic RAND() functions will be replaced by evaluated to static values.
-	 * @return true, if temporal SQL replacement is enabled, false otherwise.
-	 */
-	boolean isRandEvaluationEnabled();
+	@NonNull TransactionMode getTransactionMode();
 
-	CronExpression getFailureDetectionExpression();
-	
-	CronExpression getAutoActivationExpression();
-	
-	ThreadFactory getThreadFactory();
-	
-	DecoderFactory getDecoderFactory();
-	
-	MBeanRegistrarFactory getMBeanRegistrarFactory();
-	
-	boolean isEmptyClusterAllowed();
-
-	InputSinkProvider getInputSinkProvider();
+	/**
+	 * Returns the executor service provider for async operations.
+	 * @return executor service provider
+	 */
+	@NonNull ExecutorServiceProvider getExecutorProvider();
 }

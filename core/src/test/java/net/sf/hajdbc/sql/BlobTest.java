@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.hsqldb.jdbc.JDBCDataSource;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class BlobTest
 {
@@ -46,7 +46,7 @@ public class BlobTest
 				
 				try
 				{
-					Assert.assertFalse(c.getMetaData().locatorsUpdateCopy());
+					Assertions.assertFalse(c.getMetaData().locatorsUpdateCopy());
 					
 					ConnectionInvocationHandler<javax.sql.DataSource, DataSourceDatabase, javax.sql.DataSource> handler = (ConnectionInvocationHandler<javax.sql.DataSource, DataSourceDatabase, javax.sql.DataSource>) Proxy.getInvocationHandler(c);
 					ConnectionProxyFactory<javax.sql.DataSource, DataSourceDatabase, javax.sql.DataSource> proxyFactory = handler.getProxyFactory();
@@ -83,7 +83,7 @@ public class BlobTest
 						
 						try (ResultSet results = ps.executeQuery())
 						{
-							Assert.assertTrue(results.next());
+							Assertions.assertTrue(results.next());
 							blob = results.getBlob(1);
 							expected = "1234";
 							blob.truncate(blob.length());
@@ -96,7 +96,7 @@ public class BlobTest
 							blob.setBytes(1, expected.getBytes());
 							
 							results.updateRow();
-							Assert.assertFalse(results.next());
+							Assertions.assertFalse(results.next());
 							c.commit();
 							blob.free();
 						}
@@ -138,16 +138,16 @@ public class BlobTest
 		{
 			try (ResultSet results = statement.executeQuery("SELECT id, lob FROM test"))
 			{
-				Assert.assertTrue(results.next());
-				Assert.assertEquals(1, results.getInt(1));
+				Assertions.assertTrue(results.next());
+				Assertions.assertEquals(1, results.getInt(1));
 				Blob blob = results.getBlob(2);
 				
 				try (BufferedReader reader = new BufferedReader(new InputStreamReader(blob.getBinaryStream())))
 				{
-					Assert.assertEquals(expected, reader.readLine());
-					Assert.assertNull(reader.readLine());
+					Assertions.assertEquals(expected, reader.readLine());
+					Assertions.assertNull(reader.readLine());
 				}
-				Assert.assertFalse(results.next());
+				Assertions.assertFalse(results.next());
 			}
 		}
 	}

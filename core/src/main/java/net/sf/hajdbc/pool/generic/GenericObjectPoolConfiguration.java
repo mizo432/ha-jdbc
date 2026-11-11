@@ -17,123 +17,120 @@
  */
 package net.sf.hajdbc.pool.generic;
 
-import org.apache.commons.pool.impl.GenericObjectPool;
+import java.time.Duration;
+
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 
 /**
- * Expose getters/setters to {@link org.apache.commons.pool.impl.GenericObjectPool.Config} properties.
+ * Expose getters/setters to {@link GenericObjectPoolConfig} properties.
  * @author Paul Ferraro
  */
 public class GenericObjectPoolConfiguration
 {
-	private final GenericObjectPool.Config config = new GenericObjectPool.Config();
+	private final GenericObjectPoolConfig config = new GenericObjectPoolConfig<>();
 
-	public GenericObjectPool.Config toConfig()
+	public GenericObjectPoolConfig toConfig()
 	{
 		return this.config;
 	}
 	public int getMaxIdle()
 	{
-		return this.config.maxIdle;
+		return this.config.getMaxIdle();
 	}
 	public void setMaxIdle(int maxIdle)
 	{
-		this.config.maxIdle = maxIdle;
+		this.config.setMaxIdle(maxIdle);
 	}
 	public int getMinIdle()
 	{
-		return this.config.minIdle;
+		return this.config.getMinIdle();
 	}
 	public void setMinIdle(int minIdle)
 	{
-		this.config.minIdle = minIdle;
+		this.config.setMinIdle(minIdle);
 	}
-	public int getMaxActive()
+	public int getMaxTotal()
 	{
-		return this.config.maxActive;
+		return this.config.getMaxTotal();
 	}
-	public void setMaxActive(int maxActive)
+	public void setMaxTotal(int maxTotal)
 	{
-		this.config.maxActive = maxActive;
+		this.config.setMaxTotal(maxTotal);
 	}
-	public long getMaxWait()
+	public long getMaxWaitMillis()
 	{
-		return this.config.maxWait;
+		return this.config.getMaxWaitMillis();
 	}
-	public void setMaxWait(long maxWait)
+	public void setMaxWaitMillis(long maxWaitMillis)
 	{
-		this.config.maxWait = maxWait;
-	}
-	public byte getWhenExhaustedAction()
-	{
-		return this.config.whenExhaustedAction;
-	}
-	public void setWhenExhaustedAction(byte whenExhaustedAction)
-	{
-		this.config.whenExhaustedAction = whenExhaustedAction;
+		this.config.setMaxWaitMillis(maxWaitMillis);
 	}
 	public boolean isTestOnBorrow()
 	{
-		return this.config.testOnBorrow;
+		return this.config.getTestOnBorrow();
 	}
 	public void setTestOnBorrow(boolean testOnBorrow)
 	{
-		this.config.testOnBorrow = testOnBorrow;
+		this.config.setTestOnBorrow(testOnBorrow);
 	}
 	public boolean isTestOnReturn()
 	{
-		return this.config.testOnReturn;
+		return this.config.getTestOnReturn();
 	}
 	public void setTestOnReturn(boolean testOnReturn)
 	{
-		this.config.testOnReturn = testOnReturn;
+		this.config.setTestOnReturn(testOnReturn);
 	}
 	public boolean isTestWhileIdle()
 	{
-		return this.config.testWhileIdle;
+		return this.config.getTestWhileIdle();
 	}
 	public void setTestWhileIdle(boolean testWhileIdle)
 	{
-		this.config.testWhileIdle = testWhileIdle;
+		this.config.setTestWhileIdle(testWhileIdle);
 	}
 	public long getTimeBetweenEvictionRunsMillis()
 	{
-		return this.config.timeBetweenEvictionRunsMillis;
+		Duration duration = this.config.getTimeBetweenEvictionRuns();
+		return (duration != null) ? duration.toMillis() : -1L;
 	}
 	public void setTimeBetweenEvictionRunsMillis(long timeBetweenEvictionRunsMillis)
 	{
-		this.config.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
+		this.config.setTimeBetweenEvictionRuns(Duration.ofMillis(timeBetweenEvictionRunsMillis));
 	}
 	public int getNumTestsPerEvictionRun()
 	{
-		return this.config.numTestsPerEvictionRun;
+		return this.config.getNumTestsPerEvictionRun();
 	}
 	public void setNumTestsPerEvictionRun(int numTestsPerEvictionRun)
 	{
-		this.config.numTestsPerEvictionRun = numTestsPerEvictionRun;
+		this.config.setNumTestsPerEvictionRun(numTestsPerEvictionRun);
 	}
 	public long getMinEvictableIdleTimeMillis()
 	{
-		return this.config.minEvictableIdleTimeMillis;
+		Duration duration = this.config.getMinEvictableIdleDuration();
+		return (duration != null) ? duration.toMillis() : -1L;
 	}
 	public void setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis)
 	{
-		this.config.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
+		this.config.setMinEvictableIdleDuration(Duration.ofMillis(minEvictableIdleTimeMillis));
 	}
 	public long getSoftMinEvictableIdleTimeMillis()
 	{
-		return this.config.softMinEvictableIdleTimeMillis;
+		Duration duration = this.config.getSoftMinEvictableIdleDuration();
+		return (duration != null) ? duration.toMillis() : -1L;
 	}
 	public void setSoftMinEvictableIdleTimeMillis(long softMinEvictableIdleTimeMillis)
 	{
-		this.config.softMinEvictableIdleTimeMillis = softMinEvictableIdleTimeMillis;
+		this.config.setSoftMinEvictableIdleDuration(Duration.ofMillis(softMinEvictableIdleTimeMillis));
 	}
 	public boolean isLifo()
 	{
-		return this.config.lifo;
+		return this.config.getLifo();
 	}
 	public void setLifo(boolean lifo)
 	{
-		this.config.lifo = lifo;
+		this.config.setLifo(lifo);
 	}
 }

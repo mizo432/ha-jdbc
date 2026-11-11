@@ -1,32 +1,16 @@
-/*
- * HA-JDBC: High-Availability JDBC
- * Copyright (C) 2012  Paul Ferraro
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.sf.hajdbc.distributed.jgroups;
 
 import java.io.InputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.hajdbc.distributed.Command;
@@ -39,353 +23,195 @@ import net.sf.hajdbc.logging.Level;
 import net.sf.hajdbc.logging.Logger;
 import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.util.ObjectInputStream;
-import net.sf.hajdbc.util.Objects;
 
 import org.jgroups.Address;
-import org.jgroups.Channel;
+import org.jgroups.JChannel;
 import org.jgroups.Message;
-import org.jgroups.MessageListener;
+import org.jgroups.Receiver;
 import org.jgroups.View;
-import org.jgroups.blocks.MessageDispatcher;
-import org.jgroups.blocks.RequestHandler;
-import org.jgroups.blocks.RequestOptions;
-import org.jgroups.blocks.ResponseMode;
-import org.jgroups.util.Rsp;
 
-/**
- * A JGroups-based command dispatcher.
- * 
- * @author Paul Ferraro
- * @see org.jgroups.blocks.MessageDispatcher
- * @param <C> the execution context type
- */
-public class JGroupsCommandDispatcher<C> implements RequestHandler, CommandDispatcher<C>, org.jgroups.MembershipListener, MessageListener
-{
+public class JGroupsCommandDispatcher<C> implements CommandDispatcher<C> {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
 	private final String id;
 	private final long timeout;
-	private final MessageDispatcher dispatcher;
 	private final C context;
-	private final AtomicReference<View> viewReference = new AtomicReference<>();
-	private final MembershipListener membershipListener;
 	private final Stateful stateful;
-	
-	/**
-	 * Constructs a new ChannelCommandDispatcher.
-	 * @param id the channel name
-	 * @param channel a JGroups channel
-	 * @param timeout the command timeout
-	 * @param context the execution context
-	 * @param stateful the state transfer handler
-	 * @param membershipListener notified of membership changes
-	 * @throws Exception if channel cannot be created
-	 */
-	public JGroupsCommandDispatcher(String id, Channel channel, long timeout, C context, Stateful stateful, MembershipListener membershipListener) throws Exception
-	{
+	private final MembershipListener membershipListener;
+	private JChannel channel;
+	private AddressMember localMember;
+	private final AtomicReference<View> currentView = new AtomicReference<>();
+	private final Map<Address, CommandResponse<?>> pendingResponses = new ConcurrentHashMap<>();
+
+	public JGroupsCommandDispatcher(String id, JChannel channel, long timeout, C context, Stateful stateful, MembershipListener membershipListener) {
 		this.id = id;
+		this.channel = channel;
+		this.timeout = timeout;
 		this.context = context;
 		this.stateful = stateful;
 		this.membershipListener = membershipListener;
-		
-		this.dispatcher = new MessageDispatcher(channel, this, this, this);
-		this.timeout = timeout;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.Lifecycle#start()
-	 */
 	@Override
-	public void start() throws SQLException
-	{
-		Channel channel = this.dispatcher.getChannel();
-		
-		channel.setDiscardOwnMessages(false);
-		
-		// Connect and fetch state
-		try
-		{
-			channel.connect(this.id, null, 0);
-		}
-		catch (Exception e)
-		{
-			throw new SQLException(e);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.Lifecycle#stop()
-	 */
-	@Override
-	public void stop()
-	{
-		Channel channel = this.dispatcher.getChannel();
-		
-		if (channel.isOpen())
-		{
-			if (channel.isConnected())
-			{
-				channel.disconnect();
+	public void start() {
+		this.channel.setReceiver(new Receiver() {
+			@Override
+			public void viewAccepted(View newView) {
+				JGroupsCommandDispatcher.this.onViewAccepted(newView);
 			}
-		}
-	}
-
-	@Override
-	protected void finalize()
-	{
-		this.dispatcher.getChannel().close();
-	}
-
-	@Override
-	public <R> Map<Member, CommandResponse<R>> executeAll(Command<R, C> command, Member... excludedMembers) throws Exception
-	{
-		Message message = this.createMessage(null, command);
-		RequestOptions options = this.createRequestOptions();
-		
-		if ((excludedMembers != null) && (excludedMembers.length > 0))
-		{
-			Address[] exclusions = new Address[excludedMembers.length];
-			for (int i = 0; i < excludedMembers.length; ++i)
-			{
-				exclusions[i] = ((AddressMember) excludedMembers[i]).getAddress();
+			@Override
+			public void receive(Message msg) {
+				JGroupsCommandDispatcher.this.onReceive(msg);
 			}
-			options.setExclusionList(exclusions);
+		});
+		try {
+			this.channel.connect(this.id);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-
-		Map<Address, Rsp<R>> responses = this.dispatcher.castMessage(null, message, options);
-		
-		Map<Member, CommandResponse<R>> results = new TreeMap<>();
-		
-		for (Map.Entry<Address, Rsp<R>> entry: responses.entrySet())
-		{
-			Rsp<R> response = entry.getValue();
-			
-			if (response.wasReceived() && !response.wasSuspected()) {
-				results.put(new AddressMember(entry.getKey()), new RspCommandResponse<>(response));
-			}
-		}
-		
-		return results;
-	}
-	
-	@Override
-	public <R> CommandResponse<R> execute(Command<R, C> command, Member member) throws Exception
-	{
-		Message message = this.createMessage(((AddressMember) member).getAddress(), command);
-		// Use sendMessageWithFuture(...) instead of sendMessage(...) since we want to differentiate between sender exceptions and receiver exceptions
-		Future<R> future = this.dispatcher.sendMessageWithFuture(message, this.createRequestOptions());
-		try
-		{
-			return new SimpleCommandResponse<>(future.get());
-		}
-		catch (InterruptedException e)
-		{
-			return new ExceptionCommandResponse<>(new ExecutionException(e));
-		}
-		catch (ExecutionException e)
-		{
-			return new ExceptionCommandResponse<>(e);
+		this.localMember = new AddressMember(this.channel.getAddress());
+		this.currentView.set(this.channel.getView());
+		try {
+			this.fetchState();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
-	
-	private <R> Message createMessage(Address destination, Command<R, C> command)
-	{
-		return new Message(destination, this.getLocalAddress(), Objects.serialize(command));
-	}
-	
-	private RequestOptions createRequestOptions()
-	{
-		return new RequestOptions(ResponseMode.GET_ALL, this.timeout, false, null, Message.Flag.DONT_BUNDLE, Message.Flag.OOB);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.distributed.CommandDispatcher#getLocal()
-	 */
-	@Override
-	public AddressMember getLocal()
-	{
-		return new AddressMember(this.getLocalAddress());
-	}
-	
-	private Address getLocalAddress()
-	{
-		return this.dispatcher.getChannel().getAddress();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.distributed.CommandDispatcher#getCoordinator()
-	 */
-	@Override
-	public AddressMember getCoordinator()
-	{
-		Address address = this.getCoordinatorAddress();
-		return (address != null) ? new AddressMember(address) : null;
-	}
 
-	private Address getCoordinatorAddress()
-	{
-		List<Address> members = this.dispatcher.getChannel().getView().getMembers();
-		return members.isEmpty() ? null : members.get(0);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.blocks.RequestHandler#handle(org.jgroups.Message)
-	 */
-	@Override
-	public Object handle(Message message)
-	{
-		Command<Object, C> command = Objects.deserialize(message.getRawBuffer(), Command.class);
-
-		this.logger.log(Level.DEBUG, "{0} received from {1}", command, message.getSrc());
-		
-		return command.execute(this.context);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#viewAccepted(org.jgroups.View)
-	 */
-	@Override
-	public void viewAccepted(View view)
-	{
-		if (this.membershipListener != null)
-		{
-			View oldView = this.viewReference.getAndSet(view);
-			
-			for (Address address: view.getMembers())
-			{
-				if ((oldView == null) || !oldView.containsMember(address))
-				{
+	private void onViewAccepted(View newView) {
+		View oldView = this.currentView.getAndSet(newView);
+		if (oldView != null) {
+			List<Address> oldMembers = oldView.getMembers();
+			List<Address> newMembers = newView.getMembers();
+			for (Address address : newMembers) {
+				if (!oldMembers.contains(address) && this.membershipListener != null) {
 					this.membershipListener.added(new AddressMember(address));
 				}
 			}
-			
-			if (oldView != null)
-			{
-				for (Address address: oldView.getMembers())
-				{
-					if (!view.containsMember(address))
-					{
-						this.membershipListener.removed(new AddressMember(address));
-					}
+			for (Address address : oldMembers) {
+				if (!newMembers.contains(address) && this.membershipListener != null) {
+					this.membershipListener.removed(new AddressMember(address));
 				}
 			}
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MessageListener#getState(java.io.OutputStream)
-	 */
-	@Override
-	public void getState(OutputStream output) throws Exception
-	{
-		ObjectOutput out = new ObjectOutputStream(output);
-		this.stateful.writeState(out);
-		out.flush();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MessageListener#setState(java.io.InputStream)
-	 */
-	@Override
-	public void setState(InputStream input) throws Exception
-	{
-		this.stateful.readState(new ObjectInputStream(input, Stateful.class.getClassLoader()));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#suspect(org.jgroups.Address)
-	 */
-	@Override
-	public void suspect(Address member)
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#block()
-	 */
-	@Override
-	public void block()
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MembershipListener#unblock()
-	 */
-	@Override
-	public void unblock()
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.jgroups.MessageListener#receive(org.jgroups.Message)
-	 */
-	@Override
-	public void receive(Message message)
-	{
-	}
-
-	private class RspCommandResponse<R> implements CommandResponse<R>
-	{
-		private final Rsp<R> response;
-		
-		public RspCommandResponse(Rsp<R> response)
-		{
-			this.response = response;
-		}
-		
-		@Override
-		public R get() throws ExecutionException
-		{
-			Throwable exception = this.response.getException();
-			if (exception != null)
-			{
-				throw new ExecutionException(exception);
+	@SuppressWarnings("unchecked")
+	private void onReceive(Message msg) {
+		try {
+			Object data = msg.getObject();
+			if (data instanceof Command) {
+				Command<Object, C> command = (Command<Object, C>) data;
+				this.logger.log(Level.DEBUG, "Processing command: {0}", command);
+				Object result = command.execute(this.context);
+				Message response = new org.jgroups.ObjectMessage(msg.getSrc(), result);
+				this.channel.send(response);
 			}
-			return this.response.getValue();
+		} catch (Exception e) {
+			this.logger.log(Level.ERROR, "Error processing message: " + e.getMessage(), e);
 		}
 	}
 
-	private static class SimpleCommandResponse<R> implements CommandResponse<R>
-	{
+	private void fetchState() throws Exception {
+		View view = this.currentView.get();
+		if (view != null && !view.getMembers().isEmpty()) {
+			Address coordinator = view.getMembers().get(0);
+			if (!coordinator.equals(this.channel.getAddress())) {
+				Message request = new org.jgroups.ObjectMessage(coordinator, "STATE_TRANSFER");
+				this.channel.send(request);
+			}
+		}
+	}
+
+	@Override
+	public void stop() {
+		if (this.channel != null && this.channel.isConnected()) {
+			this.channel.close();
+		}
+	}
+
+	@Override
+	public <R> Map<Member, CommandResponse<R>> executeAll(Command<R, C> command, Member... excludedMembers) throws Exception {
+		List<Member> excluded = Arrays.asList(excludedMembers);
+		View view = this.currentView.get();
+		Map<Member, CommandResponse<R>> results = new TreeMap<>();
+		if (view == null) return results;
+		for (Address address : view.getMembers()) {
+			AddressMember addressMember = new AddressMember(address);
+			if (addressMember.equals(this.localMember)) {
+				R result = command.execute(this.context);
+				results.put(addressMember, new SimpleCommandResponse<>(result));
+			} else if (!excluded.contains(addressMember)) {
+				Message msg = new org.jgroups.ObjectMessage(address, command);
+				this.channel.send(msg);
+				CommandResponse<R> response = this.waitForResponse(addressMember);
+				results.put(addressMember, response);
+			}
+		}
+		return results;
+	}
+
+	@Override
+	public <R> CommandResponse<R> execute(Command<R, C> command, Member member) throws Exception {
+		if (!(member instanceof AddressMember)) {
+			throw new IllegalArgumentException("Member must be an AddressMember: " + member.getClass().getName());
+		}
+		AddressMember addressMember = (AddressMember) member;
+		if (addressMember.equals(this.localMember)) {
+			R result = command.execute(this.context);
+			return new SimpleCommandResponse<>(result);
+		}
+		Message msg = new org.jgroups.ObjectMessage(addressMember.getAddress(), command);
+		this.channel.send(msg);
+		return this.waitForResponse(addressMember);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <R> CommandResponse<R> waitForResponse(AddressMember member) throws Exception {
+		long deadline = System.currentTimeMillis() + this.timeout;
+		while (System.currentTimeMillis() < deadline) {
+			CommandResponse<R> response = (CommandResponse<R>) this.pendingResponses.remove(member.getAddress());
+			if (response != null) return response;
+			TimeUnit.MILLISECONDS.sleep(100);
+		}
+		return new TimeoutCommandResponse<>();
+	}
+
+	@Override
+	public AddressMember getLocal() {
+		return this.localMember;
+	}
+
+	@Override
+	public AddressMember getCoordinator() {
+		View view = this.currentView.get();
+		if (view == null || view.getMembers().isEmpty()) return null;
+		return new AddressMember(view.getMembers().get(0));
+	}
+
+	public void getState(OutputStream output) throws Exception {
+		try (ObjectOutput out = new ObjectOutputStream(output)) {
+			this.stateful.writeState(out);
+			out.flush();
+		}
+	}
+
+	public void setState(InputStream input) throws Exception {
+		try (ObjectInputStream inputStream = new ObjectInputStream(input, Stateful.class.getClassLoader())) {
+			this.stateful.readState(inputStream);
+		}
+	}
+
+	private static class SimpleCommandResponse<R> implements CommandResponse<R> {
 		private final R result;
-		
-		SimpleCommandResponse(R result)
-		{
-			this.result = result;
-		}
-		
+		SimpleCommandResponse(R result) { this.result = result; }
 		@Override
-		public R get()
-		{
-			return this.result;
-		}
+		public R get() { return this.result; }
 	}
 
-	private static class ExceptionCommandResponse<R> implements CommandResponse<R>
-	{
-		private final ExecutionException exception;
-		
-		ExceptionCommandResponse(ExecutionException exception)
-		{
-			this.exception = exception;
-		}
-		
+	private static class TimeoutCommandResponse<R> implements CommandResponse<R> {
 		@Override
-		public R get() throws ExecutionException
-		{
-			throw this.exception;
+		public R get() throws ExecutionException {
+			throw new ExecutionException(new java.util.concurrent.TimeoutException("Command execution timed out"));
 		}
 	}
 }

@@ -29,6 +29,7 @@ import net.sf.hajdbc.io.InputSinkStrategy;
 import net.sf.hajdbc.lock.LockManager;
 import net.sf.hajdbc.state.StateManager;
 import net.sf.hajdbc.tx.TransactionIdentifierFactory;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author Paul Ferraro
@@ -38,10 +39,10 @@ import net.sf.hajdbc.tx.TransactionIdentifierFactory;
 public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 {
 	/**
-	 * このクラスタの識別子を返します。
-	 * @return 識別子
+	 * Returns the identifier of this cluster.
+	 * @return identifier
 	 */
-	String getId();
+	@NonNull String getId();
 	
 	/**
 	 * Activates the specified database
@@ -49,7 +50,7 @@ public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 	 * @param manager a state manager
 	 * @return true, if the database was activated, false it was already active
 	 */
-	boolean activate(D database, StateManager manager);
+	boolean activate(@NonNull D database, @NonNull StateManager manager);
 	
 	/**
 	 * Deactivates the specified database
@@ -57,49 +58,49 @@ public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 	 * @param manager a state manager
 	 * @return true, if the database was deactivated, false it was already inactive
 	 */
-	boolean deactivate(D database, StateManager manager);
+	boolean deactivate(@NonNull D database, @NonNull StateManager manager);
 	
 	/**
-	 * 指定されたIDで識別されるデータベースを返します
-	 * @param id データベース識別子
-	 * @return データベース記述子
-	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合
+	 * Returns the database identified by the given ID.
+	 * @param id database identifier
+	 * @return database descriptor
+	 * @throws IllegalArgumentException if no database exists with the given identifier
 	 */
-	D getDatabase(String id);
+	@NonNull D getDatabase(@NonNull String id);
 	
 	/**
-	 * このデータベースクラスタで使用されるBalancerの実装を返します。
-	 * @return <code>Balancer</code>の実装
+	 * Returns the Balancer implementation used by this database cluster.
+	 * @return the <code>Balancer</code> implementation
 	 */
-	Balancer<Z, D> getBalancer();
+	@NonNull Balancer<Z, D> getBalancer();
 	
-	TransactionMode getTransactionMode();
+	@NonNull TransactionMode getTransactionMode();
 	
-	ExecutorService getExecutor();
+	@NonNull ExecutorService getExecutor();
 	
 	/**
-	 * データベースベンダー固有の値を返すことができるDialectを返します。
-	 * @return <code>Dialect</code>の実装
+	 * Returns the Dialect that can return database vendor-specific values.
+	 * @return the <code>Dialect</code> implementation
 	 */
-	Dialect getDialect();
+	@NonNull Dialect getDialect();
 	
 	/**
-	 * このデータベースクラスタ内の特定のオブジェクトに対して名前付きの読み取り/書き込みロックを取得できるLockManagerを返します。
-	 * @return LockManagerの実装
+	 * Returns the LockManager that can acquire named read/write locks on specific objects within this database cluster.
+	 * @return the LockManager implementation
 	 */
-	LockManager getLockManager();
+	@NonNull LockManager getLockManager();
 	
 	/**
-	 * データベースクラスタの状態を永続化するためのStateManagerを返します。
-	 * @return StateManagerの実装
+	 * Returns the StateManager for persisting the state of the database cluster.
+	 * @return the StateManager implementation
 	 */
-	StateManager getStateManager();
+	@NonNull StateManager getStateManager();
 	
 	/**
-	 * DatabaseMetaDataキャッシュを返します。
-	 * @return <code>DatabaseMetaDataCache</code>の実装
+	 * Returns the DatabaseMetaData cache.
+	 * @return the <code>DatabaseMetaDataCache</code> implementation
 	 */
-	DatabaseMetaDataCache<Z, D> getDatabaseMetaDataCache();
+	@NonNull DatabaseMetaDataCache<Z, D> getDatabaseMetaDataCache();
 	
 	/**
 	 * Indicates whether or not sequence detection is enabled for this cluster.
@@ -143,25 +144,25 @@ public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 	 */
 	boolean isActive();
 
-	void addListener(DatabaseClusterListener listener);
+	void addListener(@NonNull DatabaseClusterListener listener);
 	
-	void removeListener(DatabaseClusterListener listener);
+	void removeListener(@NonNull DatabaseClusterListener listener);
 	
-	void addSynchronizationListener(SynchronizationListener listener);
+	void addSynchronizationListener(@NonNull SynchronizationListener listener);
 	
-	void removeSynchronizationListener(SynchronizationListener listener);
+	void removeSynchronizationListener(@NonNull SynchronizationListener listener);
 	
-	void addConfigurationListener(DatabaseClusterConfigurationListener<Z, D> listener);
+	void addConfigurationListener(@NonNull DatabaseClusterConfigurationListener<Z, D> listener);
 	
-	void removeConfigurationListener(DatabaseClusterConfigurationListener<Z, D> listener);
+	void removeConfigurationListener(@NonNull DatabaseClusterConfigurationListener<Z, D> listener);
 	
-	Durability<Z, D> getDurability();
+	@NonNull Durability<Z, D> getDurability();
 	
-	ThreadFactory getThreadFactory();
+	@NonNull ThreadFactory getThreadFactory();
 	
-	Decoder getDecoder();
+	@NonNull Decoder getDecoder();
 	
-	TransactionIdentifierFactory<? extends Object> getTransactionIdentifierFactory();
+	@NonNull TransactionIdentifierFactory<? extends Object> getTransactionIdentifierFactory();
 
-	InputSinkStrategy<? extends Object> getInputSinkStrategy();
+	@NonNull InputSinkStrategy<? extends Object> getInputSinkStrategy();
 }

@@ -17,7 +17,31 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Factory for creating {@link ColumnProperties} instances.
+ * <p>
+ * This factory is part of the {@link net.sf.hajdbc.dialect.DialectFactoryProvider} hierarchy,
+ * providing database vendor-specific column metadata. Each dialect (e.g., MySQL, PostgreSQL)
+ * supplies its own implementation to handle vendor-specific column type mappings.
+ * </p>
+ * 
+ * @see net.sf.hajdbc.dialect.DialectFactoryContract#createColumnPropertiesFactory()
+ * @see ColumnProperties
+ */
 public interface ColumnPropertiesFactory
 {
-	ColumnProperties createColumnProperties(String name, int type, String nativeType, String defaultValue, String remarks, Boolean autoIncrement);
+	/**
+	 * Creates column properties for the specified column.
+	 * @param name column name
+	 * @param type SQL type (java.sql.Types constant)
+	 * @param nativeType database-specific type name
+	 * @param defaultValue default value, or null if none
+	 * @param remarks description, or null if none
+	 * @param autoIncrement true if the column is auto-increment, false or null otherwise
+	 * @return new column properties
+	 */
+	@NonNull ColumnProperties createColumnProperties(@NonNull String name, int type, @NonNull String nativeType, @Nullable String defaultValue, @Nullable String remarks, @Nullable Boolean autoIncrement);
 }

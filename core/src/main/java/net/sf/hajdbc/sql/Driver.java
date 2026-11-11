@@ -64,26 +64,7 @@ public class Driver extends AbstractDriver
 	{
 		try
 		{
-			Driver driver = new Driver()
-			{
-				@Override
-				protected void finalize()
-				{
-					// When the driver instance that was registered with the DriverManager is finalized, close any clusters
-					for (String id : proxies.keySet())
-					{
-						try
-						{
-							close(id);
-						}
-						catch (Throwable e)
-						{
-							e.printStackTrace(DriverManager.getLogWriter());
-						}
-					}
-				}
-			};
-			DriverManager.registerDriver(driver);
+			DriverManager.registerDriver(new Driver());
 		}
 		catch (SQLException e)
 		{

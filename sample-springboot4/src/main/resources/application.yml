@@ -2,28 +2,50 @@ spring:
   application:
     name: sample-springboot4
 
-  # DataSource settings
-  datasource:
-    url: jdbc:postgresql://localhost:5432/sample_db
-    username: sample_user
-    password: sample_password
-    driver-class-name: org.postgresql.Driver
+  # DataSource settings - HA-JDBC manages the data sources
+  # Commented out because HA-JDBC provides its own DataSource bean
+  # datasource:
+  #   url: jdbc:postgresql://localhost:5432/sample_db
+  #   username: sample_user
+  #   password: sample_password
+  #   driver-class-name: org.postgresql.Driver
 
   # JPA / Hibernate settings
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: none
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        envers:
+          store_data_at_delete: true
 
   # Flyway settings
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    clean-disabled: true
+
+  # Virtual Threads
+  threads:
+    virtual:
+      enabled: true
+
+# Database credentials (use environment variables in production)
+database:
+  master:
+    url: ${DB_MASTER_URL:jdbc:postgresql://localhost:5432/sample_db}
+    username: ${DB_USERNAME:sample_user}
+    password: ${DB_PASSWORD:sample_password}
+  slave:
+    url: ${DB_SLAVE_URL:jdbc:postgresql://localhost:5433/sample_db}
+    username: ${DB_USERNAME:sample_user}
+    password: ${DB_PASSWORD:sample_password}
+  state:
+    password: ${DB_STATE_PASSWORD:}
 
 # Server settings
 server:
@@ -32,7 +54,7 @@ server:
 # Logging
 logging:
   level:
-    root: INFO
-    com.example.sample: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    root: WARN
+    com.example.sample: INFO
+    net.sf.hajdbc: INFO
+    org.hibernate.SQL: WARN

@@ -30,7 +30,7 @@ import javax.sql.StatementEventListener;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.invocation.Invoker;
-import net.sf.hajdbc.sql.AbstractTransactionalProxyFactory;
+import net.sf.hajdbc.sql.AbstractSQLProxyFactory;
 import net.sf.hajdbc.sql.LocalTransactionContext;
 import net.sf.hajdbc.sql.ProxyFactory;
 
@@ -38,7 +38,7 @@ import net.sf.hajdbc.sql.ProxyFactory;
  * 
  * @author Paul Ferraro
  */
-public abstract class AbstractPooledConnectionProxyFactory<Z, D extends Database<Z>, C extends PooledConnection> extends AbstractTransactionalProxyFactory<Z, D, Z, C>
+public abstract class AbstractPooledConnectionProxyFactory<Z, D extends Database<Z>, C extends PooledConnection> extends AbstractSQLProxyFactory<Z, D, Z, C>
 {
 	private Map<ConnectionEventListener, Invoker<Z, D, C, ?, SQLException>> connectionEventListenerInvokers = new HashMap<>();
 	private Map<StatementEventListener, Invoker<Z, D, C, ?, SQLException>> statementEventListenerInvokers = new HashMap<>();
@@ -67,7 +67,13 @@ public abstract class AbstractPooledConnectionProxyFactory<Z, D extends Database
 	{
 		this.statementEventListenerInvokers.remove(listener);
 	}
-	
+
+	@Override
+	public java.sql.Connection getConnection(D database) throws SQLException
+	{
+		return this.get(database).getConnection();
+	}
+
 	@Override
 	public void replay(D database, C connection) throws SQLException
 	{
@@ -92,7 +98,7 @@ public abstract class AbstractPooledConnectionProxyFactory<Z, D extends Database
 	@SuppressWarnings("unused")
 	private static class ConnectionEventListenerFilter<Z, D extends Database<Z>, C extends PooledConnection> implements ConnectionEventListener
 	{
-		private AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
+		private final AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
 		private final D database;
 		private final ConnectionEventListener listener;
 		
@@ -142,7 +148,7 @@ public abstract class AbstractPooledConnectionProxyFactory<Z, D extends Database
 	@SuppressWarnings("unused")
 	private static class StatementEventListenerFilter<Z, D extends Database<Z>, C extends PooledConnection> implements StatementEventListener
 	{
-		private AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
+		private final AbstractPooledConnectionProxyFactory<Z, D, C> proxyFactory;
 		private final D database;
 		private final StatementEventListener listener;
 		

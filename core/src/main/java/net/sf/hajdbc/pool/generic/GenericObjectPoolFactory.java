@@ -26,9 +26,12 @@ import net.sf.hajdbc.pool.Pool;
 import net.sf.hajdbc.pool.PoolFactory;
 import net.sf.hajdbc.pool.PoolProvider;
 
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.BasePooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 
 /**
  * Adapter for a <a href="http://commons.apache.org/pool">commons-pool</a> GenericObjectPool.
@@ -39,7 +42,7 @@ public class GenericObjectPoolFactory implements PoolFactory
 {
 	static final Logger logger = LoggerFactory.getLogger(GenericObjectPoolFactory.class);
 	
-	private final GenericObjectPool.Config config;
+	private final org.apache.commons.pool2.impl.GenericObjectPoolConfig config;
 	
 	public GenericObjectPoolFactory(GenericObjectPoolConfiguration config)
 	{
@@ -49,34 +52,30 @@ public class GenericObjectPoolFactory implements PoolFactory
 	@Override
 	public <T, E extends Exception> Pool<T, E> createPool(final PoolProvider<T, E> provider)
 	{
-		PoolableObjectFactory<T> factory = new PoolableObjectFactory<T>()
+		PooledObjectFactory<T> factory = new BasePooledObjectFactory<T>()
 		{
 			@Override
-			public void destroyObject(T object)
-			{
-				provider.close(object);
-			}
-
-			@Override
-			public T makeObject() throws Exception
+			public T create() throws Exception
 			{
 				return provider.create();
 			}
 
 			@Override
-			public boolean validateObject(T object)
+			public PooledObject<T> wrap(T object)
 			{
-				return provider.isValid(object);
-			}
-			
-			@Override
-			public void activateObject(T object)
-			{
+				return new DefaultPooledObject<>(object);
 			}
 
 			@Override
-			public void passivateObject(T object)
+			public void destroyObject(PooledObject<T> p) throws Exception
 			{
+				provider.close(p.getObject());
+			}
+
+			@Override
+			public boolean validateObject(PooledObject<T> p)
+			{
+				return provider.isValid(p.getObject());
 			}
 		};
 

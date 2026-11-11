@@ -23,7 +23,27 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.Identifiable;
 
+/**
+ * Factory for creating {@link DatabaseMetaDataCache} instances.
+ * <p>
+ * This factory is a core component of the HA-JDBC architecture, registered via
+ * {@link net.sf.hajdbc.DatabaseClusterConfiguration#getDatabaseMetaDataCacheFactory()}.
+ * The cache stores database metadata (tables, columns, constraints) to avoid repeated
+ * calls to {@link java.sql.DatabaseMetaData}. Several implementations are available:
+ * eager (loads all metadata at startup), lazy (loads on first access), and simple (no caching).
+ * </p>
+ *
+ * @see DatabaseMetaDataCache
+ * @see net.sf.hajdbc.DatabaseClusterConfiguration#getDatabaseMetaDataCacheFactory()
+ * @see net.sf.hajdbc.cache.eager.EagerDatabaseMetaDataCacheFactory
+ * @see net.sf.hajdbc.cache.lazy.LazyDatabaseMetaDataCacheFactory
+ */
 public interface DatabaseMetaDataCacheFactory extends Identifiable, Serializable
 {
+	/**
+	 * Creates a new metadata cache for the specified database cluster.
+	 * @param cluster the database cluster
+	 * @return new metadata cache
+	 */
 	<Z, D extends Database<Z>> DatabaseMetaDataCache<Z, D> createCache(DatabaseCluster<Z, D> cluster);
 }

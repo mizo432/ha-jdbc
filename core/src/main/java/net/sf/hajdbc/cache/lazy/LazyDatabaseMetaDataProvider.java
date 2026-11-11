@@ -24,10 +24,12 @@ import java.sql.SQLException;
 import net.sf.hajdbc.cache.DatabaseMetaDataProvider;
 
 /**
+ * Lazy provider for DatabaseMetaData that stores the Connection in a ThreadLocal.
+ * Implements AutoCloseable to prevent ThreadLocal memory leaks in thread pool environments.
+ * 
  * @author Paul Ferraro
- *
  */
-public class LazyDatabaseMetaDataProvider implements DatabaseMetaDataProvider
+public class LazyDatabaseMetaDataProvider implements DatabaseMetaDataProvider, AutoCloseable
 {
 	private final ThreadLocal<Connection> threadLocal = new ThreadLocal<>();
 	
@@ -42,11 +44,31 @@ public class LazyDatabaseMetaDataProvider implements DatabaseMetaDataProvider
 	}
 	
 	/**
+	 * Removes the ThreadLocal value for the current thread to prevent memory leaks
+	 * in thread pool environments. Call this method when the provider is no longer
+	 * needed by the current thread.
+	 */
+	public void remove()
+	{
+		this.threadLocal.remove();
+	}
+	
+	/**
 	 * @see net.sf.hajdbc.cache.DatabaseMetaDataProvider#getDatabaseMetaData()
 	 */
 	@Override
 	public DatabaseMetaData getDatabaseMetaData() throws SQLException
 	{
 		return this.threadLocal.get().getMetaData();
+	}
+	
+	/**
+	 * Removes the ThreadLocal value for the current thread to prevent memory leaks.
+	 * @see net.sf.hajdbc.cache.lazy.LazyDatabaseMetaDataProvider#remove()
+	 */
+	@Override
+	public void close()
+	{
+		this.remove();
 	}
 }

@@ -38,8 +38,8 @@ import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.TriggerSupport;
 import net.sf.hajdbc.codec.Decoder;
 import net.sf.hajdbc.dialect.ConnectionProperties;
+import net.sf.hajdbc.dialect.DialectDumpRestore;
 import net.sf.hajdbc.dialect.StandardDialect;
-import net.sf.hajdbc.util.Processes;
 import net.sf.hajdbc.util.Strings;
 
 /**
@@ -48,7 +48,7 @@ import net.sf.hajdbc.util.Strings;
  * @since   1.1
  */
 @SuppressWarnings("nls")
-public class PostgreSQLDialect extends StandardDialect implements DumpRestoreSupport
+public class PostgreSQLDialect extends StandardDialect
 {
 	// Taken from: http://www.postgresql.org/docs/9.2/static/sql-keywords-appendix.html
 	public static final String[] RESERVED_KEY_WORDS = new String[] {
@@ -74,7 +74,7 @@ public class PostgreSQLDialect extends StandardDialect implements DumpRestoreSup
 		"WHEN", "WHERE", "WINDOW", "WITH",
 	};
 
-	private static final File PASSWORD_FILE = new File(String.format("%s%s.pgpass", Strings.USER_HOME, Strings.FILE_SEPARATOR));
+	private final PostgreSQLDumpRestore dumpRestore = new PostgreSQLDumpRestore();
 	
 	/**
 	 * {@inheritDoc}
@@ -233,67 +233,7 @@ public class PostgreSQLDialect extends StandardDialect implements DumpRestoreSup
 	@Override
 	public DumpRestoreSupport getDumpRestoreSupport()
 	{
-		return this;
-	}
-
-	@Override
-	public <Z, D extends Database<Z>> void dump(D database, Decoder decoder, File file, boolean dataOnly) throws Exception
-	{
-		ConnectionProperties properties = this.getConnectionProperties(database, decoder);
-		ProcessBuilder builder = new ProcessBuilder("pg_dump");
-		List<String> args = builder.command();
-		if (properties.getHost() != null)
-		{
-			args.add("--host=" + properties.getHost());
-		}
-		if (properties.getPort() != null)
-		{
-			args.add("--port=" + properties.getPort());
-		}
-		args.add("--username=" + properties.getUser());
-		args.add("--no-password");
-		args.add("--file=" + file.getPath());
-		args.add("--format=tar");
-		args.add(properties.getDatabase());
-		Processes.run(setPassword(builder, properties));
-	}
-
-	@Override
-	public <Z, D extends Database<Z>> void restore(D database, Decoder decoder, File file, boolean dataOnly) throws Exception
-	{
-		ConnectionProperties properties = this.getConnectionProperties(database, decoder);
-		ProcessBuilder builder = new ProcessBuilder("pg_restore");
-		List<String> args = builder.command();
-		if (properties.getHost() != null)
-		{
-			args.add("--host=" + properties.getHost());
-		}
-		if (properties.getPort() != null)
-		{
-			args.add("--port=" + properties.getPort());
-		}
-		args.add("--username=" + properties.getUser());
-		args.add("--no-password");
-		args.add("--dbname=" + properties.getDatabase());
-		args.add("--clean");
-		if (dataOnly)
-		{
-			args.add("--data-only");
-			args.add("--disable-triggers"); // Used to prevent integrity constraints during restoration of data
-			args.add("--superuser=" + properties.getUser()); // Required by --disable-triggers
-		}
-		args.add(file.getPath());
-		Processes.run(setPassword(builder, properties));
-	}
-	
-	private static ProcessBuilder setPassword(ProcessBuilder builder, ConnectionProperties properties)
-	{
-		String password = properties.getPassword();
-		if ((password != null) && !PASSWORD_FILE.exists())
-		{
-			Processes.environment(builder).put("PGPASSWORD", properties.getPassword());
-		}
-		return builder;
+		return this.dumpRestore;
 	}
 
 	/**
@@ -324,5 +264,70 @@ public class PostgreSQLDialect extends StandardDialect implements DumpRestoreSup
 	protected String dropTriggerFormat()
 	{
 		return "DROP TRIGGER {0} ON {1}; DROP FUNCTION {0}_action()";
+	}
+
+	private class PostgreSQLDumpRestore extends DialectDumpRestore
+	{
+		private static final File PASSWORD_FILE = new File(String.format("%s%s.pgpass", Strings.USER_HOME, Strings.FILE_SEPARATOR));
+
+		@Override
+		protected File getPasswordFile()
+		{
+			return PASSWORD_FILE;
+		}
+
+		@Override
+		protected String dumpToolName()
+		{
+			return "pg_dump";
+		}
+
+		@Override
+		protected String restoreToolName()
+		{
+			return "pg_restore";
+		}
+
+		@Override
+		protected String passwordEnvironmentVariable()
+		{
+			return "PGPASSWORD";
+		}
+
+		@Override
+		protected String userArgumentPrefix()
+		{
+			return "--username=";
+		}
+
+		@Override
+		protected ConnectionProperties getConnectionProperties(Database<?> database, Decoder decoder) throws SQLException
+		{
+			return PostgreSQLDialect.this.getConnectionProperties(database, decoder);
+		}
+
+		@Override
+		protected void configureDumpCommand(List<String> args, ConnectionProperties properties, File file, boolean dataOnly)
+		{
+			args.add("--no-password");
+			args.add("--file=" + file.getPath());
+			args.add("--format=tar");
+			args.add(properties.getDatabase());
+		}
+
+		@Override
+		protected void configureRestoreCommand(List<String> args, ConnectionProperties properties, File file, boolean dataOnly)
+		{
+			args.add("--no-password");
+			args.add("--dbname=" + properties.getDatabase());
+			args.add("--clean");
+			if (dataOnly)
+			{
+				args.add("--data-only");
+				args.add("--disable-triggers");
+				args.add("--superuser=" + properties.getUser());
+			}
+			args.add(file.getPath());
+		}
 	}
 }

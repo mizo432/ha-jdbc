@@ -25,9 +25,27 @@ import net.sf.hajdbc.Identifiable;
 
 
 /**
- * @author Paul Ferraro
+ * Factory for creating {@link Durability} instances.
+ * <p>
+ * This factory is a core component of the HA-JDBC architecture, registered via
+ * {@link net.sf.hajdbc.DatabaseClusterConfiguration#getDurabilityFactory()}. The durability
+ * manager ensures that invocation events are persisted, enabling recovery after failures.
+ * Three implementations are available: fine-grained (persists each invocation),
+ * coarse-grained (persists batches), and no durability (disabled).
+ * </p>
+ *
+ * @see Durability
+ * @see net.sf.hajdbc.DatabaseClusterConfiguration#getDurabilityFactory()
+ * @see net.sf.hajdbc.durability.fine.FineDurabilityFactory
+ * @see net.sf.hajdbc.durability.coarse.CoarseDurabilityFactory
+ * @see net.sf.hajdbc.durability.none.NoDurabilityFactory
  */
 public interface DurabilityFactory extends Identifiable, Serializable
 {
+	/**
+	 * Creates a new durability manager for the specified database cluster.
+	 * @param cluster the database cluster
+	 * @return new durability manager
+	 */
 	<Z, D extends Database<Z>> Durability<Z, D> createDurability(DatabaseCluster<Z, D> cluster);
 }

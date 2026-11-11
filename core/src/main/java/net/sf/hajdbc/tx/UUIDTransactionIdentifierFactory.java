@@ -65,6 +65,6 @@ public class UUIDTransactionIdentifierFactory implements TransactionIdentifierFa
 	@Override
 	public int size()
 	{
-		return Long.SIZE * 2;
+		return Long.BYTES * 2;
 	}
 }

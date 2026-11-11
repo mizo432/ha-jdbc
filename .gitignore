@@ -1,4 +1,89 @@
-**/.classpath
-**/.project
-**/.settings
-**/target
+# ====================
+# Build outputs
+# ====================
+
+# Gradle
+build/
+.gradle/
+
+# ====================
+# IDE settings
+# ====================
+
+# IntelliJ IDEA
+# Ignore user-specific settings
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/datasources/
+.idea/dataSources/
+.idea/drush_stats.iml
+.idea/.name
+.idea/assetWizardSettings.xml
+.idea/dynamic.xml
+.idea/externalDependencies.xml
+.idea/modules.xml
+*.iml
+
+# ====================
+# OS generated files
+# ====================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_v100.db
+Desktop.ini
+
+# ====================
+# Logs and temporary files
+# ====================
+
+*.log
+*.log.*
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ====================
+# Coverage and profiling
+# ====================
+
+coverage/
+*.gc
+*.gcno
+*.gcda
+*.prof
+*.profraw
+*.coverage
+*.lcov
+
+# ====================
+# Compiled files
+# ====================
+
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+*.ear
+*.nar
+*.par
+
+# ====================
+# JUnit
+# ====================
+
+# Cache JUnit results
+# https://www.jetbrains.com/rj/help/unit-test-results-caching.html
+.idea/cache/files
+.idea/junit

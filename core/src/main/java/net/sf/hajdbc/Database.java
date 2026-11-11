@@ -22,6 +22,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import net.sf.hajdbc.codec.Decoder;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author  Paul Ferraro
@@ -29,20 +31,59 @@ import net.sf.hajdbc.codec.Decoder;
  */
 public interface Database<Z> extends Comparable<Database<Z>>
 {
-	String getId();
+	/**
+	 * Returns the unique identifier for this database.
+	 * @return database id
+	 */
+	@NonNull String getId();
 
-	Z getConnectionSource();
+	/**
+	 * Returns the connection source (e.g., Driver, DataSource) for this database.
+	 * @return connection source
+	 */
+	@NonNull Z getConnectionSource();
 
-	Credentials getCredentials();
-	
+	/**
+	 * Returns the credentials for connecting to this database.
+	 * @return credentials
+	 */
+	@NonNull Credentials getCredentials();
+
+	/**
+	 * Returns the weight of this database for load balancing.
+	 * @return weight (1 or greater)
+	 */
 	int getWeight();
+
+	/**
+	 * Sets the weight of this database for load balancing.
+	 * @param weight weight (1 or greater)
+	 */
 	void setWeight(int weight);
 
-	Locality getLocality();
+	/**
+	 * Returns the locality (local or remote) of this database.
+	 * @return locality
+	 */
+	@NonNull Locality getLocality();
 
-	Connection connect(Decoder decoder) throws SQLException;
+	/**
+	 * Connects to this database using the specified decoder.
+	 * @param decoder codec decoder
+	 * @return database connection
+	 * @throws SQLException if connection fails
+	 */
+	@NonNull Connection connect(@NonNull Decoder decoder) throws SQLException;
 
-	String getLocation();
+	/**
+	 * Returns the location string for this database.
+	 * @return location
+	 */
+	@NonNull String getLocation();
 
-	Properties getProperties();
+	/**
+	 * Returns the properties for this database.
+	 * @return properties
+	 */
+	@NonNull Properties getProperties();
 }

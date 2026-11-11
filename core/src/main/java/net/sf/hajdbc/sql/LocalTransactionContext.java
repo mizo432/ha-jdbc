@@ -20,7 +20,7 @@ package net.sf.hajdbc.sql;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.SortedMap;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
@@ -28,6 +28,9 @@ import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.durability.Durability;
 import net.sf.hajdbc.invocation.InvocationStrategy;
 import net.sf.hajdbc.invocation.Invoker;
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.tx.TransactionIdentifierFactory;
 
 /**
@@ -37,17 +40,19 @@ import net.sf.hajdbc.tx.TransactionIdentifierFactory;
  */
 public class LocalTransactionContext<Z, D extends Database<Z>> implements TransactionContext<Z, D>
 {
+	static final Logger logger = LoggerFactory.getLogger(LocalTransactionContext.class);
+	
 	final Durability<Z, D> durability;
-	private final Lock lock;
+	private final ReentrantLock lock;
 	private final TransactionIdentifierFactory<? extends Object> transactionIdFactory;
-	volatile Object transactionId;
+	private Object transactionId;
 	
 	/**
 	 * @param cluster
 	 */
 	public LocalTransactionContext(DatabaseCluster<Z, D> cluster)
 	{
-		this.lock = cluster.getLockManager().readLock(null);
+		this.lock = new ReentrantLock();
 		this.durability = cluster.getDurability();
 		this.transactionIdFactory = cluster.getTransactionIdentifierFactory();
 	}
@@ -59,8 +64,6 @@ public class LocalTransactionContext<Z, D extends Database<Z>> implements Transa
 	@Override
 	public InvocationStrategy start(final InvocationStrategy strategy, final Connection connection) throws SQLException
 	{
-		if (this.transactionId != null) return strategy;
-		
 		if (connection.getAutoCommit())
 		{
 			return new InvocationStrategy()
@@ -114,7 +117,7 @@ public class LocalTransactionContext<Z, D extends Database<Z>> implements Transa
 	@Override
 	public <T, R> Invoker<Z, D, T, R, SQLException> start(final Invoker<Z, D, T, R, SQLException> invoker, Connection connection) throws SQLException
 	{
-		if ((this.transactionId == null) || !connection.getAutoCommit()) return invoker;
+		if (!connection.getAutoCommit()) return invoker;
 
 		return new Invoker<Z, D, T, R, SQLException>()
 		{
@@ -133,7 +136,7 @@ public class LocalTransactionContext<Z, D extends Database<Z>> implements Transa
 	@Override
 	public InvocationStrategy end(final InvocationStrategy strategy, final Durability.Phase phase)
 	{
-		if (this.transactionId == null) return strategy;
+		if (!this.lock.isHeldByCurrentThread()) return strategy;
 
 		return new InvocationStrategy()
 		{
@@ -161,7 +164,7 @@ public class LocalTransactionContext<Z, D extends Database<Z>> implements Transa
 	@Override
 	public <T, R> Invoker<Z, D, T, R, SQLException> end(final Invoker<Z, D, T, R, SQLException> invoker, Durability.Phase phase)
 	{
-		if (this.transactionId == null) return invoker;
+		if (!this.lock.isHeldByCurrentThread()) return invoker;
 
 		return this.durability.getInvoker(invoker, phase, this.transactionId, ExceptionType.SQL.<SQLException>getExceptionFactory());
 	}
@@ -173,8 +176,9 @@ public class LocalTransactionContext<Z, D extends Database<Z>> implements Transa
 	public void close()
 	{
 		// Tsk, tsk... User neglected to commit/rollback transaction
-		if (this.transactionId != null)
+		if (this.lock.isHeldByCurrentThread())
 		{
+			logger.log(Level.WARN, "Transaction completed without explicit commit/rollback - releasing lock");
 			this.unlock();
 		}
 	}

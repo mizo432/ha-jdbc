@@ -87,8 +87,8 @@ public class SemaphoreLockManager implements LockManager
 	
 	private static class GlobalLock implements Lock
 	{
-		private Lock globalLock;
-		private Lock lock;
+		private final Lock globalLock;
+		private final Lock lock;
 		
 		GlobalLock(Lock globalLock, Lock lock)
 		{
@@ -100,7 +100,15 @@ public class SemaphoreLockManager implements LockManager
 		public void lock()
 		{
 			this.globalLock.lock();
-			this.lock.lock();
+			try
+			{
+				this.lock.lock();
+			}
+			catch (Throwable t)
+			{
+				this.globalLock.unlock();
+				throw t;
+			}
 		}
 
 		@Override
@@ -115,6 +123,7 @@ public class SemaphoreLockManager implements LockManager
 			catch (InterruptedException e)
 			{
 				this.globalLock.unlock();
+				Thread.currentThread().interrupt();
 				throw e;
 			}
 		}

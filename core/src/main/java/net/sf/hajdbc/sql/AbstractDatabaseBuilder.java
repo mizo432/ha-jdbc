@@ -13,12 +13,12 @@ public abstract class AbstractDatabaseBuilder<Z, D extends Database<Z>> implemen
 {
 	protected final String id;
 
-	protected volatile Z connectionSource;
-	protected volatile String location;
-	protected volatile Properties properties = new Properties();
-	protected volatile Credentials credentials;
-	protected volatile int weight = 1;
-	protected volatile Locality locality = Locality.REMOTE;
+	protected Z connectionSource;
+	protected String location;
+	protected Properties properties = new Properties();
+	protected Credentials credentials;
+	protected int weight = 1;
+	protected Locality locality = Locality.REMOTE;
 	
 	protected AbstractDatabaseBuilder(String id)
 	{
@@ -58,9 +58,9 @@ public abstract class AbstractDatabaseBuilder<Z, D extends Database<Z>> implemen
 			}
 
 			@Override
-			public String decodePassword(Decoder decoder) throws SQLException
+			public char[] decodePassword(Decoder decoder) throws SQLException
 			{
-				return decoder.decode(password);
+				return decoder.decode(password).toCharArray();
 			}
 
 			@Override

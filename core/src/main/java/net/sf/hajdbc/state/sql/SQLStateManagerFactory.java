@@ -51,8 +51,7 @@ public class SQLStateManagerFactory extends GenericObjectPoolConfiguration imple
 	enum EmbeddedVendor
 	{
 		H2("jdbc:h2:{1}/{0}", "sa", ""),
-		HSQLDB("jdbc:hsqldb:{1}/{0}", "sa", ""),
-		DERBY("jdbc:derby:{1}/{0};create=true", null, null)
+		HSQLDB("jdbc:hsqldb:{1}/{0}", "sa", "")
 		;
 		
 		final String pattern;

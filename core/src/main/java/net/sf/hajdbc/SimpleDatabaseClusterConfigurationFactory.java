@@ -19,6 +19,8 @@ package net.sf.hajdbc;
 
 import java.sql.SQLException;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * @author Paul Ferraro
  */
@@ -27,7 +29,7 @@ public class SimpleDatabaseClusterConfigurationFactory<Z, D extends Database<Z>>
 	private static final long serialVersionUID = -6882420729056764462L;
 	
 	@Override
-	public <B extends DatabaseBuilder<Z, D>> DatabaseClusterConfiguration<Z, D> createConfiguration(DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException
+	public <B extends DatabaseBuilder<Z, D>> @NonNull DatabaseClusterConfiguration<Z, D> createConfiguration(@NonNull DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException
 	{
 		return builder.build();
 	}
@@ -37,7 +39,7 @@ public class SimpleDatabaseClusterConfigurationFactory<Z, D extends Database<Z>>
 	 * @see net.sf.hajdbc.DatabaseClusterConfigurationListener#added(net.sf.hajdbc.Database, net.sf.hajdbc.DatabaseClusterConfiguration)
 	 */
 	@Override
-	public void added(D database, DatabaseClusterConfiguration<Z, D> configuration)
+	public void added(@NonNull D database, @NonNull DatabaseClusterConfiguration<Z, D> configuration)
 	{
 	}
 
@@ -46,7 +48,7 @@ public class SimpleDatabaseClusterConfigurationFactory<Z, D extends Database<Z>>
 	 * @see net.sf.hajdbc.DatabaseClusterConfigurationListener#removed(net.sf.hajdbc.Database, net.sf.hajdbc.DatabaseClusterConfiguration)
 	 */
 	@Override
-	public void removed(D database, DatabaseClusterConfiguration<Z, D> configuration)
+	public void removed(@NonNull D database, @NonNull DatabaseClusterConfiguration<Z, D> configuration)
 	{
 	}
 }

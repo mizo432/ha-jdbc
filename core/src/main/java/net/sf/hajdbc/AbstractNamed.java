@@ -17,21 +17,23 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
- * 名前付きオブジェクトの{@link #hashCode()}、{@link #equals(Object)}、{@link #toString()}、{@link #compareTo(Object)}を実装します
+ * Implements {@link #hashCode()}, {@link #equals(Object)}, {@link #toString()}, and {@link #compareTo(Object)} for named objects.
  * @author Paul Ferraro
- * @param <N> 名前の型
- * @param <T> この型
+ * @param <N> name type
+ * @param <T> this type
  */
 public abstract class AbstractNamed<N extends Comparable<N>, T extends Named<N, T>> implements Named<N, T>
 {
-	private final N name;
+	private final @NonNull N name;
 	
 	/**
-	 * 名前を指定してコンストラクトします
-	 * @param name 名前
+	 * Constructs with the given name.
+	 * @param name name
 	 */
-	protected AbstractNamed(N name)
+	protected AbstractNamed(@NonNull N name)
 	{
 		this.name = name;
 	}
@@ -40,7 +42,7 @@ public abstract class AbstractNamed<N extends Comparable<N>, T extends Named<N, 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public N getName()
+	public @NonNull N getName()
 	{
 		return this.name;
 	}
@@ -67,7 +69,7 @@ public abstract class AbstractNamed<N extends Comparable<N>, T extends Named<N, 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return this.name.toString();
 	}
@@ -76,7 +78,7 @@ public abstract class AbstractNamed<N extends Comparable<N>, T extends Named<N, 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int compareTo(T named)
+	public int compareTo(@NonNull T named)
 	{
 		return this.getName().compareTo(named.getName());
 	}

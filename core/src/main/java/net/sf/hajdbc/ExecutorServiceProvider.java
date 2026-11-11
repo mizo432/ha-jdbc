@@ -20,22 +20,24 @@ package net.sf.hajdbc;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import org.jspecify.annotations.NonNull;
+
 /**
- * エグゼキューターサービスプロバイダーのインターフェース
+ * Executor service provider interface.
  * @author Paul Ferraro
  */
 public interface ExecutorServiceProvider
 {
 	/**
-	 * 並列ステートメント実行に使用するエグゼキューターを返します
-	 * @param threadFactory スレッドを作成するファクトリ
-	 * @return エグゼキューターサービス
+	 * Returns the executor used for parallel statement execution.
+	 * @param threadFactory factory for creating threads
+	 * @return executor service
 	 */
-	ExecutorService getExecutor(ThreadFactory threadFactory);
+	@NonNull ExecutorService getExecutor(@NonNull ThreadFactory threadFactory);
 	
 	/**
-	 * 指定されたエグゼキューターをシャットダウンします
-	 * @param service エグゼキューターサービス
+	 * Shuts down the given executor.
+	 * @param service executor service
 	 */
-	void release(ExecutorService service);
+	void release(@NonNull ExecutorService service);
 }

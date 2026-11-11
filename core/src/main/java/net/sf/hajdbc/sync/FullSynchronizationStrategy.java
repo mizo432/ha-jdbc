@@ -23,7 +23,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,7 +37,6 @@ import net.sf.hajdbc.logging.Logger;
 import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.messages.Messages;
 import net.sf.hajdbc.messages.MessagesFactory;
-import net.sf.hajdbc.util.Strings;
 
 /**
  * Database-independent synchronization strategy that does full record transfer between two databases.
@@ -66,10 +64,10 @@ public class FullSynchronizationStrategy implements SynchronizationStrategy, Tab
 {
 	private static final long serialVersionUID = 9190347092842178162L;
 
-	static Messages messages = MessagesFactory.getMessages();
-	static Logger logger = LoggerFactory.getLogger(FullSynchronizationStrategy.class);
+	static final Messages messages = MessagesFactory.getMessages();
+	static final Logger logger = LoggerFactory.getLogger(FullSynchronizationStrategy.class);
 
-	private SynchronizationStrategy strategy = new PerTableSynchronizationStrategy(this);
+	private final SynchronizationStrategy strategy = new PerTableSynchronizationStrategy(this);
 	private int maxBatchSize = 100;
 	private int fetchSize = 0;
 
@@ -103,11 +101,9 @@ public class FullSynchronizationStrategy implements SynchronizationStrategy, Tab
 		final String tableName = table.getName().getDMLName();
 		final Collection<String> columns = table.getColumns();
 		
-		final String commaDelimitedColumns = Strings.join(columns, Strings.PADDED_COMMA);
-		
-		final String selectSQL = String.format("SELECT %s FROM %s", commaDelimitedColumns, tableName);
+		final String selectSQL = SynchronizationSQLBuilder.buildSelectSQL(columns, tableName);
 		final String deleteSQL = context.getDialect().getTruncateTableSQL(table);
-		final String insertSQL = String.format("INSERT INTO %s (%s) VALUES (%s)", tableName, commaDelimitedColumns, Strings.join(Collections.nCopies(columns.size(), Strings.QUESTION), Strings.PADDED_COMMA));
+		final String insertSQL = SynchronizationSQLBuilder.buildInsertSQL(tableName, columns);
 		
 		Connection sourceConnection = context.getConnection(context.getSourceDatabase());
 		Connection targetConnection = context.getConnection(context.getTargetDatabase());
@@ -146,56 +142,33 @@ public class FullSynchronizationStrategy implements SynchronizationStrategy, Tab
 				{
 					while (resultSet.next())
 					{
-						int index = 0;
+						SynchronizationSQLBuilder.setColumnValues(context, table, resultSet, insertStatement, new java.util.ArrayList<>(columns));
 						
-						for (String column: table.getColumns())
-						{
-							index += 1;
-							
-							int type = context.getDialect().getColumnType(table.getColumnProperties(column));
-							
-							Object object = context.getSynchronizationSupport().getObject(resultSet, index, type);
-							
-							if (resultSet.wasNull())
-							{
-								insertStatement.setNull(index, type);
-							}
-							else
-							{
-								insertStatement.setObject(index, object, type);
-							}
-						}
-						
-						insertStatement.addBatch();
-						statementCount += 1;
-						
-						if ((statementCount % this.maxBatchSize) == 0)
-						{
-							insertStatement.executeBatch();
-							insertStatement.clearBatch();
-						}
+						statementCount = SynchronizationSQLBuilder.addBatchAndExecuteIfFull(insertStatement, statementCount, this.maxBatchSize);
 						
 						insertStatement.clearParameters();
 					}
 				}
 				
-				if ((statementCount % this.maxBatchSize) > 0)
-				{
-					insertStatement.executeBatch();
-				}
+				SynchronizationSQLBuilder.executeRemainingBatch(insertStatement, statementCount, this.maxBatchSize);
 		
 				logger.log(Level.INFO, messages.insertCount(table, statementCount));
 			}
-			catch (ExecutionException e)
-			{
-				throw ExceptionType.SQL.<SQLException>getExceptionFactory().createException(e.getCause());
-			}
-			catch (InterruptedException e)
-			{
-				Thread.currentThread().interrupt();
-				throw new SQLException(e);
-			}
 		}
+		catch (ExecutionException e)
+ 		{
+ 			Throwable cause = e.getCause();
+ 			if (cause instanceof SQLException)
+ 			{
+ 				throw (SQLException) cause;
+ 			}
+ 			throw ExceptionType.SQL.<SQLException>getExceptionFactory().createException(cause != null ? cause : e);
+ 		}
+ 		catch (InterruptedException e)
+ 		{
+ 			Thread.currentThread().interrupt();
+ 			throw new SQLException("Synchronization interrupted", e);
+ 		}
 	}
 	
 	@Override

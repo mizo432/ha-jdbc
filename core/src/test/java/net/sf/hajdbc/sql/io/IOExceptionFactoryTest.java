@@ -1,10 +1,6 @@
 package net.sf.hajdbc.sql.io;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
@@ -14,7 +10,7 @@ import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.durability.Durability.Phase;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class IOExceptionFactoryTest
@@ -24,7 +20,7 @@ public class IOExceptionFactoryTest
 	@Test
 	public void getTargetClass()
 	{
-		assertSame(IOException.class, this.factory.getTargetClass());
+		assertThat(this.factory.getTargetClass()).isSameAs(IOException.class);
 	}
 	
 	@Test
@@ -34,8 +30,8 @@ public class IOExceptionFactoryTest
 		
 		IOException result = this.factory.createException(message);
 		
-		assertSame(message, result.getMessage());
-		assertNull(result.getCause());
+		assertThat(result.getMessage()).isSameAs(message);
+		assertThat(result.getCause()).isNull();
 	}
 	
 	@Test
@@ -46,9 +42,9 @@ public class IOExceptionFactoryTest
 		
 		IOException result = this.factory.createException(exception);
 		
-		assertNotNull(result.getMessage());
-		assertSame(exception.getMessage(), result.getMessage());
-		assertSame(exception, result.getCause());
+		assertThat(result.getMessage()).isNotNull();
+		assertThat(result.getMessage()).isSameAs(exception.getMessage());
+		assertThat(result.getCause()).isSameAs(exception);
 	}
 	
 	@Test
@@ -58,7 +54,7 @@ public class IOExceptionFactoryTest
 		
 		IOException result = this.factory.createException(exception);
 		
-		assertSame(exception, result);
+		assertThat(result).isSameAs(exception);
 	}
 	
 	@Test
@@ -66,25 +62,25 @@ public class IOExceptionFactoryTest
 	{
 		ExceptionType result = this.factory.getType();
 		
-		assertSame(ExceptionType.IO, result);
+		assertThat(result).isSameAs(ExceptionType.IO);
 	}
 	
 	@Test
 	public void equals()
 	{
-		assertTrue(this.factory.equals(new IOException(), new IOException()));
-		assertFalse(this.factory.equals(new IOException("message"), new IOException()));
-		assertTrue(this.factory.equals(new IOException("message"), new IOException("message")));
-		assertFalse(this.factory.equals(new IOException("message1"), new IOException("message2")));
+		assertThat(this.factory.equals(new IOException(), new IOException())).isTrue();
+		assertThat(this.factory.equals(new IOException("message"), new IOException())).isFalse();
+		assertThat(this.factory.equals(new IOException("message"), new IOException("message"))).isTrue();
+		assertThat(this.factory.equals(new IOException("message1"), new IOException("message2"))).isFalse();
 	}
 	
 	@Test
 	public void correctHeuristic()
 	{
-		assertFalse(this.factory.correctHeuristic(new IOException(), Phase.COMMIT));
-		assertFalse(this.factory.correctHeuristic(new IOException(), Phase.FORGET));
-		assertFalse(this.factory.correctHeuristic(new IOException(), Phase.PREPARE));
-		assertFalse(this.factory.correctHeuristic(new IOException(), Phase.ROLLBACK));
+		assertThat(this.factory.correctHeuristic(new IOException(), Phase.COMMIT)).isFalse();
+		assertThat(this.factory.correctHeuristic(new IOException(), Phase.FORGET)).isFalse();
+		assertThat(this.factory.correctHeuristic(new IOException(), Phase.PREPARE)).isFalse();
+		assertThat(this.factory.correctHeuristic(new IOException(), Phase.ROLLBACK)).isFalse();
 	}
 	
 	@Test
@@ -92,7 +88,7 @@ public class IOExceptionFactoryTest
 	{
 		Dialect dialect = mock(Dialect.class);
 		
-		assertFalse(this.factory.indicatesFailure(new IOException(), dialect));
+		assertThat(this.factory.indicatesFailure(new IOException(), dialect)).isFalse();
 
 		Mockito.verifyNoMoreInteractions(dialect);
 	}

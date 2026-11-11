@@ -17,11 +17,9 @@
  */
 package net.sf.hajdbc.sql;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
@@ -35,17 +33,29 @@ import net.sf.hajdbc.messages.Messages;
 import net.sf.hajdbc.messages.MessagesFactory;
 
 /**
- * 
+ * Abstract base for proxy factories.
+ * <p>
+ * This class uses 5 type parameters. The {@code TE} parameter represents the exception
+ * type thrown by the {@link #create(Database)} method, while {@code E} is the exception
+ * type used for all other operations. In most subclasses, {@code TE} and {@code E} are
+ * the same type (typically {@code SQLException}).
+ * </p>
+ *
  * @author Paul Ferraro
+ * @param <Z> the root SQL object type
+ * @param <D> the database type, extending Database&lt;Z&gt;
+ * @param <TE> the exception type thrown by create() method
+ * @param <T> the SQL object type being proxied
+ * @param <E> the exception type for all other operations
  */
 public abstract class AbstractProxyFactory<Z, D extends Database<Z>, TE extends Exception, T, E extends Exception> implements ProxyFactory<Z, D, T, E>
 {
-	protected Messages messages = MessagesFactory.getMessages();
-	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected final Messages messages = MessagesFactory.getMessages();
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final DatabaseCluster<Z, D> cluster;
 	private final Map<D, T> map;
-	private final Set<ChildProxyFactory<Z, D, T, E, ?, ? extends Exception>> children = Collections.newSetFromMap(new WeakHashMap<ChildProxyFactory<Z, D, T, E, ?, ? extends Exception>, Boolean>());
+	private final Set<ChildProxyFactory<Z, D, T, E, ?, ? extends Exception>> children = new HashSet<>();
 	private final Set<Invoker<Z, D, T, ?, E>> invokers = new HashSet<>();
 	private final ExceptionFactory<E> exceptionFactory;
 	
@@ -170,10 +180,10 @@ public abstract class AbstractProxyFactory<Z, D extends Database<Z>, TE extends 
 				{
 					invoker.invoke(database, object);
 				}
-				catch (Throwable e)
-				{
-					this.exceptionFactory.createException(e);
-				}
+ 			catch (Throwable e)
+ 			{
+ 				throw this.exceptionFactory.createException(e);
+ 			}
 			}
 		}
 	}

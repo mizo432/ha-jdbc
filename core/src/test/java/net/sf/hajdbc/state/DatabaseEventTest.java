@@ -17,8 +17,8 @@
  */
 package net.sf.hajdbc.state;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import net.sf.hajdbc.MockDatabase;
 import net.sf.hajdbc.util.Objects;
@@ -33,16 +33,16 @@ public class DatabaseEventTest
 	{
 		DatabaseEvent event1 = new DatabaseEvent(new MockDatabase("1"));
 		DatabaseEvent event2 = Objects.deserialize(Objects.serialize(event1), DatabaseEvent.class);
-		assertEquals(event1, event2);
+		assertThat(event2).isEqualTo(event1);
 	}
 
 	@Test
 	public void equals() {
 		DatabaseEvent event1 = new DatabaseEvent(new MockDatabase("1"));
 		DatabaseEvent event2 = new DatabaseEvent(new MockDatabase("1"));
-		assertEquals(event1, event2);
+		assertThat(event2).isEqualTo(event1);
 		
 		event2 = new DatabaseEvent(new MockDatabase("2"));
-		assertNotEquals(event1, event2);
+		assertThat(event2).isNotEqualTo(event1);
 	}
 }

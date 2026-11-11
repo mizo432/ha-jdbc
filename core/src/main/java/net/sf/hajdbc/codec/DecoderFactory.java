@@ -19,7 +19,30 @@ package net.sf.hajdbc.codec;
 
 import java.sql.SQLException;
 
+/**
+ * Factory for creating {@link Decoder} instances.
+ * <p>
+ * This factory is a core component of the HA-JDBC architecture, registered via
+ * {@link net.sf.hajdbc.DatabaseClusterConfiguration#getDecoderFactory()}. The decoder
+ * is responsible for deserializing state data stored by the state manager. It must be
+ * compatible with the {@link Codec} used for encoding. Common implementations include
+ * base64, hex, and cipher (encrypted) codecs.
+ * </p>
+ *
+ * @see Decoder
+ * @see Codec
+ * @see net.sf.hajdbc.DatabaseClusterConfiguration#getDecoderFactory()
+ * @see net.sf.hajdbc.codec.base64.Base64CodecFactory
+ * @see net.sf.hajdbc.codec.hex.HexCodecFactory
+ * @see net.sf.hajdbc.codec.crypto.CipherCodecFactory
+ */
 public interface DecoderFactory
 {
+	/**
+	 * Creates a new decoder for the specified cluster.
+	 * @param clusterId unique cluster identifier
+	 * @return new decoder
+	 * @throws SQLException if decoder creation fails
+	 */
 	Decoder createDecoder(String clusterId) throws SQLException;
 }

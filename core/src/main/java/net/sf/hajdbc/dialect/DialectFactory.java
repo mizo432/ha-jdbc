@@ -22,7 +22,35 @@ import java.io.Serializable;
 import net.sf.hajdbc.Identifiable;
 
 
+/**
+ * Factory for creating {@link Dialect} instances.
+ * <p>
+ * This factory is a core component of the HA-JDBC architecture, registered via
+ * {@link DatabaseClusterConfiguration#getDialectFactory()}. Each database vendor
+ * (e.g., MySQL, PostgreSQL, Oracle) has its own dialect factory that creates a
+ * dialect providing vendor-specific SQL generation, metadata access, and identifier
+ * normalization. The dialect is the primary mechanism for database vendor abstraction.
+ * </p>
+ * <p>
+ * The created dialect implements several sub-interfaces:
+ * </p>
+ * <ul>
+ * <li>{@link net.sf.hajdbc.dialect.DialectSQLGenerator} — DDL SQL generation</li>
+ * <li>{@link net.sf.hajdbc.dialect.DialectSQLParserContract} — SQL parsing</li>
+ * <li>{@link net.sf.hajdbc.dialect.DialectMetadataContract} — DatabaseMetaData access</li>
+ * <li>{@link net.sf.hajdbc.dialect.DialectFactoryContract} — Factory creation</li>
+ * <li>{@link net.sf.hajdbc.dialect.DialectConnectionValidator} — Connection validation</li>
+ * <li>{@link net.sf.hajdbc.dialect.DialectFailureContract} — Failure detection</li>
+ * </ul>
+ *
+ * @see Dialect
+ * @see DatabaseClusterConfiguration#getDialectFactory()
+ */
 public interface DialectFactory extends Identifiable, Serializable
 {
+	/**
+	 * Creates a new dialect instance.
+	 * @return new dialect
+	 */
 	Dialect createDialect();
 }

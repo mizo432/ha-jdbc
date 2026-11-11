@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 
@@ -34,12 +35,12 @@ import net.sf.hajdbc.durability.Durability;
 import net.sf.hajdbc.lock.LockManager;
 import net.sf.hajdbc.tx.TransactionIdentifierFactory;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -53,7 +54,7 @@ public class DriverTest
 	
 	private java.sql.Driver mockDriver = new MockDriver(this.connection);
 
-	@Before
+	@BeforeEach
 	public void before() throws SQLException
 	{
 		DriverManager.setLogWriter(new java.io.PrintWriter(System.out));
@@ -61,7 +62,7 @@ public class DriverTest
 		Driver.setFactory(this.factory);
 	}
 	
-	@After
+	@AfterEach
 	public void after() throws SQLException
 	{
 		DriverManager.deregisterDriver(this.mockDriver);
@@ -73,12 +74,12 @@ public class DriverTest
 	{
 		Driver driver = new Driver();
 		
-		Assert.assertTrue(driver.acceptsURL("jdbc:ha-jdbc:cluster"));
-		Assert.assertTrue(driver.acceptsURL("jdbc:ha-jdbc://cluster"));
-		Assert.assertTrue(driver.acceptsURL("jdbc:ha-jdbc://cluster/database"));
-		Assert.assertFalse(driver.acceptsURL("jdbc:postgresql:database"));
-		Assert.assertFalse(driver.acceptsURL("jdbc:postgresql://server"));
-		Assert.assertFalse(driver.acceptsURL("jdbc:postgresql://server/database"));
+		Assertions.assertTrue(driver.acceptsURL("jdbc:ha-jdbc:cluster"));
+		Assertions.assertTrue(driver.acceptsURL("jdbc:ha-jdbc://cluster"));
+		Assertions.assertTrue(driver.acceptsURL("jdbc:ha-jdbc://cluster/database"));
+		Assertions.assertFalse(driver.acceptsURL("jdbc:postgresql:database"));
+		Assertions.assertFalse(driver.acceptsURL("jdbc:postgresql://server"));
+		Assertions.assertFalse(driver.acceptsURL("jdbc:postgresql://server/database"));
 	}
 	
 	@Test
@@ -106,14 +107,14 @@ public class DriverTest
 //			when(this.connection.isValid(anyInt())).thenReturn(true);
 			when(this.factory.createDatabaseCluster(eq(id), same(this.configurationFactory), any(DriverDatabaseClusterConfigurationBuilder.class))).thenReturn(cluster);
 			
+			Set<DriverDatabase> activeDatabases = Collections.singleton(database);
 			when(cluster.isActive()).thenReturn(true);
 			when(cluster.getBalancer()).thenReturn(balancer);
-			when(balancer.iterator()).thenReturn(Collections.singleton(database).iterator());
-			when(cluster.getBalancer()).thenReturn(balancer);
+			when(balancer.iterator()).thenReturn(activeDatabases.iterator());
+			when(balancer.getActiveDatabases()).thenReturn(activeDatabases);
 			when(balancer.contains(database)).thenReturn(true);
 			when(balancer.isEmpty()).thenReturn(false);
 			when(balancer.size()).thenReturn(1);
-			when(balancer.iterator()).thenReturn(Collections.singleton(database).iterator());
 			when(balancer.next()).thenReturn(database);
 			when(cluster.getExecutor()).thenReturn(Executors.newCachedThreadPool());
 			when(cluster.getLockManager()).thenReturn(lockManager);
@@ -123,9 +124,9 @@ public class DriverTest
 			
 			try (Connection result = driver.connect(url, null))
 			{
-				Assert.assertTrue(result.getClass().getName(), Proxy.isProxyClass(result.getClass()));
+				Assertions.assertTrue(Proxy.isProxyClass(result.getClass()), result.getClass().getName());
 				ConnectionInvocationHandler<java.sql.Driver, DriverDatabase, java.sql.Driver> handler = (ConnectionInvocationHandler<java.sql.Driver, DriverDatabase, java.sql.Driver>) Proxy.getInvocationHandler(result);
-				Assert.assertSame(this.connection, handler.getProxyFactory().get(database));
+				Assertions.assertSame(this.connection, handler.getProxyFactory().get(database));
 			}
 		}
 		finally

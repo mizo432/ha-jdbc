@@ -24,9 +24,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.stream.Location;
-import javax.xml.stream.XMLStreamReader;
-
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.SequenceProperties;
@@ -58,19 +55,19 @@ public class SimpleMessages implements Messages
 	@Override
 	public String serviceNotFound(Class<?> serviceClass)
 	{
-		return this.tr("No {0} found", serviceClass.getName());
+		return this.tr("No {0} service found on the classpath. Add the required dependency or configure a custom implementation", serviceClass.getName());
 	}
 
 	@Override
 	public <T> String serviceNotFound(Class<T> serviceClass, Matcher<T> matcher)
 	{
-		return this.tr("No {0} found matching {1}", serviceClass.getName(), matcher);
+		return this.tr("No {0} service found matching criteria: {1}. Check your configuration or add a matching implementation", serviceClass.getName(), matcher);
 	}
 
 	@Override
 	public <T> String multipleServicesFound(Class<T> serviceClass, Matcher<T> matcher, List<T> matches)
 	{
-		return this.tr("Multiple {0} found matching {1}: {2}", serviceClass.getName(), matcher);
+		return this.tr("Multiple {0} services found matching criteria: {1}. Found {2} implementations: {3}. Configure a specific implementation or remove duplicates", serviceClass.getName(), matcher, matches.size(), matches);
 	}
 
 	@Override
@@ -86,39 +83,11 @@ public class SimpleMessages implements Messages
 	}
 
 	@Override
-	public String unsupportedNamespace(XMLStreamReader reader)
+	public String unsupportedNamespace()
 	{
-		Location location = reader.getLocation();
-		return this.tr("Unsupported namespace <{2} xmlns=\"{3}\"/> found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), reader.getNamespaceURI());
+		return this.tr("Unsupported XML namespace. Verify the xmlns attribute in your ha-jdbc.xml configuration file matches a supported version (urn:ha-jdbc:cluster:3.0 or urn:ha-jdbc:cluster:3.1)");
 	}
 
-	@Override
-	public String unexpectedElement(XMLStreamReader reader)
-	{
-		Location location = reader.getLocation();
-		return this.tr("Unexpected <{2}/> element found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName());
-	}
-	
-	@Override
-	public String unexpectedAttribute(XMLStreamReader reader, int index)
-	{
-		Location location = reader.getLocation();
-		return this.tr("Unexpected <{2} {3}=\"...\"/> attribute found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), reader.getAttributeLocalName(index));
-	}
-	
-	@Override
-	public String invalidAttribute(XMLStreamReader reader, int index)
-	{
-		Location location = reader.getLocation();
-		return this.tr("Invalid value for <{2} {3}=\"{4}\"/> found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), reader.getAttributeLocalName(index), reader.getAttributeValue(index));
-	}
-
-	@Override
-	public String missingRequiredAttribute(XMLStreamReader reader, String attribute)
-	{
-		Location location = reader.getLocation();
-		return this.tr("<{2} {3}=\"...\"/> attribute is missing at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), attribute);
-	}
 
 	@Override
 	public String invalidJavaBeanProperty(Class<?> bean, String property)
@@ -135,25 +104,25 @@ public class SimpleMessages implements Messages
 	@Override
 	public String invalidSyncStrategy(String strategy, Set<String> strategies)
 	{
-		return this.tr("{0} is not one of the available synchronization strategies: {1}", strategy, strategies);
+		return this.tr("Default synchronization strategy '{0}' is not configured. Available strategies: {1}. Check the 'default-sync' attribute in your <cluster> element or defaultSynchronizationStrategy() in code", strategy, strategies);
 	}
 
 	@Override
 	public String noSyncStrategies()
 	{
-		return this.tr("A database cluster must define at least one synchronization strategy");
+		return this.tr("A database cluster must define at least one synchronization strategy. Configure a synchronization strategy using <sync> element in ha-jdbc.xml or addSynchronizationStrategy() in code. Available strategies: passive, full, differential, dump-restore");
 	}
 
 	@Override
 	public String noDatabases()
 	{
-		return this.tr("A database cluster must define at least one database");
+		return this.tr("A database cluster must define at least one database. Configure databases using <database> elements in ha-jdbc.xml or addDatabase() in code");
 	}
 
 	@Override
 	public String resourceNotFound(String resource)
 	{
-		return this.tr("Failed to locate {0}", resource);
+		return this.tr("Failed to locate resource '{0}'. Verify the file path or classpath location is correct", resource);
 	}
 
 	@Override
@@ -219,13 +188,13 @@ public class SimpleMessages implements Messages
 	@Override
 	public <Z, D extends Database<Z>> String activationFailed(DatabaseCluster<Z, D> cluster, D database)
 	{
-		return this.tr("Failed to activate database {1} from cluster {0}", cluster, database);
+		return this.tr("Failed to activate database '{1}' from cluster '{0}'. Check database connectivity, credentials, and network configuration", cluster, database);
 	}
 
 	@Override
 	public <Z, D extends Database<Z>> String proxyCreationFailed(DatabaseCluster<Z, D> cluster, D database, Class<?> proxyClass)
 	{
-		return this.tr("Deactivated database {1} from cluster {0} due to {2} proxy creation failure", cluster, database, proxyClass.getName());
+		return this.tr("Deactivated database '{1}' from cluster '{0}' due to {2} proxy creation failure. Check JDBC driver compatibility and classpath", cluster, database, proxyClass.getName());
 	}
 
 	@Override
@@ -255,13 +224,13 @@ public class SimpleMessages implements Messages
 	@Override
 	public String noLocation(String database)
 	{
-		return this.tr("Database {0} does not define a location", database);
+		return this.tr("Database '{0}' does not define a location. Specify a DataSource class using the 'location' attribute in <database> element or location() in code", database);
 	}
 
 	@Override
 	public String invalidLocation(String database, String location)
 	{
-		return this.tr("Database {0} defines an invalid location: {1}", database, location);
+		return this.tr("Database '{0}' defines an invalid location: '{1}'. Verify the class name exists and is accessible on the classpath", database, location);
 	}
 
 	@Override
@@ -285,7 +254,7 @@ public class SimpleMessages implements Messages
 	@Override
 	public String primaryKeyRequired(SynchronizationStrategy strategy, TableProperties table)
 	{
-		return this.tr("Table {1} does not define a primary key, a requirement of the {0} synchronization strategy", strategy, table.getName());
+		return this.tr("Table '{1}' does not define a primary key, which is required by the '{0}' synchronization strategy. Add a primary key to the table or use a different synchronization strategy", strategy, table.getName());
 	}
 
 	@Override
@@ -309,7 +278,7 @@ public class SimpleMessages implements Messages
 	@Override
 	public String dumpRestoreNotSupported(Dialect dialect)
 	{
-		return this.tr("The {0} dialect does not yet implement dump-restore support", dialect.getClass().getName());
+		return this.tr("The {0} dialect does not yet implement dump-restore support. Use a different synchronization strategy (passive, full, or differential)", dialect.getClass().getName());
 	}
 
 	@Override
@@ -321,7 +290,7 @@ public class SimpleMessages implements Messages
 	@Override
 	public String noEmbeddedDriverFound()
 	{
-		return this.tr("Failed to detect an embedded database driver on the classpath");
+		return this.tr("Failed to detect an embedded database driver on the classpath. Add H2 or HSQLDB JDBC driver to your classpath");
 	}
 
 	@Override
@@ -333,19 +302,25 @@ public class SimpleMessages implements Messages
 	@Override
 	public String sendCommandToClusterFailed(Command<?, ?> command)
 	{
-		return this.tr("Failed to send {0} to cluster", command);
+		return this.tr("Failed to send command '{0}' to cluster. Check network connectivity and distributed configuration", command);
 	}
 
 	@Override
 	public String sendCommandToMemberFailed(Command<?, ?> command, Member member)
 	{
-		return this.tr("Failed to send {0} to {1}", command, member);
+		return this.tr("Failed to send command '{0}' to member '{1}'. Check network connectivity and member status", command, member);
 	}
 
 	@Override
 	public String executeCommandFailed(Command<?, ?> command, Member member)
 	{
-		return this.tr("Failed to execute {0} on {1}", command, member);
+		return this.tr("Failed to execute command '{0}' on member '{1}'. Check member's database state and resources", command, member);
+	}
+
+	@Override
+	public String acquireLockFailed(Object lockDescriptor)
+	{
+		return this.tr("Failed to acquire lock '{0}' during state transfer. The lock may be held by another thread", lockDescriptor);
 	}
 
 	// The awkward method name is intentional so that the strings in this class will be parsed by the gettext-maven-plugin

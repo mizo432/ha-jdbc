@@ -17,14 +17,14 @@
  */
 package net.sf.hajdbc.lock.distributed;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for {@link AcquireLockCommand}.
@@ -51,8 +51,8 @@ public class AcquireLockCommandTestCase
 		
 		verify(locks).put(descriptor, lock);
 		
-		assertNotNull(result);
-		assertTrue(result.booleanValue());
+		assertThat(result).isNotNull();
+		assertThat(result.booleanValue()).isTrue();
 		
 		// Unsuccessful lock
 		when(lock.tryLock(timeout, TimeUnit.MILLISECONDS)).thenReturn(false);
@@ -61,8 +61,8 @@ public class AcquireLockCommandTestCase
 		
 		verifyNoMoreInteractions(locks);
 		
-		assertNotNull(result);
-		assertFalse(result.booleanValue());
+		assertThat(result).isNotNull();
+		assertThat(result.booleanValue()).isFalse();
 
 		// Interrupted lock
 		when(lock.tryLock(timeout, TimeUnit.MILLISECONDS)).thenThrow(new InterruptedException());
@@ -71,8 +71,8 @@ public class AcquireLockCommandTestCase
 		
 		verifyNoMoreInteractions(locks);
 		
-		assertNotNull(result);
-		assertFalse(result.booleanValue());
-		assertTrue(Thread.currentThread().isInterrupted());
+		assertThat(result).isNotNull();
+		assertThat(result.booleanValue()).isFalse();
+		assertThat(Thread.currentThread().isInterrupted()).isTrue();
 	}
 }

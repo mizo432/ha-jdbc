@@ -41,11 +41,20 @@ import net.sf.hajdbc.lock.LockManager;
  * 
  * @author Paul Ferraro
  */
-public abstract class AbstractSQLProxyFactory<Z, D extends Database<Z>, P, T> extends AbstractTransactionalProxyFactory<Z, D, P, T> implements SQLProxyFactory<Z, D, P, T>
+public abstract class AbstractSQLProxyFactory<Z, D extends Database<Z>, P, T> extends AbstractChildProxyFactory<Z, D, P, SQLException, T, SQLException> implements SQLProxyFactory<Z, D, P, T>
 {
+	private final TransactionContext<Z, D> context;
+
 	protected AbstractSQLProxyFactory(P parent, ProxyFactory<Z, D, P, SQLException> parentMap, Invoker<Z, D, P, T, SQLException> invoker, Map<D, T> map, TransactionContext<Z, D> context)
 	{
-		super(parent, parentMap, invoker, map, context);
+		super(parent, parentMap, invoker, map, SQLException.class);
+		this.context = context;
+	}
+
+	@Override
+	public TransactionContext<Z, D> getTransactionContext()
+	{
+		return this.context;
 	}
 
 	@Override

@@ -24,8 +24,19 @@ import net.sf.hajdbc.invocation.Invoker;
 import net.sf.hajdbc.logging.Level;
 
 /**
- * 
+ * Abstract base for child proxy factories, where each child is derived from a parent SQL object.
+ * <p>
+ * This class uses 6 type parameters. See {@link ChildProxyFactory} for details on the type parameters.
+ * In most subclasses, {@code PE} and {@code E} are both {@code SQLException}.
+ * </p>
+ *
  * @author Paul Ferraro
+ * @param <Z> the root SQL object type
+ * @param <D> the database type, extending Database&lt;Z&gt;
+ * @param <P> the parent object type
+ * @param <PE> the exception type thrown when accessing the parent
+ * @param <T> the child object type
+ * @param <E> the exception type thrown by the child object
  */
 public abstract class AbstractChildProxyFactory<Z, D extends Database<Z>, P, PE extends Exception, T, E extends Exception> extends AbstractProxyFactory<Z, D, PE, T, E> implements ChildProxyFactory<Z, D, P, PE, T, E>
 {

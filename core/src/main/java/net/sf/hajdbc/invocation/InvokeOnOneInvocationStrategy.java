@@ -40,7 +40,7 @@ import net.sf.hajdbc.state.StateManager;
 public class InvokeOnOneInvocationStrategy implements InvocationStrategy
 {
 	private static final Messages messages = MessagesFactory.getMessages();
-	private static Logger logger = LoggerFactory.getLogger(InvokeOnOneInvocationStrategy.class);
+	private static final Logger logger = LoggerFactory.getLogger(InvokeOnOneInvocationStrategy.class);
 	
 	public static interface DatabaseSelector
 	{
@@ -97,6 +97,12 @@ public class InvokeOnOneInvocationStrategy implements InvocationStrategy
 						if (cluster.deactivate(database, stateManager))
 						{
 							logger.log(Level.ERROR, exception, messages.deactivated(cluster, database));
+						}
+						else
+						{
+							// Database was already deactivated by another thread but still in balancer.
+							// Throw to prevent infinite loop if the database keeps getting re-selected.
+							throw exception;
 						}
 					}
 					else

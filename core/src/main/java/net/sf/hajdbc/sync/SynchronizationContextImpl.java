@@ -67,7 +67,7 @@ public class SynchronizationContextImpl<Z, D extends Database<Z>> implements Syn
 		
 		this.sourceDatabase = balancer.next();
 		
-		this.activeDatabaseSet = balancer;
+		this.activeDatabaseSet = balancer.getActiveDatabases();
 		this.targetDatabase = database;
 		this.executor = Executors.newFixedThreadPool(this.activeDatabaseSet.size(), this.cluster.getThreadFactory());
 		

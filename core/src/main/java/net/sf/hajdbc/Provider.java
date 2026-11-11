@@ -17,21 +17,23 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
- * プロバイダーの共通インターフェース
+ * Common interface for providers.
  * @author Paul Ferraro
  */
 public interface Provider
 {
 	/**
-	 * プロバイダーの名前を返します
-	 * @return 名前
+	 * Returns the name of the provider.
+	 * @return name
 	 */
-	String getName();
+	@NonNull String getName();
 
 	/**
-	 * プロバイダーが有効かどうかを返します
-	 * @return 有効の場合はtrue
+	 * Returns whether the provider is enabled.
+	 * @return true if enabled
 	 */
 	boolean isEnabled();
 }

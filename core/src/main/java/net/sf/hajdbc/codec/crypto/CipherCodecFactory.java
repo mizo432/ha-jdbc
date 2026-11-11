@@ -21,25 +21,31 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 import net.sf.hajdbc.codec.Codec;
 import net.sf.hajdbc.codec.CodecFactory;
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.util.Strings;
 import net.sf.hajdbc.util.SystemProperties;
 
 /**
- * キーストアに保存された共通鍵を使用して設定ファイルのパスワードを復号化するために使用します。
- * 設定ファイルで使用するためのBase64エンコードされた暗号化パスワードを生成するには、次のコマンドを使用します:<br/>
+ * Uses a shared key stored in a keystore to decrypt passwords in configuration files.
+ * To generate a Base64-encoded encrypted password for use in configuration files, use the following command:<br/>
  * <p><code>java -classpath ha-jdbc.jar net.sf.hajdbc.codec.crypto.CipherCodecFactory [password]</code></p>
- * 次のシステムプロパティを使用して、鍵および/またはキーストアのプロパティをカスタマイズできます:
+ * The following system properties can be used to customize key and/or keystore properties:
  * <table>
  * 	<tr>
- * 		<th>プロパティ</th>
- * 		<th>デフォルト</th>
+ * 		<th>Property</th>
+ * 		<th>Default</th>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.keystore.file</td>
@@ -51,7 +57,11 @@ import net.sf.hajdbc.util.SystemProperties;
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.keystore.password</td>
- * 		<td><em>なし</em></td>
+ * 		<td><em>None</em></td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>ha-jdbc.keystore.password.file</td>
+ * 		<td><em>None</em></td>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.key.alias</td>
@@ -59,25 +69,40 @@ import net.sf.hajdbc.util.SystemProperties;
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.key.password</td>
- * 		<td><em>必須</em><td>
+ * 		<td><em>Required</em><td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>ha-jdbc.key.password.file</td>
+ * 		<td><em>None</em></td>
  * 	</tr>
  * </table>
+ * Password properties (<code>ha-jdbc.keystore.password</code> and <code>ha-jdbc.key.password</code>) are resolved
+ * in the following order of precedence (highest first):
+ * <ol>
+ * 	<li>File-based: contents of the file specified by <code>ha-jdbc.keystore.password.file</code> system property</li>
+ * 	<li>Environment variable: <code>HA_JDBC_KEYSTORE_PASSWORD</code> environment variable</li>
+ * 	<li>System property: <code>ha-jdbc.keystore.password</code></li>
+ * </ol>
+ * The file-based and environment variable methods are recommended to avoid exposing passwords in command-line history or process lists.
  * @author Paul Ferraro
  */
 public class CipherCodecFactory implements CodecFactory
 {
 	private static final long serialVersionUID = -4409167180573651279L;
+	private static final Logger log = LoggerFactory.getLogger(CipherCodecFactory.class);
 	
 	public static final String DEFAULT_KEYSTORE_FILE = String.format("%s/.keystore", SystemProperties.getSystemProperty("user.home"));
 	public static final String DEFAULT_KEY_ALIAS = "ha-jdbc";
-	
+
 	enum Property
 	{
 		KEYSTORE_FILE("keystore.file", DEFAULT_KEYSTORE_FILE),
 		KEYSTORE_TYPE("keystore.type", "jceks"),
 		KEYSTORE_PASSWORD("keystore.password", null),
+		KEYSTORE_PASSWORD_FILE("keystore.password.file", null),
 		KEY_ALIAS("key.alias", DEFAULT_KEY_ALIAS),
-		KEY_PASSWORD("key.password", null);
+		KEY_PASSWORD("key.password", null),
+		KEY_PASSWORD_FILE("key.password.file", null);
 		
 		final String nameFormat;
 		final String name;
@@ -91,6 +116,17 @@ public class CipherCodecFactory implements CodecFactory
 		}
 	}
 	
+	/**
+	 * Returns the environment variable name corresponding to a password-related property.
+	 * Example: keystore.password → HA_JDBC_KEYSTORE_PASSWORD
+	 */
+	private static String getEnvironmentVariableName(Property property)
+	{
+		// "keystore.password" → "HA_JDBC_KEYSTORE_PASSWORD"
+		String base = property.name.replace("ha-jdbc.", "").replace(".", "_").toUpperCase();
+		return "HA_JDBC_" + base;
+	}
+	
 	private static String getProperty(String id, Property property)
 	{
 		String value = SystemProperties.getSystemProperty(MessageFormat.format(property.nameFormat, id));
@@ -102,6 +138,115 @@ public class CipherCodecFactory implements CodecFactory
 		if (pattern == null) return null;
 		
 		return MessageFormat.format(pattern, id);
+	}
+	
+	/**
+	 * Retrieves a sensitive property (e.g., password).
+	 * The order of precedence (highest first) is:
+	 * <ol>
+	 * 	<li>File-based: contents of the file specified by the property with .file suffix</li>
+	 * 	<li>Environment variable: environment variable with HA_JDBC_ prefix</li>
+	 * 	<li>System property: the normal property name</li>
+	 * </ol>
+	 */
+	private static String getPropertySecure(String id, Property passwordProperty, Property fileProperty)
+	{
+		// 1. Try file-based password
+		String filePath = getProperty(id, fileProperty);
+		if (filePath != null && !filePath.isEmpty())
+		{
+			String filePassword = readPasswordFromFile(filePath);
+			if (filePassword != null)
+			{
+				return filePassword;
+			}
+		}
+		
+		// 2. Try environment variable
+		String envName = getEnvironmentVariableName(passwordProperty);
+		String envValue = SystemProperties.getEnvironmentVariable(envName);
+		if (envValue != null && !envValue.isEmpty())
+		{
+			return envValue;
+		}
+		
+		// 3. Try system property (existing behavior)
+		return getProperty(id, passwordProperty);
+	}
+	
+	/**
+	 * Reads a password from a file.
+	 * Returns the trimmed contents of the file.
+	 * Returns null for empty or whitespace-only content.
+	 * Checks file permissions and logs a warning if readable/writable by others.
+	 */
+	private static String readPasswordFromFile(String filePath)
+	{
+		try
+		{
+			File file = new File(filePath);
+			if (!file.exists() || !file.isFile())
+			{
+				return null;
+			}
+			// Check file permissions for security
+			checkPasswordFilePermissions(file);
+			String content = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8).trim();
+			return content.isEmpty() ? null : content;
+		}
+		catch (IOException e)
+		{
+			log.log(Level.WARN, e, "Failed to read password file: {0}", filePath);
+			return null;
+		}
+	}
+	
+	/**
+	 * Checks the permissions of a password file.
+	 * Logs a warning if the file is readable/writable by others.
+	 */
+	private static void checkPasswordFilePermissions(File file)
+	{
+		if (!file.canRead())
+		{
+			log.log(Level.WARN, "Password file is not readable: {0}", file.getAbsolutePath());
+			return;
+		}
+		
+		// Check POSIX file permissions if available, regardless of whether the current user can write
+		try
+		{
+			java.nio.file.Path path = file.toPath();
+			if (Files.isReadable(path))
+			{
+				// Check POSIX file permissions if available
+				try
+				{
+					java.nio.file.attribute.PosixFileAttributes fileAttrs = 
+						java.nio.file.Files.readAttributes(path, java.nio.file.attribute.PosixFileAttributes.class);
+					java.util.Set<java.nio.file.attribute.PosixFilePermission> perms = fileAttrs.permissions();
+					
+					// Check if others have read or write permissions
+					boolean othersCanRead = perms.contains(java.nio.file.attribute.PosixFilePermission.OTHERS_READ);
+					boolean othersCanWrite = perms.contains(java.nio.file.attribute.PosixFilePermission.OTHERS_WRITE);
+					
+					if (othersCanRead || othersCanWrite)
+					{
+						log.log(Level.WARN, "Password file has insecure permissions (others can read/write): {0}. Recommended: 600 (rw-------)", file.getAbsolutePath());
+					}
+				}
+				catch (UnsupportedOperationException e)
+				{
+					// POSIX file attributes not supported on this filesystem (e.g., Windows)
+					// Skip detailed permission check
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			// Ignore permission check errors
+			log.log(Level.TRACE, e, "Failed to check password file permissions: {0}", file.getAbsolutePath());
+		}
 	}
 	
 	@Override
@@ -119,21 +264,40 @@ public class CipherCodecFactory implements CodecFactory
 	{
 		String type = getProperty(clusterId, Property.KEYSTORE_TYPE);
 		File file = new File(getProperty(clusterId, Property.KEYSTORE_FILE));
-		String password = getProperty(clusterId, Property.KEYSTORE_PASSWORD);
+		String password = getPropertySecure(clusterId, Property.KEYSTORE_PASSWORD, Property.KEYSTORE_PASSWORD_FILE);
 
 		String keyAlias = getProperty(clusterId, Property.KEY_ALIAS);
-		String keyPassword = getProperty(clusterId, Property.KEY_PASSWORD);
+		String keyPassword = getPropertySecure(clusterId, Property.KEY_PASSWORD, Property.KEY_PASSWORD_FILE);
 		
 		try
 		{
-			KeyStore store = KeyStore.getInstance(type);
-			
-			try (InputStream input = new FileInputStream(file))
+			char[] storePassword = null;
+			char[] keyPass = null;
+			try
 			{
-				store.load(input, (password != null) ? password.toCharArray() : null);
+				storePassword = (password != null) ? password.toCharArray() : null;
+				keyPass = (keyPassword != null) ? keyPassword.toCharArray() : null;
+
+				KeyStore store = KeyStore.getInstance(type);
+
+				try (InputStream input = new FileInputStream(file))
+				{
+					store.load(input, storePassword);
+				}
+
+				return new CipherCodec(store.getKey(keyAlias, keyPass));
 			}
-			
-			return new CipherCodec(store.getKey(keyAlias, (keyPassword != null) ? keyPassword.toCharArray() : null));
+			finally
+			{
+				if (storePassword != null)
+				{
+					Arrays.fill(storePassword, (char) 0);
+				}
+				if (keyPass != null)
+				{
+					Arrays.fill(keyPass, (char) 0);
+				}
+			}
 		}
 		catch (GeneralSecurityException e)
 		{

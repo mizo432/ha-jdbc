@@ -1,15 +1,19 @@
 package com.example.sample.service;
 
+import com.example.sample.dto.ItemRequest;
+import com.example.sample.dto.ItemRevision;
 import com.example.sample.entity.Item;
 import com.example.sample.repository.ItemRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.history.Revision;
+import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -18,38 +22,63 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Item> findAll() {
         return itemRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Item findById(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + id));
     }
 
+    @Transactional(readOnly = true)
     public List<Item> findByNameContaining(String name) {
         return itemRepository.findByNameContaining(name);
     }
 
+    @Transactional(readOnly = true)
     public List<Item> findByPriceBetween(Integer minPrice, Integer maxPrice) {
         return itemRepository.findByPriceBetween(minPrice, maxPrice);
     }
 
-    public Item create(Item item) {
+    @Transactional
+    public Item create(ItemRequest request) {
+        Item item = Item.from(request);
         return itemRepository.save(item);
     }
 
-    public Item update(Long id, Item item) {
+    @Transactional
+    public Item update(Long id, ItemRequest request) {
         Item existing = findById(id);
-        existing.setName(item.getName());
-        existing.setDescription(item.getDescription());
-        existing.setPrice(item.getPrice());
-        existing.setStock(item.getStock());
+        existing.updateFrom(request);
         return itemRepository.save(existing);
     }
 
+    @Transactional
     public void delete(Long id) {
         Item existing = findById(id);
         itemRepository.delete(existing);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemRevision> getHistory(Long id) {
+        Revisions<Integer, Item> revisions = itemRepository.findRevisions(id);
+        List<ItemRevision> result = new ArrayList<>();
+        for (Revision<Integer, Item> revision : revisions) {
+            ItemRevision dto = new ItemRevision();
+            dto.setRevisionNumber(revision.getRevisionNumber().orElse(null));
+            Item entity = revision.getEntity();
+            dto.setId(entity.getId());
+            dto.setName(entity.getName());
+            dto.setDescription(entity.getDescription());
+            dto.setPrice(entity.getPrice());
+            dto.setStock(entity.getStock());
+            dto.setCreatedAt(entity.getCreatedAt());
+            dto.setUpdatedAt(entity.getUpdatedAt());
+            result.add(dto);
+        }
+        return result;
     }
 }

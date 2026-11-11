@@ -21,7 +21,25 @@ import java.io.Serializable;
 
 import net.sf.hajdbc.Identifiable;
 
+/**
+ * Factory for creating {@link LockManager} instances.
+ * <p>
+ * This factory is a core component of the HA-JDBC architecture, registered via
+ * {@link net.sf.hajdbc.DatabaseClusterConfiguration#getLockManagerFactory()}. The lock manager
+ * provides distributed locking to ensure that only one node activates a database at a time,
+ * preventing split-brain scenarios. In a distributed setup, a
+ * {@link net.sf.hajdbc.lock.distributed.DistributedLockManager} backed by JGroups is used.
+ * </p>
+ *
+ * @see LockManager
+ * @see net.sf.hajdbc.DatabaseClusterConfiguration#getLockManagerFactory()
+ * @see net.sf.hajdbc.lock.distributed.DistributedLockManager
+ */
 public interface LockManagerFactory extends Identifiable, Serializable
 {
+	/**
+	 * Creates a new lock manager.
+	 * @return new lock manager
+	 */
 	LockManager createLockManager();
 }

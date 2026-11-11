@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import net.sf.hajdbc.MockDatabase;
 import net.sf.hajdbc.balancer.load.LoadBalancerFactory;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -42,7 +42,7 @@ public class LoadBalancerTest extends AbstractBalancerTest
 	@Override
 	public void next(Balancer<Void, MockDatabase> balancer)
 	{
-		assertSame(this.databases[2], balancer.next());
+		assertThat(balancer.next()).isSameAs(this.databases[2]);
 		
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 		
@@ -56,7 +56,7 @@ public class LoadBalancerTest extends AbstractBalancerTest
 		{
 			latch.await();
 			
-			assertSame(this.databases[1], balancer.next());
+			assertThat(balancer.next()).isSameAs(this.databases[1]);
 			
 			latch = new CountDownLatch(1);
 			WaitingInvoker invoker2 = new WaitingInvoker(latch);
@@ -65,7 +65,7 @@ public class LoadBalancerTest extends AbstractBalancerTest
 			
 			latch.await();
 			
-			assertSame(this.databases[2], balancer.next());
+			assertThat(balancer.next()).isSameAs(this.databases[2]);
 			
 			synchronized (invoker2)
 			{
@@ -74,7 +74,7 @@ public class LoadBalancerTest extends AbstractBalancerTest
 			
 			this.complete(Collections.singletonList(future));
 			
-			assertSame(this.databases[1], balancer.next());
+			assertThat(balancer.next()).isSameAs(this.databases[1]);
 			
 			synchronized (invoker1)
 			{
@@ -84,7 +84,7 @@ public class LoadBalancerTest extends AbstractBalancerTest
 			this.complete(Collections.singletonList(future1));
 			this.complete(Collections.singletonList(future2));
 			
-			assertSame(this.databases[2], balancer.next());
+			assertThat(balancer.next()).isSameAs(this.databases[2]);
 		}
 		catch (InterruptedException e)
 		{

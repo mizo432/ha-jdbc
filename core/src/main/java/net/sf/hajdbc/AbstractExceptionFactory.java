@@ -19,23 +19,25 @@ package net.sf.hajdbc;
 
 import net.sf.hajdbc.durability.Durability.Phase;
 
+import org.jspecify.annotations.NonNull;
+
 
 /**
- * 例外ファクトリの抽象ベースクラス
+ * Abstract base class for exception factories.
  * @author paul
- * @param <E> 例外の型
+ * @param <E> exception type
  */
 public abstract class AbstractExceptionFactory<E extends Exception> implements ExceptionFactory<E>
 {
 	private static final long serialVersionUID = 6715631233424287636L;
 
-	private Class<E> targetClass;
+	private @NonNull Class<E> targetClass;
 	
 	/**
-	 * 対象の例外クラスを指定してコンストラクトします
-	 * @param targetClass 対象の例外クラス
+	 * Constructs with the target exception class.
+	 * @param targetClass target exception class
 	 */
-	protected AbstractExceptionFactory(Class<E> targetClass)
+	protected AbstractExceptionFactory(@NonNull Class<E> targetClass)
 	{
 		this.targetClass = targetClass;
 	}
@@ -44,7 +46,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class<E> getTargetClass()
+	public @NonNull Class<E> getTargetClass()
 	{
 		return this.targetClass;
 	}
@@ -53,7 +55,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExceptionType getType()
+	public @NonNull ExceptionType getType()
 	{
 		return ExceptionType.valueOf(this.targetClass);
 	}
@@ -62,8 +64,14 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public E createException(Throwable e)
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "Safe to cast after isInstance check")
+	public @NonNull E createException(@NonNull Throwable e)
 	{
+		if (e == null)
+		{
+			return this.createException("Unknown error");
+		}
+		
 		if (this.targetClass.isInstance(e))
 		{
 			return this.targetClass.cast(e);
@@ -80,7 +88,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean correctHeuristic(E exception, Phase phase)
+	public boolean correctHeuristic(@NonNull E exception, @NonNull Phase phase)
 	{
 		return false;
 	}
@@ -89,11 +97,12 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(E exception1, E exception2)
+	public boolean equals(@NonNull E exception1, @NonNull E exception2)
 	{
 		String message1 = exception1.getMessage();
 		String message2 = exception2.getMessage();
 		
-		return ((message1 != null) && (message2 != null)) ? message1.equals(message2) : message1 == message2;
+		if (message1 == null) return message2 == null;
+		return message1.equals(message2);
 	}
 }

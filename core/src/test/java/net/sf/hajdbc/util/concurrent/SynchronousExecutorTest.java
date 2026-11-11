@@ -27,9 +27,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -71,10 +71,10 @@ public class SynchronousExecutorTest
 				results.add(future.get());
 			}
 			
-			Assert.assertEquals(expected, results);
+			Assertions.assertEquals(expected, results);
 			
 			// Make sure 1st task finished first, or last if reversed
-			Assert.assertEquals(0, order.get(reverse ? 2 : 0).intValue());
+			Assertions.assertEquals(0, order.get(reverse ? 2 : 0).intValue());
 		}
 		finally
 		{

@@ -56,6 +56,8 @@ import net.sf.hajdbc.state.StateManagerFactory;
 import net.sf.hajdbc.state.sql.SQLStateManagerFactory;
 import net.sf.hajdbc.util.concurrent.cron.CronExpression;
 import net.sf.hajdbc.util.concurrent.cron.CronExpressionBuilder;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> implements Builder<DatabaseClusterConfiguration<Z, D>>
 {
@@ -66,46 +68,47 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 	private final List<Builder<SynchronizationStrategy>> synchronizationStrategyBuilders = new LinkedList<>();
 	private final List<Builder<D>> databaseBuilders = new LinkedList<>();
 
-	private volatile Builder<CommandDispatcherFactory> commandDispatcherFactoryBuilder;
-	private volatile Builder<StateManagerFactory> stateManagerFactoryBuilder = new SimpleBuilder<>(new SQLStateManagerFactory());
-	private volatile Builder<LockManagerFactory> lockManagerFactoryBuilder = new SimpleBuilder<>(new SemaphoreLockManagerFactory());
-	private volatile Builder<BalancerFactory> balancerFactoryBuilder = new SimpleBuilder<>(new LoadBalancerFactory());
-	private volatile Builder<DialectFactory> dialectFactoryBuilder = new SimpleBuilder<>(new StandardDialectFactory());
-	private volatile Builder<DurabilityFactory> durabilityFactoryBuilder = new SimpleBuilder<>(new CoarseDurabilityFactory());
-	private volatile Builder<InputSinkProvider> inputSinkProviderBuilder = new SimpleBuilder<>(new FileInputSinkProvider());
-	private volatile Builder<DatabaseMetaDataCacheFactory> metaDataCacheFactoryBuilder = new SimpleBuilder<>(new EagerDatabaseMetaDataCacheFactory());
+	private Builder<CommandDispatcherFactory> commandDispatcherFactoryBuilder;
+	private Builder<StateManagerFactory> stateManagerFactoryBuilder = new SimpleBuilder<>(new SQLStateManagerFactory());
+	private Builder<LockManagerFactory> lockManagerFactoryBuilder = new SimpleBuilder<>(new SemaphoreLockManagerFactory());
+	private Builder<BalancerFactory> balancerFactoryBuilder = new SimpleBuilder<>(new LoadBalancerFactory());
+	private Builder<DialectFactory> dialectFactoryBuilder = new SimpleBuilder<>(new StandardDialectFactory());
+	private Builder<DurabilityFactory> durabilityFactoryBuilder = new SimpleBuilder<>(new CoarseDurabilityFactory());
+	private Builder<InputSinkProvider> inputSinkProviderBuilder = new SimpleBuilder<>(new FileInputSinkProvider());
+	private Builder<DatabaseMetaDataCacheFactory> metaDataCacheFactoryBuilder = new SimpleBuilder<>(new EagerDatabaseMetaDataCacheFactory());
 
-	private volatile Builder<DecoderFactory> decoderFactoryBuilder = new SimpleBuilder<>(new MultiplexingDecoderFactory());
-	private volatile Builder<MBeanRegistrarFactory> mbeanRegistrarFactoryBuilder = new SimpleBuilder<>(new DefaultMBeanRegistrarFactory());
-	private volatile Builder<ThreadFactory> threadFactoryBuilder = new SimpleBuilder<>(Executors.defaultThreadFactory());
-	private volatile Builder<ExecutorServiceProvider> executorProviderBuilder = new SimpleBuilder<>(new DefaultExecutorServiceProvider());
+	private Builder<DecoderFactory> decoderFactoryBuilder = new SimpleBuilder<>(new MultiplexingDecoderFactory());
+	private Builder<MBeanRegistrarFactory> mbeanRegistrarFactoryBuilder = new SimpleBuilder<>(new DefaultMBeanRegistrarFactory());
+	private Builder<ThreadFactory> threadFactoryBuilder = new SimpleBuilder<>(Executors.defaultThreadFactory());
+	private Builder<ExecutorServiceProvider> executorProviderBuilder = new SimpleBuilder<>(new DefaultExecutorServiceProvider());
 
-	private volatile CronExpressionBuilder autoActivateScheduleBuilder = new CronExpressionBuilder();
-	private volatile CronExpressionBuilder failureDetectScheduleBuilder = new CronExpressionBuilder();
+	private CronExpressionBuilder autoActivateScheduleBuilder = new CronExpressionBuilder();
+	private CronExpressionBuilder failureDetectScheduleBuilder = new CronExpressionBuilder();
 	
-	private volatile String defaultSynchronizationStrategy;
-	private volatile TransactionMode transactionMode = TransactionModeEnum.SERIAL;
-	private volatile boolean evalCurrentDate = false;
-	private volatile boolean evalCurrentTime = false;
-	private volatile boolean evalCurrentTimestamp = false;
-	private volatile boolean evalRand = false;
-	private volatile boolean detectIdentityColumns = false;
-	private volatile boolean detectSequences = false;
-	private volatile boolean allowEmptyCluster = false;
+	private String defaultSynchronizationStrategy;
+	private TransactionMode transactionMode = TransactionModeEnum.SERIAL;
+	private boolean evalCurrentDate = false;
+	private boolean evalCurrentTime = false;
+	private boolean evalCurrentTimestamp = false;
+	private boolean evalRand = false;
+	private boolean detectIdentityColumns = false;
+	private boolean detectSequences = false;
+	private boolean allowEmptyCluster = false;
+	private long lockTimeoutMs = 5 * 60 * 1000; // 5 minutes default
 	
 	protected DatabaseClusterConfigurationBuilder(DatabaseBuilderFactory<Z, D, B> factory)
 	{
 		this.factory = factory;
 	}
 
-	public ServiceBuilder<CommandDispatcherFactory> distributable(String id)
+	public @NonNull ServiceBuilder<CommandDispatcherFactory> distributable(@NonNull String id)
 	{
 		ServiceBuilder<CommandDispatcherFactory> builder = new ServiceBuilder<>(CommandDispatcherFactory.class, id);
 		this.commandDispatcherFactoryBuilder = builder;
 		return builder;
 	}
 	
-	public <T extends Builder<CommandDispatcherFactory>> T distributable(Class<T> builderClass)
+	public <T extends Builder<CommandDispatcherFactory>> @NonNull T distributable(@NonNull Class<T> builderClass)
 	{
 		try
 		{
@@ -119,20 +122,20 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		}
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> distributable(CommandDispatcherFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> distributable(@Nullable CommandDispatcherFactory factory)
 	{
 		this.commandDispatcherFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 
-	public ServiceBuilder<StateManagerFactory> state(String id)
+	public @NonNull ServiceBuilder<StateManagerFactory> state(@NonNull String id)
 	{
 		ServiceBuilder<StateManagerFactory> builder = new ServiceBuilder<>(StateManagerFactory.class, id);
 		this.stateManagerFactoryBuilder = builder;
 		return builder;
 	}
 
-	public <T extends Builder<StateManagerFactory>> T state(Class<T> builderClass)
+	public <T extends Builder<StateManagerFactory>> @NonNull T state(@NonNull Class<T> builderClass)
 	{
 		try
 		{
@@ -146,20 +149,20 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		}
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> state(StateManagerFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> state(@NonNull StateManagerFactory factory)
 	{
 		this.stateManagerFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 
-	public ServiceBuilder<LockManagerFactory> lock(String id)
+	public @NonNull ServiceBuilder<LockManagerFactory> lock(@NonNull String id)
 	{
 		ServiceBuilder<LockManagerFactory> builder = new ServiceBuilder<>(LockManagerFactory.class, id);
 		this.lockManagerFactoryBuilder = builder;
 		return builder;
 	}
 
-	public <T extends Builder<LockManagerFactory>> T lock(Class<T> builderClass)
+	public <T extends Builder<LockManagerFactory>> @NonNull T lock(@NonNull Class<T> builderClass)
 	{
 		try
 		{
@@ -173,20 +176,20 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		}
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> lock(LockManagerFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> lock(@NonNull LockManagerFactory factory)
 	{
 		this.lockManagerFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 
-	public ServiceBuilder<SynchronizationStrategy> addSynchronizationStrategy(String id)
+	public @NonNull ServiceBuilder<SynchronizationStrategy> addSynchronizationStrategy(@NonNull String id)
 	{
 		ServiceBuilder<SynchronizationStrategy> builder = new ServiceBuilder<>(SynchronizationStrategy.class, id);
 		this.synchronizationStrategyBuilders.add(builder);
 		return builder;
 	}
 
-	public <T extends Builder<SynchronizationStrategy>> T addSynchronizationStrategy(Class<T> builderClass)
+	public <T extends Builder<SynchronizationStrategy>> @NonNull T addSynchronizationStrategy(@NonNull Class<T> builderClass)
 	{
 		try
 		{
@@ -200,20 +203,20 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		}
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> addSynchronizationStrategy(SynchronizationStrategy strategy)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> addSynchronizationStrategy(@NonNull SynchronizationStrategy strategy)
 	{
 		this.synchronizationStrategyBuilders.add(new SimpleBuilder<>(strategy));
 		return this;
 	}
 
-	public B addDatabase(String id)
+	public @NonNull B addDatabase(@NonNull String id)
 	{
 		B builder = this.factory.createBuilder(id);
 		this.databaseBuilders.add(builder);
 		return builder;
 	}
 	
-	public <T extends Builder<ExecutorServiceProvider>> T executor(Class<T> builderClass)
+	public <T extends Builder<ExecutorServiceProvider>> @NonNull T executor(@NonNull Class<T> builderClass)
 	{
 		try
 		{
@@ -227,158 +230,164 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		}
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> executor(ExecutorServiceProvider provider)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> executor(@NonNull ExecutorServiceProvider provider)
 	{
 		this.executorProviderBuilder = new SimpleBuilder<>(provider);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> balancer(String id)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> balancer(@NonNull String id)
 	{
 		this.balancerFactoryBuilder = new SimpleServiceBuilder<>(BalancerFactory.class, id);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> balancer(BalancerFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> balancer(@NonNull BalancerFactory factory)
 	{
 		this.balancerFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> dialect(String id)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> dialect(@NonNull String id)
 	{
 		this.dialectFactoryBuilder = new SimpleServiceBuilder<>(DialectFactory.class, id);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> dialect(DialectFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> dialect(@NonNull DialectFactory factory)
 	{
 		this.dialectFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> durability(String id)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> durability(@NonNull String id)
 	{
 		this.durabilityFactoryBuilder = new SimpleServiceBuilder<>(DurabilityFactory.class, id);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> durability(DurabilityFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> durability(@NonNull DurabilityFactory factory)
 	{
 		this.durabilityFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> metaDataCache(String id)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> metaDataCache(@NonNull String id)
 	{
 		this.metaDataCacheFactoryBuilder = new SimpleServiceBuilder<>(DatabaseMetaDataCacheFactory.class, id);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> metaDataCache(DatabaseMetaDataCacheFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> metaDataCache(@NonNull DatabaseMetaDataCacheFactory factory)
 	{
 		this.metaDataCacheFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> inputSink(String id)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> inputSink(@NonNull String id)
 	{
 		this.inputSinkProviderBuilder = new SimpleServiceBuilder<>(InputSinkProvider.class, id);
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> inputSink(InputSinkProvider factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> inputSink(@NonNull InputSinkProvider factory)
 	{
 		this.inputSinkProviderBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> decoder(DecoderFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> decoder(@NonNull DecoderFactory factory)
 	{
 		this.decoderFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> mbeanRegistrar(MBeanRegistrarFactory factory)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> mbeanRegistrar(@NonNull MBeanRegistrarFactory factory)
 	{
 		this.mbeanRegistrarFactoryBuilder = new SimpleBuilder<>(factory);
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> defaultSynchronizationStrategy(String id)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> defaultSynchronizationStrategy(@NonNull String id)
 	{
 		this.defaultSynchronizationStrategy = id;
 		return this;
 	}
 	
-	public DatabaseClusterConfigurationBuilder<Z, D, B> transactionMode(TransactionMode transactionMode)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> transactionMode(@NonNull TransactionMode transactionMode)
 	{
 		this.transactionMode = transactionMode;
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> autoActivateSchedule(String schedule)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> autoActivateSchedule(@NonNull String schedule)
 	{
 		this.autoActivateScheduleBuilder.expression(schedule);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> failureDetectSchedule(String schedule)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> failureDetectSchedule(@NonNull String schedule)
 	{
 		this.failureDetectScheduleBuilder.expression(schedule);
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> evalCurrentDate(boolean enabled)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> evalCurrentDate(boolean enabled)
 	{
 		this.evalCurrentDate = enabled;
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> evalCurrentTime(boolean enabled)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> evalCurrentTime(boolean enabled)
 	{
 		this.evalCurrentTime = enabled;
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> evalCurrentTimestamp(boolean enabled)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> evalCurrentTimestamp(boolean enabled)
 	{
 		this.evalCurrentTimestamp = enabled;
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> evalRand(boolean enabled)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> evalRand(boolean enabled)
 	{
 		this.evalRand = enabled;
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> detectIdentityColumns(boolean enabled)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> detectIdentityColumns(boolean enabled)
 	{
 		this.detectIdentityColumns = enabled;
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> detectSequences(boolean enabled)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> detectSequences(boolean enabled)
 	{
 		this.detectSequences = enabled;
 		return this;
 	}
 
-	public DatabaseClusterConfigurationBuilder<Z, D, B> allowEmptyCluster(boolean enabled)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> allowEmptyCluster(boolean enabled)
 	{
 		this.allowEmptyCluster = enabled;
 		return this;
 	}
 
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> lockTimeoutMs(long lockTimeoutMs)
+	{
+		this.lockTimeoutMs = lockTimeoutMs;
+		return this;
+	}
+
 	@Override
-	public DatabaseClusterConfigurationBuilder<Z, D, B> read(DatabaseClusterConfiguration<Z, D> configuration)
+	public @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> read(@NonNull DatabaseClusterConfiguration<Z, D> configuration)
 	{
 		return this;
 	}
 
 	@Override
-	public DatabaseClusterConfiguration<Z, D> build() throws SQLException
+	public @NonNull DatabaseClusterConfiguration<Z, D> build() throws SQLException
 	{
 		final CommandDispatcherFactory commandDispatcherFactory = (this.commandDispatcherFactoryBuilder != null) ? this.commandDispatcherFactoryBuilder.build() : null;
 		final StateManagerFactory stateManagerFactory = this.stateManagerFactoryBuilder.build();
@@ -404,6 +413,7 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 		final boolean detectIdentityColumns = this.detectIdentityColumns;
 		final boolean detectSequences = this.detectSequences;
 		final boolean allowEmptyCluster = this.allowEmptyCluster;
+		final long lockTimeoutMs = this.lockTimeoutMs;
 		
 		if (this.synchronizationStrategyBuilders.isEmpty())
 		{
@@ -580,11 +590,17 @@ public class DatabaseClusterConfigurationBuilder<Z, D extends Database<Z>, B ext
 				return allowEmptyCluster;
 			}
 
-			@Override
-			public InputSinkProvider getInputSinkProvider()
-			{
-				return inputSinkProvider;
-			}
-		};
-	}
+ 		@Override
+ 		public InputSinkProvider getInputSinkProvider()
+ 		{
+ 			return inputSinkProvider;
+ 		}
+
+ 		@Override
+ 		public long getLockTimeoutMs()
+ 		{
+ 			return lockTimeoutMs;
+ 		}
+ 	};
+ }
 }

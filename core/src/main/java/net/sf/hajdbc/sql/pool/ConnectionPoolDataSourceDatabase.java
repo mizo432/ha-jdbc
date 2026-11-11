@@ -19,6 +19,7 @@ package net.sf.hajdbc.sql.pool;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
@@ -48,7 +49,23 @@ public class ConnectionPoolDataSourceDatabase extends CommonDataSourceDatabase<C
 	{
 		ConnectionPoolDataSource dataSource = this.getConnectionSource();
 		Credentials credentials = this.getCredentials();
-		PooledConnection connection = (credentials != null) ? dataSource.getPooledConnection(credentials.getUser(), credentials.decodePassword(decoder)) : dataSource.getPooledConnection();
-		return connection.getConnection();
+		if (credentials == null)
+		{
+			return dataSource.getPooledConnection().getConnection();
+		}
+		char[] password = null;
+		try
+		{
+			password = credentials.decodePassword(decoder);
+			PooledConnection connection = dataSource.getPooledConnection(credentials.getUser(), new String(password));
+			return connection.getConnection();
+		}
+		finally
+		{
+			if (password != null)
+			{
+				Arrays.fill(password, (char) 0);
+			}
+		}
 	}
 }

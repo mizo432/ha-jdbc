@@ -18,20 +18,28 @@
 package net.sf.hajdbc;
 
 import net.sf.hajdbc.util.Matcher;
+import org.jspecify.annotations.Nullable;
 
 public class IdentifiableMatcher<T extends Identifiable> implements Matcher<T>
 {
-	private final String id;
+	private final @Nullable String id;
 
-	public IdentifiableMatcher(String id)
+	public IdentifiableMatcher(@Nullable String id)
 	{
 		this.id = id;
 	}
 
 	@Override
-	public boolean matches(T service)
+	public boolean matches(@Nullable T service)
 	{
-		return (this.id != null) && (service != null) ? this.id.equalsIgnoreCase(service.getId()) : (this.id == service.getId());
+		if (service == null) {
+			return this.id == null;
+		}
+		String serviceId = service.getId();
+		if (this.id == null) {
+			return serviceId == null;
+		}
+		return this.id.equalsIgnoreCase(serviceId);
 	}
 
 	@Override

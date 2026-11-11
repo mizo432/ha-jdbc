@@ -20,6 +20,7 @@ package net.sf.hajdbc.sql;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import net.sf.hajdbc.Credentials;
@@ -65,14 +66,26 @@ public class DriverDatabase extends AbstractDatabase<Driver>
 	@Override
 	public Connection connect(Decoder decoder) throws SQLException
 	{
-		Properties properties = this.properties;
 		Credentials credentials = this.getCredentials();
-		if (credentials != null)
+		if (credentials == null)
 		{
-			properties = new Properties(this.properties);
-			properties.setProperty("user", credentials.getUser());
-			properties.setProperty("password", credentials.decodePassword(decoder));
+			return this.getConnectionSource().connect(this.url, this.properties);
 		}
-		return this.getConnectionSource().connect(this.url, properties);
+		char[] password = null;
+		try
+		{
+			password = credentials.decodePassword(decoder);
+			Properties properties = new Properties(this.properties);
+			properties.setProperty("user", credentials.getUser());
+			properties.setProperty("password", new String(password));
+			return this.getConnectionSource().connect(this.url, properties);
+		}
+		finally
+		{
+			if (password != null)
+			{
+				Arrays.fill(password, (char) 0);
+			}
+		}
 	}
 }

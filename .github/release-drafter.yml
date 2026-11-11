@@ -1,0 +1,83 @@
+name-template: 'HA-JDBC $RESOLVED_VERSION'
+tag-template: '$RESOLVED_VERSION'
+dry-run: true
+category-template: '### $TITLE'
+change-template: '- $TITLE (#$NUMBER)'
+change-title-escapes: '\<\>{}[]`~&$#@!'
+autolabeler:
+  - label: 'bugfix'
+    title:
+      - '/fix|bug|repair|resolve/i'
+  - label: 'feature'
+    title:
+      - '/feat|feature|add|new/i'
+  - label: 'improvement'
+    title:
+      - '/improve|refactor|optimize|enhance|update/i'
+  - label: 'documentation'
+    title:
+      - '/doc|docs|readme|comment/i'
+  - label: 'security'
+    title:
+      - '/security|vuln|cve|fix.*security/i'
+  - label: 'breaking'
+    title:
+      - '/!:/i'
+      - '/breaking\s+change/i'
+categories:
+  - type: 'pre-exclude'
+    when:
+      labels:
+        - 'skip-changelog'
+        - 'dependencies'
+  - title: '🔒 Security'
+    when:
+      labels:
+        - 'security'
+  - title: '⚠️ Breaking Changes'
+    when:
+      labels:
+        - 'breaking'
+  - title: '🚀 Features'
+    when:
+      labels:
+        - 'feature'
+  - title: '🐛 Bug Fixes'
+    when:
+      labels:
+        - 'bugfix'
+  - title: '✨ Improvements'
+    when:
+      labels:
+        - 'improvement'
+  - title: '📝 Documentation'
+    when:
+      labels:
+        - 'documentation'
+  - title: '📦 Other Changes'
+  - type: version-resolver
+    semver-increment: major
+    when:
+      labels:
+        - 'major'
+        - 'breaking'
+  - type: version-resolver
+    semver-increment: minor
+    when:
+      labels:
+        - 'minor'
+        - 'feature'
+  - type: version-resolver
+    semver-increment: patch
+    when:
+      labels:
+        - 'patch'
+        - 'bugfix'
+        - 'fix'
+        - 'improvement'
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/mizo432/ha-jdbc/compare/$PREVIOUS_TAG...$RESOLVED_VERSION

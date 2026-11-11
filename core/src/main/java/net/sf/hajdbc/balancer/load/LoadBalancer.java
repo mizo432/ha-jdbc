@@ -17,7 +17,6 @@
  */
 package net.sf.hajdbc.balancer.load;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,10 +33,10 @@ import net.sf.hajdbc.invocation.Invoker;
 import net.sf.hajdbc.util.Collections;
 
 /**
- * {@link #next()}の実装で最も負荷の少ないデータベースを返すバランサーの実装です。
+ * Balancer implementation that returns the least loaded database in its {@link #next()} implementation.
  *
  * @author  Paul Ferraro
- * @param <D> java.sql.Driverまたはjavax.sql.DataSourceのいずれか
+ * @param <D> either java.sql.Driver or javax.sql.DataSource
  */
 public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, D>
 {
@@ -45,7 +44,7 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	
 	private volatile SortedMap<D, AtomicInteger> databaseMap = Collections.emptySortedMap();
 	
-	private Comparator<Map.Entry<D, AtomicInteger>> comparator = new Comparator<Map.Entry<D, AtomicInteger>>()
+	private final Comparator<Map.Entry<D, AtomicInteger>> comparator = new Comparator<Map.Entry<D, AtomicInteger>>()
 	{
 		@Override
 		public int compare(Map.Entry<D, AtomicInteger> mapEntry1, Map.Entry<D, AtomicInteger> mapEntry2)
@@ -73,8 +72,8 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	};
 
 	/**
-	 * 新しいLoadBalancerを構築します
-	 * @param databases データベースのセット
+	 * Constructs a new LoadBalancer.
+	 * @param databases set of databases
 	 */
 	public LoadBalancer(Set<D> databases)
 	{
@@ -106,6 +105,8 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	@Override
 	public D primary()
 	{
+		this.lock.lock();
+
 		try
 		{
 			return this.databaseMap.firstKey();
@@ -113,6 +114,10 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 		catch (NoSuchElementException e)
 		{
 			return null;
+		}
+		finally
+		{
+			this.lock.unlock();
 		}
 	}
 
@@ -128,96 +133,7 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#addAll(java.util.Collection)
-	 */
-	@Override
-	public boolean addAll(Collection<? extends D> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedMap<D, AtomicInteger> addMap = new TreeMap<>(this.databaseMap);
-			
-			boolean added = false;
-			
-			for (D database: databases)
-			{
-				added = (addMap.put(database, new AtomicInteger(1)) == null) || added;
-			}
-			
-			if (added)
-			{
-				this.databaseMap = addMap;
-			}
-			
-			return added;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#removeAll(java.util.Collection)
-	 */
-	@Override
-	public boolean removeAll(Collection<?> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedMap<D, AtomicInteger> map = new TreeMap<>(this.databaseMap);
-			
-			boolean removed = map.keySet().removeAll(databases);
-
-			if (removed)
-			{
-				this.databaseMap = map;
-			}
-			
-			return removed;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#retainAll(java.util.Collection)
-	 */
-	@Override
-	public boolean retainAll(Collection<?> databases)
-	{
-		this.lock.lock();
-		
-		try
-		{
-			SortedMap<D, AtomicInteger> map = new TreeMap<>(this.databaseMap);
-			
-			boolean retained = map.keySet().retainAll(databases);
-
-			if (retained)
-			{
-				this.databaseMap = map;
-			}
-			
-			return retained;
-		}
-		finally
-		{
-			this.lock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.util.Set#clear()
+	 * @see net.sf.hajdbc.balancer.Balancer#clear()
 	 */
 	@Override
 	public void clear()
@@ -239,10 +155,10 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#remove(java.lang.Object)
+	 * @see net.sf.hajdbc.balancer.Balancer#remove(net.sf.hajdbc.Database)
 	 */
 	@Override
-	public boolean remove(Object database)
+	public boolean remove(D database)
 	{
 		this.lock.lock();
 		
@@ -281,14 +197,23 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	@Override
 	public D next()
 	{
-		Set<Map.Entry<D, AtomicInteger>> entrySet = this.databaseMap.entrySet();
-		
-		return !entrySet.isEmpty() ? java.util.Collections.min(entrySet, this.comparator).getKey() : null;
+		this.lock.lock();
+
+		try
+		{
+			Set<Map.Entry<D, AtomicInteger>> entrySet = this.databaseMap.entrySet();
+
+			return !entrySet.isEmpty() ? java.util.Collections.min(entrySet, this.comparator).getKey() : null;
+		}
+		finally
+		{
+			this.lock.unlock();
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see java.util.Set#add(java.lang.Object)
+	 * @see net.sf.hajdbc.balancer.Balancer#add(net.sf.hajdbc.Database)
 	 */
 	@Override
 	public boolean add(D database)
@@ -332,13 +257,23 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	@Override
 	public <T, R, E extends Exception> R invoke(Invoker<Z, D, T, R, E> invoker, D database, T object) throws E
 	{
-		AtomicInteger load = this.databaseMap.get(database);
-		
+		AtomicInteger load;
+
+		this.lock.lock();
+		try
+		{
+			load = this.databaseMap.get(database);
+		}
+		finally
+		{
+			this.lock.unlock();
+		}
+
 		if (load != null)
 		{
 			load.incrementAndGet();
 		}
-		
+
 		try
 		{
 			return invoker.invoke(database, object);

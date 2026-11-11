@@ -40,7 +40,7 @@ import net.sf.hajdbc.logging.LoggerFactory;
  */
 public class NoDurability<Z, D extends Database<Z>> implements Durability<Z, D>
 {
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * {@inheritDoc}

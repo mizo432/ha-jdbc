@@ -21,10 +21,10 @@ import net.sf.hajdbc.Identifiable;
 import net.sf.hajdbc.IdentifiableMatcher;
 import net.sf.hajdbc.util.ServiceLoaders;
 
-public class SimpleServiceBuilder<T extends Identifiable> implements Builder<T>
+	public class SimpleServiceBuilder<T extends Identifiable> implements Builder<T>
 {
-	private volatile Class<T> serviceClass;
-	private volatile String id;
+	private Class<T> serviceClass;
+	private String id;
 
 	public SimpleServiceBuilder(Class<T> serviceClass, String id)
 	{

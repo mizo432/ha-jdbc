@@ -17,15 +17,14 @@
  */
 package net.sf.hajdbc.durability;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
 import net.sf.hajdbc.ExceptionType;
 import net.sf.hajdbc.util.Objects;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InvocationEventTest
 {
@@ -34,10 +33,10 @@ public class InvocationEventTest
 	{
 		InvocationEvent event1 = new InvocationEventImpl(10, Durability.Phase.COMMIT, ExceptionType.SQL);
 		InvocationEvent event2 = Objects.deserialize(Objects.serialize(event1), InvocationEvent.class);
-		assertEquals(event1, event2);
-		assertEquals(event1.getTransactionId(), event2.getTransactionId());
-		assertEquals(event1.getPhase(), event2.getPhase());
-		assertEquals(event1.getExceptionType(), event2.getExceptionType());
+		assertThat(event2).isEqualTo(event1);
+		assertThat(event2.getTransactionId()).isEqualTo(event1.getTransactionId());
+		assertThat(event2.getPhase()).isEqualTo(event1.getPhase());
+		assertThat(event2.getExceptionType()).isEqualTo(event1.getExceptionType());
 	}
 
 	@Test
@@ -45,15 +44,15 @@ public class InvocationEventTest
 		UUID txId = UUID.randomUUID();
 		InvocationEvent event1 = new InvocationEventImpl(txId, Durability.Phase.COMMIT, ExceptionType.SQL);
 		InvocationEvent event2 = new InvocationEventImpl(txId, Durability.Phase.COMMIT, ExceptionType.SQL);
-		assertEquals(event1, event2);
+		assertThat(event2).isEqualTo(event1);
 		
 		event2 = new InvocationEventImpl(txId, Durability.Phase.COMMIT, ExceptionType.XA);
-		assertEquals(event1, event2);
+		assertThat(event2).isEqualTo(event1);
 		
 		event2 = new InvocationEventImpl(txId, Durability.Phase.ROLLBACK, ExceptionType.SQL);
-		assertNotEquals(event1, event2);
+		assertThat(event2).isNotEqualTo(event1);
 		
 		event2 = new InvocationEventImpl(UUID.randomUUID(), Durability.Phase.COMMIT, ExceptionType.SQL);
-		assertNotEquals(event1, event2);
+		assertThat(event2).isNotEqualTo(event1);
 	}
 }

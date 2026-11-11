@@ -59,15 +59,23 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 {
 	static final Logger logger = LoggerFactory.getLogger(DistributedLockManager.class);
 	static final Messages messages = MessagesFactory.getMessages();
+	private static final long DEFAULT_LOCK_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(5);
 
 	final CommandDispatcher<LockCommandContext> dispatcher;
+	private final long lockTimeoutMs;
 	
 	private final LockManager lockManager;
 	private final ConcurrentMap<Member, Map<LockDescriptor, Lock>> remoteLockDescriptorMap = new ConcurrentHashMap<>();
 	
 	public <Z, D extends Database<Z>> DistributedLockManager(DatabaseCluster<Z, D> cluster, CommandDispatcherFactory dispatcherFactory) throws Exception
 	{
+		this(cluster, dispatcherFactory, DEFAULT_LOCK_TIMEOUT_MS);
+	}
+
+	public <Z, D extends Database<Z>> DistributedLockManager(DatabaseCluster<Z, D> cluster, CommandDispatcherFactory dispatcherFactory, long lockTimeoutMs) throws Exception
+	{
 		this.lockManager = cluster.getLockManager();
+		this.lockTimeoutMs = lockTimeoutMs;
 		LockCommandContext context = this;
 		this.dispatcher = dispatcherFactory.createCommandDispatcher(cluster.getId() + ".lock", context, this, this);
 	}
@@ -90,7 +98,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 	public Lock writeLock(String id)
 	{
 		RemoteLockDescriptor descriptor = new RemoteLockDescriptorImpl(id, LockType.WRITE, this.dispatcher.getLocal());
-		return new DistributedLock(descriptor, this.getLock(descriptor), this.dispatcher);
+		return new DistributedLock(descriptor, this.getLock(descriptor), this.dispatcher, this.lockTimeoutMs);
 	}
 
 	/**
@@ -114,7 +122,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			default:
 			{
-				throw new IllegalStateException();
+				throw new IllegalStateException("Unknown lock type: " + lock.getType());
 			}
 		}
 	}
@@ -209,11 +217,24 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 				
 				LockDescriptor descriptor = new RemoteLockDescriptorImpl(id, type, member);
 				
-				Lock lock = this.getLock(descriptor);
+ 			Lock lock = this.getLock(descriptor);
 				
-				lock.lock();
-				
-				map.put(descriptor, lock);
+				try
+				{
+					if (lock.tryLock(this.lockTimeoutMs, TimeUnit.MILLISECONDS))
+					{
+						map.put(descriptor, lock);
+					}
+					else
+					{
+						logger.log(Level.WARN, messages.acquireLockFailed(descriptor));
+					}
+				}
+				catch (InterruptedException e)
+				{
+					Thread.currentThread().interrupt();
+					logger.log(Level.WARN, messages.acquireLockFailed(descriptor));
+				}
 			}
 			
 			this.remoteLockDescriptorMap.put(member, map);
@@ -249,18 +270,20 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 	}
 	
 	private static class DistributedLock implements Lock
-	{
-		private static final int[] BACKOFF_INTERVALS = new int[] { 1, 10, 100 };
-		private final RemoteLockDescriptor descriptor;
-		private final Lock lock;
-		private final CommandDispatcher<LockCommandContext> dispatcher;
-		
-		DistributedLock(RemoteLockDescriptor descriptor, Lock lock, CommandDispatcher<LockCommandContext> dispatcher)
 		{
-			this.descriptor = descriptor;
-			this.lock = lock;
-			this.dispatcher = dispatcher;
-		}
+ 		private static final int[] BACKOFF_INTERVALS = new int[] { 1, 10, 100 };
+			private final RemoteLockDescriptor descriptor;
+			private final Lock lock;
+			private final CommandDispatcher<LockCommandContext> dispatcher;
+			private final long lockTimeoutMs;
+			
+			DistributedLock(RemoteLockDescriptor descriptor, Lock lock, CommandDispatcher<LockCommandContext> dispatcher, long lockTimeoutMs)
+			{
+				this.descriptor = descriptor;
+				this.lock = lock;
+				this.dispatcher = dispatcher;
+				this.lockTimeoutMs = lockTimeoutMs;
+			}
 		
 		private static void sleep(int retry) throws InterruptedException
 		{
@@ -270,91 +293,102 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 		}
 		
-		@Override
-		public void lock()
-		{
-			boolean locked = false;
-			int retry = 0;
-			
-			while (!locked)
-			{
-				try
-				{
-					sleep(retry);
-				}
-				catch (InterruptedException e)
-				{
-					Thread.currentThread().interrupt();
-				}
-				
-				Member coordinator = this.dispatcher.getCoordinator();
-				
-				if (this.dispatcher.getLocal().equals(coordinator))
-				{
-					this.lock.lock();
-					
-					try
-					{
-						locked = this.lockMembers(coordinator);
-					}
-					finally
-					{
-						if (!locked)
-						{
-							this.lock.unlock();
-						}
-					}
-				}
-				else
-				{
-					locked = this.lockFromNonCoordinator(coordinator, Long.MAX_VALUE);
-				}
-				
-				retry += 1;
-			}
+
+		/** Acquires the local lock; returns {@code true} if acquired, {@code false} otherwise. */
+		@FunctionalInterface
+		interface LocalLockAcquirer {
+			boolean acquire() throws InterruptedException;
 		}
 
-		@Override
-		public void lockInterruptibly() throws InterruptedException
+		/**
+		 * Acquires the lock as coordinator: acquires the local lock, then locks all members.
+		 * If member locking fails, releases the local lock before returning.
+		 * @param coordinator the current coordinator member
+		 * @param acquirer how to acquire the local lock
+		 * @return {@code true} if both local and member locks were acquired
+		 */
+		private boolean acquireAsCoordinator(Member coordinator, LocalLockAcquirer acquirer) throws InterruptedException
 		{
-			boolean locked = false;
-			int retry = 0;
-			
-			while (!locked)
+			acquirer.acquire();
+			boolean locked = this.lockMembers(coordinator);
+			if (!locked)
 			{
-				sleep(retry);
+				this.lock.unlock();
+			}
+			return locked;
+		}
+		@Override
+			public void lock()
+			{
+				boolean locked = false;
+				int retry = 0;
+				long start = System.currentTimeMillis();
 				
-				Member coordinator = this.dispatcher.getCoordinator();
-				
-				if (this.dispatcher.getLocal().equals(coordinator))
+				while (!locked && (System.currentTimeMillis() - start < this.lockTimeoutMs))
 				{
-					this.lock.lockInterruptibly();
-					
 					try
 					{
-						locked = this.lockMembers(coordinator);
+						sleep(retry);
 					}
-					finally
+					catch (InterruptedException e)
 					{
-						if (!locked)
+						Thread.currentThread().interrupt();
+						break;
+					}
+					
+					Member coordinator = this.dispatcher.getCoordinator();
+					
+					if (this.dispatcher.getLocal().equals(coordinator))
+					{
+						try
 						{
-							this.lock.unlock();
+							locked = this.acquireAsCoordinator(coordinator, () -> { this.lock.lock(); return true; });
+						}
+						catch (InterruptedException e)
+						{
+							Thread.currentThread().interrupt();
+							break;
 						}
 					}
+					else
+					{
+						locked = this.lockFromNonCoordinator(coordinator, this.lockTimeoutMs - (System.currentTimeMillis() - start));
+					}
+					
+					retry += 1;
 				}
-				else
-				{
-					this.lockFromNonCoordinator(coordinator, Long.MAX_VALUE);
-				}
-				
-				if (Thread.currentThread().isInterrupted())
-				{
-					throw new InterruptedException();
-				}
-				
-				retry += 1;
 			}
-		}
+
+		@Override
+			public void lockInterruptibly() throws InterruptedException
+			{
+				boolean locked = false;
+				int retry = 0;
+				long start = System.currentTimeMillis();
+				
+				while (!locked && (System.currentTimeMillis() - start < this.lockTimeoutMs))
+				{
+					sleep(retry);
+					
+					Member coordinator = this.dispatcher.getCoordinator();
+					
+					if (this.dispatcher.getLocal().equals(coordinator))
+					{
+						locked = this.acquireAsCoordinator(coordinator, () -> { this.lock.lockInterruptibly(); return true; });
+					}
+					else
+					{
+						locked = this.lockFromNonCoordinator(coordinator, this.lockTimeoutMs - (System.currentTimeMillis() - start));
+					}
+					
+					if (Thread.currentThread().isInterrupted())
+					{
+						throw new InterruptedException();
+					}
+					
+					retry += 1;
+				}
+			}
 
 		@Override
 		public boolean tryLock()
@@ -372,20 +406,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 					
 					if (this.dispatcher.getLocal().equals(coordinator))
 					{
-						if (this.lock.tryLock())
-						{
-							try
-							{
-								locked = this.lockMembers(coordinator);
-							}
-							finally
-							{
-								if (!locked)
-								{
-									this.lock.unlock();
-								}
-							}
-						}
+						locked = this.acquireAsCoordinator(coordinator, () -> this.lock.tryLock());
 					}
 					else
 					{
@@ -422,20 +443,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 					long timeout = stop - now;
 					if (this.dispatcher.getLocal().equals(coordinator))
 					{
-						if (this.lock.tryLock(timeout, TimeUnit.MILLISECONDS))
-						{
-							try
-							{
-								locked = this.lockMembers(coordinator);
-							}
-							finally
-							{
-								if (!locked)
-								{
-									this.lock.unlock();
-								}
-							}
-						}
+						locked = this.acquireAsCoordinator(coordinator, () -> this.lock.tryLock(timeout, TimeUnit.MILLISECONDS));
 					}
 					else
 					{
@@ -504,7 +512,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command));
+				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command) + " - Exception type: " + e.getClass().getSimpleName());
 				return false;
 			}
 		}
@@ -519,7 +527,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, coordinator));
+				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, coordinator) + " - Exception type: " + e.getClass().getSimpleName());
 				return false;
 			}
 		}
@@ -530,21 +538,24 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 		}
 		
 		@Override
-		public void unlock()
-		{
-			Member coordinator = this.dispatcher.getCoordinator();
-			
-			this.unlockMembers(coordinator);
-			
-			if (this.dispatcher.getLocal().equals(coordinator))
+			public void unlock()
 			{
-				this.lock.unlock();
+				Member coordinator = this.dispatcher.getCoordinator();
+				
+				this.unlockMembers(coordinator);
+				
+				// Always unlock the local lock because we may have acquired it as coordinator
+				// even if coordinator changed before unlock
+				try
+				{
+					this.lock.unlock();
+				}
+				catch (IllegalMonitorStateException e)
+				{
+					// We didn't hold the local lock; try remote unlock on coordinator
+					this.unlock(coordinator);
+				}
 			}
-			else
-			{
-				this.unlock(coordinator);
-			}
-		}
 		
 		private void unlockMembers(Member... excluded)
 		{
@@ -559,7 +570,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command));
+				logger.log(Level.WARN, e, messages.sendCommandToClusterFailed(command) + " - Exception type: " + e.getClass().getSimpleName());
 			}
 		}
 
@@ -573,7 +584,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, member));
+				logger.log(Level.WARN, e, messages.sendCommandToMemberFailed(command, member) + " - Exception type: " + e.getClass().getSimpleName());
 			}
 		}
 		
@@ -590,13 +601,13 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 			catch (Exception e)
 			{
-				logger.log(Level.WARN, e, messages.executeCommandFailed(command, member));
+				logger.log(Level.WARN, e, messages.executeCommandFailed(command, member) + " - Exception type: " + e.getClass().getSimpleName());
 				return failureResult;
 			}
 		}
 		
 		@Override
-		public Condition newCondition()
+			public Condition newCondition()
 		{
 			throw new UnsupportedOperationException();
 		}

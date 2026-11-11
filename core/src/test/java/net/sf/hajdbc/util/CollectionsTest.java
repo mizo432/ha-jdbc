@@ -24,8 +24,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CollectionsTest
 {
@@ -49,7 +49,7 @@ public class CollectionsTest
 		try
 		{
 			immutableSet.add(value1);
-			Assert.fail();
+			Assertions.fail();
 		}
 		catch (UnsupportedOperationException e)
 		{
@@ -58,7 +58,7 @@ public class CollectionsTest
 		try
 		{
 			immutableSet.addAll(java.util.Collections.singleton(value1));
-			Assert.fail();
+			Assertions.fail();
 		}
 		catch (UnsupportedOperationException e)
 		{
@@ -68,41 +68,41 @@ public class CollectionsTest
 		{
 			immutableSet.clear();
 			
-			Assert.assertTrue(mutableSet.isEmpty());
+			Assertions.assertTrue(mutableSet.isEmpty());
 		}
 		catch (UnsupportedOperationException e)
 		{
-			Assert.assertFalse(mutableSet.isEmpty());
+			Assertions.assertFalse(mutableSet.isEmpty());
 		}
 		
-		Assert.assertEquals(immutableSet.contains(value1), mutableSet.contains(value1));
-		Assert.assertEquals(immutableSet.contains(value2), mutableSet.contains(value2));
+		Assertions.assertEquals(immutableSet.contains(value1), mutableSet.contains(value1));
+		Assertions.assertEquals(immutableSet.contains(value2), mutableSet.contains(value2));
 		
-		Assert.assertEquals(immutableSet.containsAll(java.util.Collections.emptySet()), mutableSet.containsAll(java.util.Collections.emptySet()));
-		Assert.assertEquals(immutableSet.containsAll(java.util.Collections.singleton(0)), mutableSet.containsAll(java.util.Collections.singleton(0)));
-		Assert.assertEquals(immutableSet.containsAll(java.util.Collections.singleton(1)), mutableSet.containsAll(java.util.Collections.singleton(1)));
+		Assertions.assertEquals(immutableSet.containsAll(java.util.Collections.emptySet()), mutableSet.containsAll(java.util.Collections.emptySet()));
+		Assertions.assertEquals(immutableSet.containsAll(java.util.Collections.singleton(0)), mutableSet.containsAll(java.util.Collections.singleton(0)));
+		Assertions.assertEquals(immutableSet.containsAll(java.util.Collections.singleton(1)), mutableSet.containsAll(java.util.Collections.singleton(1)));
 		
 		Iterator<T> iterator = immutableSet.iterator();
 
 		if (!mutableSet.isEmpty())
 		{
-			Assert.assertTrue(iterator.hasNext());
+			Assertions.assertTrue(iterator.hasNext());
 			
-			Assert.assertEquals(iterator.next(), mutableSet.iterator().next());			
+			Assertions.assertEquals(iterator.next(), mutableSet.iterator().next());			
 		}
 
-		Assert.assertFalse(iterator.hasNext());
+		Assertions.assertFalse(iterator.hasNext());
 		
 		try
 		{
 			iterator.next();
-			Assert.fail();
+			Assertions.fail();
 		}
 		catch (NoSuchElementException e)
 		{
 		}
 		
-		Assert.assertEquals(immutableSet.isEmpty(), mutableSet.isEmpty());
+		Assertions.assertEquals(immutableSet.isEmpty(), mutableSet.isEmpty());
 		
 		try
 		{
@@ -128,23 +128,23 @@ public class CollectionsTest
 		{
 		}
 		
-		Assert.assertEquals(immutableSet.size(), mutableSet.size());
+		Assertions.assertEquals(immutableSet.size(), mutableSet.size());
 		
-		Assert.assertArrayEquals(immutableSet.toArray(), mutableSet.toArray());
+		Assertions.assertArrayEquals(immutableSet.toArray(), mutableSet.toArray());
 		
-		Assert.assertSame(immutableSet.comparator(), mutableSet.comparator());
+		Assertions.assertSame(immutableSet.comparator(), mutableSet.comparator());
 		
 		if (!mutableSet.isEmpty())
 		{
-			Assert.assertEquals(immutableSet.first(), mutableSet.first());
-			Assert.assertEquals(immutableSet.last(), mutableSet.last());
+			Assertions.assertEquals(immutableSet.first(), mutableSet.first());
+			Assertions.assertEquals(immutableSet.last(), mutableSet.last());
 		}
 		else
 		{
 			try
 			{
 				immutableSet.first();
-				Assert.fail();
+				Assertions.fail();
 			}
 			catch (NoSuchElementException e)
 			{
@@ -153,20 +153,20 @@ public class CollectionsTest
 			try
 			{
 				immutableSet.last();
-				Assert.fail();
+				Assertions.fail();
 			}
 			catch (NoSuchElementException e)
 			{
 			}
 		}
 		
-		Assert.assertEquals(immutableSet.headSet(value1), mutableSet.headSet(value1));
-		Assert.assertEquals(immutableSet.headSet(value2), mutableSet.headSet(value2));
+		Assertions.assertEquals(immutableSet.headSet(value1), mutableSet.headSet(value1));
+		Assertions.assertEquals(immutableSet.headSet(value2), mutableSet.headSet(value2));
 
-		Assert.assertEquals(immutableSet.subSet(value1, value2), mutableSet.subSet(value1, value2));
+		Assertions.assertEquals(immutableSet.subSet(value1, value2), mutableSet.subSet(value1, value2));
 		
-		Assert.assertEquals(immutableSet.tailSet(value1), mutableSet.tailSet(value1));
-		Assert.assertEquals(immutableSet.tailSet(value2), mutableSet.tailSet(value2));
+		Assertions.assertEquals(immutableSet.tailSet(value1), mutableSet.tailSet(value1));
+		Assertions.assertEquals(immutableSet.tailSet(value2), mutableSet.tailSet(value2));
 	}
 	
 	@Test
@@ -190,32 +190,32 @@ public class CollectionsTest
 		{
 			immutableMap.clear();
 			
-			Assert.assertTrue(mutableMap.isEmpty());
+			Assertions.assertTrue(mutableMap.isEmpty());
 		}
 		catch (UnsupportedOperationException e)
 		{
-			Assert.assertFalse(mutableMap.isEmpty());
+			Assertions.assertFalse(mutableMap.isEmpty());
 		}
 		
-		Assert.assertEquals(immutableMap.containsKey(key1), mutableMap.containsKey(key1));
-		Assert.assertEquals(immutableMap.containsKey(key2), mutableMap.containsKey(key2));
+		Assertions.assertEquals(immutableMap.containsKey(key1), mutableMap.containsKey(key1));
+		Assertions.assertEquals(immutableMap.containsKey(key2), mutableMap.containsKey(key2));
 
-		Assert.assertEquals(immutableMap.containsValue(value), mutableMap.containsValue(value));
-		Assert.assertEquals(immutableMap.containsValue(null), mutableMap.containsValue(null));
+		Assertions.assertEquals(immutableMap.containsValue(value), mutableMap.containsValue(value));
+		Assertions.assertEquals(immutableMap.containsValue(null), mutableMap.containsValue(null));
 		
-		Assert.assertEquals(immutableMap.entrySet(), mutableMap.entrySet());
+		Assertions.assertEquals(immutableMap.entrySet(), mutableMap.entrySet());
 		
-		Assert.assertEquals(immutableMap.get(key1), mutableMap.get(key1));
-		Assert.assertEquals(immutableMap.get(key2), mutableMap.get(key2));
+		Assertions.assertEquals(immutableMap.get(key1), mutableMap.get(key1));
+		Assertions.assertEquals(immutableMap.get(key2), mutableMap.get(key2));
 		
-		Assert.assertEquals(immutableMap.isEmpty(), mutableMap.isEmpty());
+		Assertions.assertEquals(immutableMap.isEmpty(), mutableMap.isEmpty());
 		
-		Assert.assertEquals(immutableMap.keySet(), mutableMap.keySet());
+		Assertions.assertEquals(immutableMap.keySet(), mutableMap.keySet());
 		
 		try
 		{
 			immutableMap.put(key1, value);
-			Assert.fail();
+			Assertions.fail();
 		}
 		catch (UnsupportedOperationException e)
 		{
@@ -224,7 +224,7 @@ public class CollectionsTest
 		try
 		{
 			immutableMap.putAll(java.util.Collections.singletonMap(key1, value));
-			Assert.fail();
+			Assertions.fail();
 		}
 		catch (UnsupportedOperationException e)
 		{
@@ -238,29 +238,29 @@ public class CollectionsTest
 		{
 		}
 		
-		Assert.assertEquals(immutableMap.size(), mutableMap.size());
+		Assertions.assertEquals(immutableMap.size(), mutableMap.size());
 		
 		// Is it OK that this fails?
-		// Assert.assertEquals(immutableMap.values(), mutableMap.values());
-		Assert.assertEquals(immutableMap.values().size(), mutableMap.values().size());
+		// Assertions.assertEquals(immutableMap.values(), mutableMap.values());
+		Assertions.assertEquals(immutableMap.values().size(), mutableMap.values().size());
 		if (!mutableMap.isEmpty())
 		{
-			Assert.assertEquals(immutableMap.values().iterator().next(), mutableMap.values().iterator().next());
+			Assertions.assertEquals(immutableMap.values().iterator().next(), mutableMap.values().iterator().next());
 		}
 		
-		Assert.assertSame(immutableMap.comparator(), mutableMap.comparator());
+		Assertions.assertSame(immutableMap.comparator(), mutableMap.comparator());
 		
 		if (!mutableMap.isEmpty())
 		{
-			Assert.assertEquals(immutableMap.firstKey(), mutableMap.firstKey());
-			Assert.assertEquals(immutableMap.lastKey(), mutableMap.lastKey());
+			Assertions.assertEquals(immutableMap.firstKey(), mutableMap.firstKey());
+			Assertions.assertEquals(immutableMap.lastKey(), mutableMap.lastKey());
 		}
 		else
 		{
 			try
 			{
 				immutableMap.firstKey();
-				Assert.fail();
+				Assertions.fail();
 			}
 			catch (NoSuchElementException e)
 			{
@@ -269,19 +269,19 @@ public class CollectionsTest
 			try
 			{
 				immutableMap.lastKey();
-				Assert.fail();
+				Assertions.fail();
 			}
 			catch (NoSuchElementException e)
 			{
 			}
 		}
 		
-		Assert.assertEquals(immutableMap.headMap(key1), mutableMap.headMap(key1));
-		Assert.assertEquals(immutableMap.headMap(key2), mutableMap.headMap(key2));
+		Assertions.assertEquals(immutableMap.headMap(key1), mutableMap.headMap(key1));
+		Assertions.assertEquals(immutableMap.headMap(key2), mutableMap.headMap(key2));
 
-		Assert.assertEquals(immutableMap.subMap(key1, key2), mutableMap.subMap(key1, key2));
+		Assertions.assertEquals(immutableMap.subMap(key1, key2), mutableMap.subMap(key1, key2));
 		
-		Assert.assertEquals(immutableMap.tailMap(key1), mutableMap.tailMap(key1));
-		Assert.assertEquals(immutableMap.tailMap(key2), mutableMap.tailMap(key2));
+		Assertions.assertEquals(immutableMap.tailMap(key1), mutableMap.tailMap(key1));
+		Assertions.assertEquals(immutableMap.tailMap(key2), mutableMap.tailMap(key2));
 	}
 }

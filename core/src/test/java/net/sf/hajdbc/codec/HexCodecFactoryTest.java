@@ -21,8 +21,8 @@ import java.sql.SQLException;
 
 import net.sf.hajdbc.codec.hex.HexCodecFactory;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -36,7 +36,7 @@ public class HexCodecFactoryTest
 	{
 		Codec codec = this.factory.createCodec(null);
 		
-		Assert.assertEquals("70617373776F7264", codec.encode("password"));
+		Assertions.assertEquals("70617373776F7264", codec.encode("password"));
 	}
 	
 	@Test
@@ -44,6 +44,6 @@ public class HexCodecFactoryTest
 	{
 		Codec codec = this.factory.createCodec(null);
 		
-		Assert.assertEquals("password", codec.decode("70617373776F7264"));
+		Assertions.assertEquals("password", codec.decode("70617373776F7264"));
 	}
 }

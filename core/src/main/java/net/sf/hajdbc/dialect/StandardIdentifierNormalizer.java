@@ -72,7 +72,27 @@ public class StandardIdentifierNormalizer implements IdentifierNormalizer
 		// Quote mixed-case identifiers if detected and supported by DBMS
 		requiresQuoting |= quoted && !this.supportsMixedCaseIdentifiers && this.supportsMixedCaseQuotedIdentifiers && ((this.storesLowerCaseIdentifiers && !this.storesLowerCaseQuotedIdentifiers && UPPER_CASE_PATTERN.matcher(raw).find()) || (this.storesUpperCaseIdentifiers && !this.storesUpperCaseQuotedIdentifiers && LOWER_CASE_PATTERN.matcher(raw).find()));
 		
-		return requiresQuoting ? this.quote + this.normalizeCaseQuoted(raw) + this.quote : this.normalizeCase(raw);
+		// Escape quote characters within the identifier to prevent SQL injection
+		String escaped = this.escapeQuote(raw);
+		
+		return requiresQuoting ? this.quote + this.normalizeCaseQuoted(escaped) + this.quote : this.normalizeCase(escaped);
+	}
+	
+	/**
+	 * Escape quote characters within an identifier to prevent SQL injection.
+	 * Standard SQL escapes a quote by doubling it (e.g., " -> "").
+	 */
+	private String escapeQuote(String identifier)
+	{
+		// If the quote string is empty or identifier doesn't contain the quote, return as-is
+		if (this.quote.isEmpty() || !identifier.contains(this.quote)) {
+			return identifier;
+		}
+		
+		// Standard SQL escaping: double the quote character
+		// e.g., for quote="\"", "O'Brien" becomes "O""Brien" when quoted
+		String escapedQuote = this.quote + this.quote;
+		return identifier.replace(this.quote, escapedQuote);
 	}
 
 	private String normalizeCase(String identifier)

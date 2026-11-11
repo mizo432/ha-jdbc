@@ -42,7 +42,7 @@ import net.sf.hajdbc.sql.ProxyFactory;
 public class AllResultsCollector implements InvokeOnManyInvocationStrategy.ResultsCollector
 {
 	private static final Messages messages = MessagesFactory.getMessages();
-
+	
 	public static interface ExecutorProvider
 	{
 		<Z, D extends Database<Z>> ExecutorService getExecutor(DatabaseCluster<Z, D> cluster);
@@ -63,11 +63,14 @@ public class AllResultsCollector implements InvokeOnManyInvocationStrategy.Resul
 	{
 		DatabaseCluster<Z, D> cluster = factory.getDatabaseCluster();
 		ExceptionFactory<E> exceptionFactory = factory.getExceptionFactory();
-		Set<D> databaseSet = cluster.getBalancer();
+		Set<D> databaseSet = cluster.getBalancer().getActiveDatabases();
 		
 		if (databaseSet.isEmpty())
 		{
-			exceptionFactory.createException(messages.noActiveDatabases(cluster));
+			final SortedMap<D, R> resultMap = new TreeMap<>();
+			final SortedMap<D, E> exceptionMap = new TreeMap<>();
+			exceptionMap.put(null, exceptionFactory.createException(messages.noActiveDatabases(cluster)));
+			return new AbstractMap.SimpleImmutableEntry<>(resultMap, exceptionMap);
 		}
 
 		int size = databaseSet.size();
@@ -102,18 +105,20 @@ public class AllResultsCollector implements InvokeOnManyInvocationStrategy.Resul
 						exceptionMap.put(database, exceptionFactory.createException(e.getCause()));
 					}
 				}
-				catch (InterruptedException e)
-				{
-					Thread.currentThread().interrupt();
-					
-					exceptionMap.put(database, exceptionFactory.createException(e));
-				}
-			}
+ 			catch (InterruptedException e)
+ 			{
+ 				Thread.currentThread().interrupt();
+				
+ 				exceptionMap.put(database, exceptionFactory.createException(e));
+ 				break;
+ 			}
+ 		}
 		
 			return new AbstractMap.SimpleImmutableEntry<>(resultMap, exceptionMap);
 		}
 		catch (InterruptedException e)
 		{
+			Thread.currentThread().interrupt();
 			throw new IllegalStateException(e);
 		}
 	}

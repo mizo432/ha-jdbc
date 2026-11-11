@@ -29,6 +29,7 @@ import net.sf.hajdbc.state.DatabaseEvent;
 import net.sf.hajdbc.state.DurabilityListenerAdapter;
 import net.sf.hajdbc.state.SerializedDurabilityListener;
 import net.sf.hajdbc.state.StateManager;
+import net.sf.hajdbc.state.StateManagerDurabilityHelper;
 import net.sf.hajdbc.util.Objects;
 
 public class LevelDBStateManager implements StateManager, SerializedDurabilityListener
@@ -39,7 +40,7 @@ public class LevelDBStateManager implements StateManager, SerializedDurabilityLi
 	private final File file;
 	private final Options options;
 	private final DurabilityEventFactory eventFactory;
-	private final DurabilityListenerAdapter listener;
+	private final StateManagerDurabilityHelper durability;
 	private volatile DB stateDatabase;
 	private volatile DB invokerDatabase;
 	private volatile DB invocationDatabase;
@@ -50,7 +51,8 @@ public class LevelDBStateManager implements StateManager, SerializedDurabilityLi
 		this.file = file;
 		this.options = options;
 		this.eventFactory = cluster.getDurability();
-		this.listener = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		DurabilityListenerAdapter adapter = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		this.durability = new StateManagerDurabilityHelper(adapter);
 	}
 
 	@Override
@@ -211,7 +213,7 @@ public class LevelDBStateManager implements StateManager, SerializedDurabilityLi
 				byte[] txId = Arrays.copyOf(key, key.length - 1);
 				byte phase = key[key.length - 1];
 				byte exceptionType = entry.getValue()[0];
-				map.put(this.listener.createInvocationEvent(txId, phase, exceptionType), new HashMap<String, InvokerEvent>());
+				map.put(this.durability.createInvocationEvent(txId, phase, exceptionType), new HashMap<String, InvokerEvent>());
 			}
 		}
 		catch (IOException e)
@@ -229,7 +231,7 @@ public class LevelDBStateManager implements StateManager, SerializedDurabilityLi
 				byte phase = key[txId.length + 1];
 				String databaseId = new String(Arrays.copyOfRange(key, txId.length + 2, key.length), StandardCharsets.UTF_8);
 				
-				DurabilityEvent event = this.listener.createEvent(txId, phase);
+				DurabilityEvent event = this.durability.createEvent(txId, phase);
 				Map<String, InvokerEvent> invokers = map.get(event);
 				if (invokers != null)
 				{
@@ -256,24 +258,24 @@ public class LevelDBStateManager implements StateManager, SerializedDurabilityLi
 	@Override
 	public void beforeInvocation(InvocationEvent event)
 	{
-		this.listener.beforeInvocation(event);
+		this.durability.beforeInvocation(event);
 	}
 
 	@Override
 	public void afterInvocation(InvocationEvent event)
 	{
-		this.listener.afterInvocation(event);
+		this.durability.afterInvocation(event);
 	}
 
 	@Override
 	public void beforeInvoker(InvokerEvent event)
 	{
-		this.listener.beforeInvoker(event);
+		this.durability.beforeInvoker(event);
 	}
 
 	@Override
 	public void afterInvoker(InvokerEvent event)
 	{
-		this.listener.afterInvoker(event);
+		this.durability.afterInvoker(event);
 	}
 }

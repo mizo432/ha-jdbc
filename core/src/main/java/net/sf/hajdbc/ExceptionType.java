@@ -21,67 +21,68 @@ import net.sf.hajdbc.sql.SQLExceptionFactory;
 import net.sf.hajdbc.sql.io.IOExceptionFactory;
 import net.sf.hajdbc.sql.xa.XAExceptionFactory;
 import net.sf.hajdbc.util.Matcher;
+import org.jspecify.annotations.NonNull;
 
 /**
- * 例外タイプの列挙型
+ * Exception type enumeration.
  * @author Paul Ferraro
  */
 @SuppressWarnings("rawtypes")
 public enum ExceptionType implements Matcher<ExceptionFactory>
 {
 	/**
-	 * SQL例外
+	 * SQL exception
 	 */
 	SQL(new SQLExceptionFactory()),
 	/**
-	 * XA例外
+	 * XA exception
 	 */
 	XA(new XAExceptionFactory()),
 	/**
-	 * IO例外
+	 * IO exception
 	 */
 	IO(new IOExceptionFactory())
 	;
-	private final ExceptionFactory<? extends Exception> factory;
+	private final @NonNull ExceptionFactory<? extends Exception> factory;
 	
 	/**
-	 * 例外ファクトリを指定してコンストラクトします
-	 * @param factory 例外ファクトリ
+	 * Constructs with the given exception factory.
+	 * @param factory exception factory
 	 */
-	private ExceptionType(ExceptionFactory<? extends Exception> factory)
+	private ExceptionType(@NonNull ExceptionFactory<? extends Exception> factory)
 	{
 		this.factory = factory;
 	}
 	
 	/**
-	 * 指定されたファクトリがこのタイプと一致するかどうかを判定します
-	 * @param factory 例外ファクトリ
-	 * @return 一致する場合はtrue
+	 * Determines if the given factory matches this type.
+	 * @param factory exception factory
+	 * @return true if it matches
 	 */
 	@Override
-	public boolean matches(ExceptionFactory factory)
+	public boolean matches(@NonNull ExceptionFactory factory)
 	{
 		return this == factory.getType();
 	}
 
 	/**
-	 * 例外ファクトリを返します
-	 * @param <E> 例外の型
-	 * @return 例外ファクトリ
+	 * Returns the exception factory.
+	 * @param <E> exception type
+	 * @return exception factory
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Exception> ExceptionFactory<E> getExceptionFactory()
+	public <E extends Exception> @NonNull ExceptionFactory<E> getExceptionFactory()
 	{
 		return (ExceptionFactory<E>) this.factory;
 	}
 	
 	/**
-	 * 指定された例外クラスに対応するタイプを返します
-	 * @param exceptionClass 例外クラス
-	 * @return 例外タイプ
-	 * @throws IllegalArgumentException 対応するタイプが見つからない場合
+	 * Returns the type corresponding to the given exception class.
+	 * @param exceptionClass exception class
+	 * @return exception type
+	 * @throws IllegalArgumentException if no matching type is found
 	 */
-	public static ExceptionType valueOf(Class<?> exceptionClass)
+	public static @NonNull ExceptionType valueOf(@NonNull Class<?> exceptionClass)
 	{
 		for (ExceptionType type: ExceptionType.values())
 		{

@@ -19,30 +19,32 @@ package net.sf.hajdbc;
 
 import java.sql.SQLException;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
- * アイデンティティ列のサポートインターフェース
+ * Identity column support interface.
  * @author Paul Ferraro
  */
 public interface IdentityColumnSupport
 {
 	/**
-	 * アイデンティティ列を含む可能性のあるINSERT SQLステートメントからテーブル名を解析します
-	 * @param sql SQLステートメント
-	 * @return テーブル名、またはSQLステートメントがINSERTでない場合またはこのダイアレクトがアイデンティティ列をサポートしない場合はnull
-	 * @throws SQLException エラーが発生した場合
+	 * Parses the table name from an INSERT SQL statement that may contain identity columns.
+	 * @param sql SQL statement
+	 * @return table name, or null if the SQL statement is not an INSERT or this dialect does not support identity columns
+	 * @throws SQLException if an error occurs
 	 * @since 2.0
 	 */
-	String parseInsertTable(String sql) throws SQLException;
+	@Nullable String parseInsertTable(@NonNull String sql) throws SQLException;
 	
 	/**
-	 * アイデンティティ列の現在値をリセットするために使用するSQLステートメントを返します
-	 * @param table テーブルプロパティ
-	 * @param column 列プロパティ
-	 * @param value 値
-	 * @return SQLステートメント
-	 * @throws SQLException エラーが発生した場合
+	 * Returns the SQL statement to reset the current value of an identity column.
+	 * @param table table properties
+	 * @param column column properties
+	 * @param value value
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs
 	 * @since 2.0.2
 	 */
-	String getAlterIdentityColumnSQL(TableProperties table, ColumnProperties column, long value) throws SQLException;
+	@NonNull String getAlterIdentityColumnSQL(@NonNull TableProperties table, @NonNull ColumnProperties column, long value) throws SQLException;
 }

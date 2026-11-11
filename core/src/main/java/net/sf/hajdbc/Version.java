@@ -21,28 +21,29 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import net.sf.hajdbc.util.Strings;
+import org.jspecify.annotations.NonNull;
 
 /**
- * バージョン情報を表すクラス
+ * Class representing version information.
  * @author Paul Ferraro
  */
 public class Version
 {
 	/**
-	 * 現在のバージョン
+	 * Current version
 	 */
-	public static final Version CURRENT = new Version(ResourceBundle.getBundle(Version.class.getName()).getString("version"));
+	public static final @NonNull Version CURRENT = new Version(ResourceBundle.getBundle(Version.class.getName()).getString("version"));
 	
-	private final String version;
+	private final @NonNull String version;
 	private final int major;
 	private final int minor;
 	private final int revision;
 	
 	/**
-	 * バージョン文字列を指定してコンストラクトします
-	 * @param version バージョン文字列
+	 * Constructs with the given version string.
+	 * @param version version string
 	 */
-	Version(String version)
+	Version(@NonNull String version)
 	{
 		this.version = version;
 		this.major = parse(0);
@@ -56,8 +57,8 @@ public class Version
 	}
 	
 	/**
-	 * メジャーバージョンを返します
-	 * @return メジャーバージョン
+	 * Returns the major version.
+	 * @return major version
 	 */
 	public int getMajor()
 	{
@@ -65,8 +66,8 @@ public class Version
 	}
 	
 	/**
-	 * マイナーバージョンを返します
-	 * @return マイナーバージョン
+	 * Returns the minor version.
+	 * @return minor version
 	 */
 	public int getMinor()
 	{
@@ -74,8 +75,8 @@ public class Version
 	}
 	
 	/**
-	 * リビジョン番号を返します
-	 * @return リビジョン番号
+	 * Returns the revision number.
+	 * @return revision number
 	 */
 	public int getRevision()
 	{
@@ -83,7 +84,7 @@ public class Version
 	}
 	
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return this.version;
 	}

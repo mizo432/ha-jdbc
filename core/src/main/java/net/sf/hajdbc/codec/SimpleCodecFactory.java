@@ -19,7 +19,7 @@ package net.sf.hajdbc.codec;
 
 
 /**
- * 何もしない単純なコーデックです
+ * Simple codec that does nothing.
  * @author Paul Ferraro
  */
 public class SimpleCodecFactory extends AbstractCodec

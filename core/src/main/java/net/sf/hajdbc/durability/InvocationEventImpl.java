@@ -22,6 +22,7 @@ import net.sf.hajdbc.ExceptionType;
 /**
  * @author Paul Ferraro
  */
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "EQ_DOESNT_OVERRIDE_EQUALS", justification = "親クラスのequals()を意図的にオーバーライドしていない")
 public class InvocationEventImpl extends DurabilityEventImpl implements InvocationEvent
 {	
 	private static final long serialVersionUID = 3577057545595076359L;
@@ -43,5 +44,17 @@ public class InvocationEventImpl extends DurabilityEventImpl implements Invocati
 	public ExceptionType getExceptionType()
 	{
 		return this.exceptionType;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		result = 31 * result + this.exceptionType.hashCode();
+		return result;
 	}
 }

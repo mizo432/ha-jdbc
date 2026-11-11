@@ -21,8 +21,8 @@ import java.sql.SQLException;
 
 import net.sf.hajdbc.codec.base64.Base64CodecFactory;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -36,7 +36,7 @@ public class Base64CodecFactoryTest
 	{
 		Codec codec = this.factory.createCodec(null);
 		
-		Assert.assertEquals("cGFzc3dvcmQ=", codec.encode("password"));
+		Assertions.assertEquals("cGFzc3dvcmQ=", codec.encode("password"));
 	}
 	
 	@Test
@@ -44,6 +44,6 @@ public class Base64CodecFactoryTest
 	{
 		Codec codec = this.factory.createCodec(null);
 		
-		Assert.assertEquals("password", codec.decode("cGFzc3dvcmQ="));
+		Assertions.assertEquals("password", codec.decode("cGFzc3dvcmQ="));
 	}
 }

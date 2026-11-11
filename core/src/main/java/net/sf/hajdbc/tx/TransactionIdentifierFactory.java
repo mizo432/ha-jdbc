@@ -18,16 +18,40 @@
 package net.sf.hajdbc.tx;
 
 /**
- * Factory for generating transaction identifiers.
- * @author Paul Ferraro
+ * Factory for generating and managing transaction identifiers.
+ * <p>
+ * This factory is used by the XA transaction support to generate unique transaction
+ * identifiers that can be serialized and deserialized for distributed transaction
+ * coordination. Each transaction identifier is globally unique within the cluster.
+ * </p>
+ *
+ * @param <T> transaction identifier type
  */
 public interface TransactionIdentifierFactory<T>
 {
+	/**
+	 * Creates a new unique transaction identifier.
+	 * @return new transaction identifier
+	 */
 	T createTransactionIdentifier();
-	
+
+	/**
+	 * Serializes a transaction identifier to bytes for storage or transmission.
+	 * @param transactionId the transaction identifier
+	 * @return serialized bytes
+	 */
 	byte[] serialize(T transactionId);
-	
+
+	/**
+	 * Deserializes a transaction identifier from bytes.
+	 * @param bytes serialized bytes
+	 * @return deserialized transaction identifier
+	 */
 	T deserialize(byte[] bytes);
-	
+
+	/**
+	 * Returns the size in bytes of a serialized transaction identifier.
+	 * @return size in bytes
+	 */
 	int size();
 }

@@ -19,22 +19,24 @@ package net.sf.hajdbc;
 
 import java.sql.SQLException;
 
+import org.jspecify.annotations.NonNull;
+
 
 /**
- * データベースクラスタファクトリのインターフェース
+ * Database cluster factory interface.
  * @author Paul Ferraro
- * @param <Z> 接続ソース（例：Driver、DataSourceなど）
- * @param <D> データベースの実装
+ * @param <Z> connection source (e.g., Driver, DataSource, etc.)
+ * @param <D> database implementation
  */
 public interface DatabaseClusterFactory<Z, D extends Database<Z>>
 {
 	/**
-	 * データベースクラスタを作成します
-	 * @param id クラスタの識別子
-	 * @param factory 設定ファクトリ
-	 * @param builder 設定ビルダー
-	 * @return データベースクラスタ
-	 * @throws SQLException クラスタの作成に失敗した場合
+	 * Creates a database cluster.
+	 * @param id cluster identifier
+	 * @param factory configuration factory
+	 * @param builder configuration builder
+	 * @return database cluster
+	 * @throws SQLException if cluster creation fails
 	 */
-	<B extends DatabaseBuilder<Z, D>> DatabaseCluster<Z, D> createDatabaseCluster(String id, DatabaseClusterConfigurationFactory<Z, D> factory, DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
+	<B extends DatabaseBuilder<Z, D>> @NonNull DatabaseCluster<Z, D> createDatabaseCluster(@NonNull String id, @NonNull DatabaseClusterConfigurationFactory<Z, D> factory, @NonNull DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
 }

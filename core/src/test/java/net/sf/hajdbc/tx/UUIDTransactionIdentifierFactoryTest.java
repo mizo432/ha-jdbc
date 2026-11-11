@@ -19,8 +19,8 @@ package net.sf.hajdbc.tx;
 
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Paul Ferraro
@@ -36,10 +36,10 @@ public class UUIDTransactionIdentifierFactoryTest
 		
 		byte[] bytes = this.factory.serialize(expected);
 		
-		Assert.assertEquals(this.factory.size(), bytes.length);
+		Assertions.assertEquals(this.factory.size(), bytes.length);
 		
 		UUID result = this.factory.deserialize(bytes);
 		
-		Assert.assertEquals(expected, result);
+		Assertions.assertEquals(expected, result);
 	}
 }

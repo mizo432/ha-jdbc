@@ -20,30 +20,32 @@ package net.sf.hajdbc;
 import java.sql.SQLException;
 
 import net.sf.hajdbc.codec.Decoder;
+import org.jspecify.annotations.NonNull;
 
 /**
- * 認証情報のインターフェース
+ * Credentials interface.
  * @author Paul Ferraro
  */
 public interface Credentials
 {
 	/**
-	 * ユーザー名を返します
-	 * @return ユーザー名
+	 * Returns the username.
+	 * @return username
 	 */
-	String getUser();
+	@NonNull String getUser();
 	
 	/**
-	 * エンコードされたパスワードを返します
-	 * @return エンコードされたパスワード
+	 * Returns the encoded password.
+	 * @return encoded password
 	 */
-	String getEncodedPassword();
+	@NonNull String getEncodedPassword();
 	
 	/**
-	 * パスワードをデコードします
-	 * @param decoder デコーダー
-	 * @return デコードされたパスワード
-	 * @throws SQLException パスワードのデコードに失敗した場合
+	 * Decodes the password.
+	 * Returns char[] so the password can be cleared from memory after use.
+	 * @param decoder decoder
+	 * @return decoded password (zero out with Arrays.fill() after use)
+	 * @throws SQLException if password decoding fails
 	 */
-	String decodePassword(Decoder decoder) throws SQLException;
+	@NonNull char[] decodePassword(@NonNull Decoder decoder) throws SQLException;
 }

@@ -24,7 +24,7 @@ import net.sf.hajdbc.IdentifiableMatcher;
 import net.sf.hajdbc.util.ServiceLoaders;
 
 /**
- * プレフィックスによってデコーディングの動作が決定されるコーデックファクトリです。
+ * Codec factory where decoding behavior is determined by prefix.
  * @author Paul Ferraro
  */
 public class MultiplexingDecoderFactory implements DecoderFactory, Serializable {

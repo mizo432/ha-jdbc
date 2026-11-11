@@ -70,6 +70,12 @@ public class Event<T> extends EventObject
 	{
 		in.defaultReadObject();
 		// this.source is transient, so we need to explicitly read it from the input stream
-		this.source = in.readObject();
+		Object source = in.readObject();
+		// Validate that the deserialized source is not null to prevent unexpected null-pointer issues
+		if (source == null)
+		{
+			throw new IOException("Event source cannot be null");
+		}
+		this.source = source;
 	}
 }

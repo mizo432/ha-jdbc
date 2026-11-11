@@ -17,7 +17,6 @@
  */
 package net.sf.hajdbc.util;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 
@@ -25,19 +24,19 @@ public class Security
 {
 	public static <T> T run(PrivilegedAction<T> action)
 	{
-		return (System.getSecurityManager() != null) ? AccessController.doPrivileged(action) : action.run();
+		return action.run();
 	}
 
 	public static <T> T run(PrivilegedExceptionAction<T> action) throws Exception
 	{
-		return (System.getSecurityManager() != null) ? AccessController.doPrivileged(action) : action.run();
+		return action.run();
 	}
 
 	public static <T, E extends Exception> T run(PrivilegedExceptionAction<T> action, Class<E> exceptionClass) throws E
 	{
 		try
 		{
-			return (System.getSecurityManager() != null) ? AccessController.doPrivileged(action) : action.run();
+			return action.run();
 		}
 		catch (Exception e)
 		{

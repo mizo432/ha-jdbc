@@ -136,7 +136,7 @@ public class HSQLDBDialect extends StandardDialect
 	}
 
 	@Override
-	protected boolean indicatesFailure(int code)
+	protected boolean indicatesFailureErrorCode(int code)
 	{
 		return failureCodes.contains(code);
 	}

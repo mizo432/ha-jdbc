@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/distributed" />
+            <option value="$PROJECT_DIR$/distributed/jgroups" />
+            <option value="$PROJECT_DIR$/i18n" />
+            <option value="$PROJECT_DIR$/i18n/gettext" />
+            <option value="$PROJECT_DIR$/logging" />
+            <option value="$PROJECT_DIR$/logging/commons" />
+            <option value="$PROJECT_DIR$/logging/slf4j" />
+            <option value="$PROJECT_DIR$/sample-springboot4" />
+            <option value="$PROJECT_DIR$/state" />
+            <option value="$PROJECT_DIR$/state/leveldb" />
+            <option value="$PROJECT_DIR$/state/sqlite" />
+            <option value="$PROJECT_DIR$/test" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

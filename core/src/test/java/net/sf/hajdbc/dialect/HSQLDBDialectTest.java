@@ -17,12 +17,11 @@
  */
 package net.sf.hajdbc.dialect;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
@@ -42,7 +41,7 @@ import net.sf.hajdbc.SequencePropertiesFactory;
 import net.sf.hajdbc.dialect.hsqldb.HSQLDBDialectFactory;
 
 import org.hsqldb.error.ErrorCode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /**
@@ -52,9 +51,10 @@ import org.mockito.Mockito;
 @SuppressWarnings("nls")
 public class HSQLDBDialectTest extends StandardDialectTest
 {
-	public HSQLDBDialectTest()
+	@Override
+	protected DialectFactory createDialectFactory()
 	{
-		super(new HSQLDBDialectFactory());
+		return new HSQLDBDialectFactory();
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class HSQLDBDialectTest extends StandardDialectTest
 	@Override
 	public void getSequenceSupport()
 	{
-		assertSame(this.dialect, this.dialect.getSequenceSupport());
+		assertThat(this.dialect.getSequenceSupport()).isSameAs(this.dialect);
 	}
 
 	@Override
@@ -75,10 +75,10 @@ public class HSQLDBDialectTest extends StandardDialectTest
 		
 		List<String> result = this.dialect.getDefaultSchemas(metaData);
 		
-		Mockito.verifyZeroInteractions(metaData);
+		verifyNoInteractions(metaData);
 		
-		assertEquals(1, result.size());
-		assertSame("PUBLIC", result.get(0));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0)).isSameAs("PUBLIC");
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class HSQLDBDialectTest extends StandardDialectTest
 		
 		String result = this.dialect.getCreateForeignKeyConstraintSQL(constraint);
 		
-		assertEquals("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE ON UPDATE RESTRICT", result);
+		assertThat(result).isEqualTo("ALTER TABLE table ADD CONSTRAINT name FOREIGN KEY (column1, column2) REFERENCES foreign_table (foreign_column1, foreign_column2) ON DELETE CASCADE ON UPDATE RESTRICT");
 	}
 
 	/**
@@ -137,12 +137,12 @@ public class HSQLDBDialectTest extends StandardDialectTest
 		
 		verify(statement).close();
 		
-		assertEquals(2, results.size());
+		assertThat(results.size()).isEqualTo(2);
 		
 		Iterator<SequenceProperties> sequences = results.iterator();
 
-		assertSame(sequence1, sequences.next());
-		assertSame(sequence2, sequences.next());
+		assertThat(sequences.next()).isSameAs(sequence1);
+		assertThat(sequences.next()).isSameAs(sequence2);
 	}
 	
 	/**
@@ -160,7 +160,7 @@ public class HSQLDBDialectTest extends StandardDialectTest
 
 		String result = this.dialect.getSequenceSupport().getNextSequenceValueSQL(sequence);
 		
-		assertEquals("CALL NEXT VALUE FOR sequence", result);
+		assertThat(result).isEqualTo("CALL NEXT VALUE FOR sequence");
 	}
 	
 	/**
@@ -172,15 +172,15 @@ public class HSQLDBDialectTest extends StandardDialectTest
 	{
 		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT DATE '%s' FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date));
-		assertEquals("SELECT CURDATE FROM test", this.dialect.evaluateCurrentDate("SELECT CURDATE FROM test", date));
-		assertEquals(String.format("SELECT DATE '%s' FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT CURDATE() FROM test", date));
-		assertEquals(String.format("SELECT DATE '%s' FROM test", date.toString()), this.dialect.evaluateCurrentDate("SELECT CURDATE ( ) FROM test", date));
-		assertEquals("SELECT CCURRENT_DATE FROM test", this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date));
-		assertEquals("SELECT CURRENT_DATES FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date));
-		assertEquals("SELECT 1 FROM test", this.dialect.evaluateCurrentDate("SELECT 1 FROM test", date));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATE FROM test", date)).isEqualTo(String.format("SELECT DATE '%s' FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURDATE FROM test", date)).isEqualTo("SELECT CURDATE FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURDATE() FROM test", date)).isEqualTo(String.format("SELECT DATE '%s' FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURDATE ( ) FROM test", date)).isEqualTo(String.format("SELECT DATE '%s' FROM test", date.toString()));
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CCURRENT_DATE FROM test", date)).isEqualTo("SELECT CCURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_DATES FROM test", date)).isEqualTo("SELECT CURRENT_DATES FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIME FROM test", date)).isEqualTo("SELECT CURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT CURRENT_TIMESTAMP FROM test", date)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentDate("SELECT 1 FROM test", date)).isEqualTo("SELECT 1 FROM test");
 	}
 
 	/**
@@ -192,19 +192,19 @@ public class HSQLDBDialectTest extends StandardDialectTest
 	{
 		java.sql.Time time = new java.sql.Time(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time));
-		assertEquals("SELECT CURTIME FROM test", this.dialect.evaluateCurrentTime("SELECT CURTIME FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURTIME() FROM test", time));
-		assertEquals(String.format("SELECT TIME '%s' FROM test", time.toString()), this.dialect.evaluateCurrentTime("SELECT CURTIME ( ) FROM test", time));
-		assertEquals("SELECT LOCALTIME FROM test", this.dialect.evaluateCurrentTime("SELECT LOCALTIME FROM test", time));
-		assertEquals("SELECT LOCALTIME(2) FROM test", this.dialect.evaluateCurrentTime("SELECT LOCALTIME(2) FROM test", time));
-		assertEquals("SELECT LOCALTIME ( 2 ) FROM test", this.dialect.evaluateCurrentTime("SELECT LOCALTIME ( 2 ) FROM test", time));
-		assertEquals("SELECT CCURRENT_TIME FROM test", this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time));
-		assertEquals("SELECT LLOCALTIME FROM test", this.dialect.evaluateCurrentTime("SELECT LLOCALTIME FROM test", time));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time));
-		assertEquals("SELECT CURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time));
-		assertEquals("SELECT LOCALTIMESTAMP FROM test", this.dialect.evaluateCurrentTime("SELECT LOCALTIMESTAMP FROM test", time));
-		assertEquals("SELECT 1 FROM test", this.dialect.evaluateCurrentTime("SELECT 1 FROM test", time));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIME FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURTIME FROM test", time)).isEqualTo("SELECT CURTIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURTIME() FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURTIME ( ) FROM test", time)).isEqualTo(String.format("SELECT TIME '%s' FROM test", time.toString()));
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME FROM test", time)).isEqualTo("SELECT LOCALTIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME(2) FROM test", time)).isEqualTo("SELECT LOCALTIME(2) FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIME ( 2 ) FROM test", time)).isEqualTo("SELECT LOCALTIME ( 2 ) FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CCURRENT_TIME FROM test", time)).isEqualTo("SELECT CCURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LLOCALTIME FROM test", time)).isEqualTo("SELECT LLOCALTIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_DATE FROM test", time)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT CURRENT_TIMESTAMP FROM test", time)).isEqualTo("SELECT CURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT LOCALTIMESTAMP FROM test", time)).isEqualTo("SELECT LOCALTIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTime("SELECT 1 FROM test", time)).isEqualTo("SELECT 1 FROM test");
 	}
 
 	/**
@@ -216,29 +216,29 @@ public class HSQLDBDialectTest extends StandardDialectTest
 	{
 		java.sql.Timestamp timestamp = new java.sql.Timestamp(System.currentTimeMillis());
 		
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT NOW FROM test", this.dialect.evaluateCurrentTimestamp("SELECT NOW FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT NOW() FROM test", timestamp));
-		assertEquals(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()), this.dialect.evaluateCurrentTimestamp("SELECT NOW ( ) FROM test", timestamp));
-		assertEquals("SELECT LOCALTIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT LOCALTIMESTAMP(2) FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP(2) FROM test", timestamp));
-		assertEquals("SELECT LOCALTIMESTAMP ( 2 ) FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP ( 2 ) FROM test", timestamp));
-		assertEquals("SELECT CCURRENT_TIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT LLOCALTIMESTAMP FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LLOCALTIMESTAMP FROM test", timestamp));
-		assertEquals("SELECT CURRENT_DATE FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp));
-		assertEquals("SELECT CURRENT_TIME FROM test", this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp));
-		assertEquals("SELECT LOCALTIME FROM test", this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIME FROM test", timestamp));
-		assertEquals("SELECT 1 FROM test", this.dialect.evaluateCurrentTimestamp("SELECT 1 FROM test", timestamp));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT NOW FROM test", timestamp)).isEqualTo("SELECT NOW FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT NOW() FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT NOW ( ) FROM test", timestamp)).isEqualTo(String.format("SELECT TIMESTAMP '%s' FROM test", timestamp.toString()));
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP FROM test", timestamp)).isEqualTo("SELECT LOCALTIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP(2) FROM test", timestamp)).isEqualTo("SELECT LOCALTIMESTAMP(2) FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIMESTAMP ( 2 ) FROM test", timestamp)).isEqualTo("SELECT LOCALTIMESTAMP ( 2 ) FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CCURRENT_TIMESTAMP FROM test", timestamp)).isEqualTo("SELECT CCURRENT_TIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LLOCALTIMESTAMP FROM test", timestamp)).isEqualTo("SELECT LLOCALTIMESTAMP FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_DATE FROM test", timestamp)).isEqualTo("SELECT CURRENT_DATE FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT CURRENT_TIME FROM test", timestamp)).isEqualTo("SELECT CURRENT_TIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT LOCALTIME FROM test", timestamp)).isEqualTo("SELECT LOCALTIME FROM test");
+		assertThat(this.dialect.evaluateCurrentTimestamp("SELECT 1 FROM test", timestamp)).isEqualTo("SELECT 1 FROM test");
 	}
 
 	@Override
 	public void indicatesFailureSQLException()
 	{
-		assertFalse(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.CONSTRAINT)));
-		assertTrue(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.DATA_FILE_IS_FULL)));
-		assertTrue(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.FILE_IO_ERROR)));
-		assertTrue(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.OUT_OF_MEMORY)));
-		assertTrue(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.SERVER_DATABASE_DISCONNECTED)));
-		assertTrue(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.SERVER_NO_DATABASE)));
+		assertThat(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.CONSTRAINT))).isFalse();
+		assertThat(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.DATA_FILE_IS_FULL))).isTrue();
+		assertThat(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.FILE_IO_ERROR))).isTrue();
+		assertThat(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.OUT_OF_MEMORY))).isTrue();
+		assertThat(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.SERVER_DATABASE_DISCONNECTED))).isTrue();
+		assertThat(this.dialect.indicatesFailure(new SQLException("", "", ErrorCode.SERVER_NO_DATABASE))).isTrue();
 	}
 }

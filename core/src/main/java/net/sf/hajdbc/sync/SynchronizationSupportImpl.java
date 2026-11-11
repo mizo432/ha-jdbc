@@ -34,13 +34,10 @@ import java.util.concurrent.Future;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.ExceptionType;
-import net.sf.hajdbc.ForeignKeyConstraint;
 import net.sf.hajdbc.IdentityColumnSupport;
 import net.sf.hajdbc.SequenceProperties;
 import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.TableProperties;
-import net.sf.hajdbc.UniqueConstraint;
-import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.logging.Level;
 import net.sf.hajdbc.logging.Logger;
 import net.sf.hajdbc.logging.LoggerFactory;
@@ -71,34 +68,7 @@ public class SynchronizationSupportImpl<Z, D extends Database<Z>> implements Syn
 	@Override
 	public void dropForeignKeys() throws SQLException
 	{
-		Dialect dialect = this.context.getDialect();
-		
-		Connection connection = this.context.getConnection(this.context.getTargetDatabase());
-		boolean autoCommit = connection.getAutoCommit();
-		try
-		{
-			connection.setAutoCommit(true);
-			
-			try (Statement statement = connection.createStatement())
-			{
-				for (TableProperties table: this.context.getTargetDatabaseProperties().getTables())
-				{
-					for (ForeignKeyConstraint constraint: table.getForeignKeyConstraints())
-					{
-						String sql = dialect.getDropForeignKeyConstraintSQL(constraint);
-						
-						logger.log(Level.DEBUG, sql);
-						
-						statement.addBatch(sql);
-					}
-				}
-				statement.executeBatch();
-			}
-		}
-		finally
-		{
-			connection.setAutoCommit(autoCommit);
-		}
+		SynchronizationSupportHelper.executeBatch(this.context, SynchronizationSupportHelper.buildDropForeignKeySQL(this.context.getDialect(), this.context.getTargetDatabaseProperties().getTables()));
 	}
 	
 	/**
@@ -108,35 +78,7 @@ public class SynchronizationSupportImpl<Z, D extends Database<Z>> implements Syn
 	@Override
 	public void restoreForeignKeys() throws SQLException
 	{
-		Dialect dialect = this.context.getDialect();
-		
-		Connection connection = this.context.getConnection(this.context.getTargetDatabase());
-		boolean autoCommit = connection.getAutoCommit();
-		try
-		{
-			connection.setAutoCommit(true);
-			
-			try (Statement statement = connection.createStatement())
-			{
-				for (TableProperties table: this.context.getSourceDatabaseProperties().getTables())
-				{
-					for (ForeignKeyConstraint constraint: table.getForeignKeyConstraints())
-					{
-						String sql = dialect.getCreateForeignKeyConstraintSQL(constraint);
-						
-						logger.log(Level.DEBUG, sql);
-						
-						statement.addBatch(sql);
-					}
-				}
-				
-				statement.executeBatch();
-			}
-		}
-		finally
-		{
-			connection.setAutoCommit(autoCommit);
-		}
+		SynchronizationSupportHelper.executeBatch(this.context, SynchronizationSupportHelper.buildCreateForeignKeySQL(this.context.getDialect(), this.context.getSourceDatabaseProperties().getTables()));
 	}
 	
 	/**
@@ -214,6 +156,7 @@ public class SynchronizationSupportImpl<Z, D extends Database<Z>> implements Syn
 					}
 					catch (InterruptedException e)
 					{
+						Thread.currentThread().interrupt();
 						throw new SQLException(e);
 					}
 					catch (ExecutionException e)
@@ -311,35 +254,7 @@ public class SynchronizationSupportImpl<Z, D extends Database<Z>> implements Syn
 	@Override
 	public void dropUniqueConstraints() throws SQLException
 	{
-		Dialect dialect = this.context.getDialect();
-
-		Connection connection = this.context.getConnection(this.context.getTargetDatabase());
-		boolean autoCommit = connection.getAutoCommit();
-		try
-		{
-			connection.setAutoCommit(true);
-			
-			try (Statement statement = connection.createStatement())
-			{
-				for (TableProperties table: this.context.getTargetDatabaseProperties().getTables())
-				{
-					for (UniqueConstraint constraint: table.getUniqueConstraints())
-					{
-						String sql = dialect.getDropUniqueConstraintSQL(constraint);
-						
-						logger.log(Level.DEBUG, sql);
-						
-						statement.addBatch(sql);
-					}
-				}
-				
-				statement.executeBatch();
-			}
-		}
-		finally
-		{
-			connection.setAutoCommit(autoCommit);
-		}
+		SynchronizationSupportHelper.executeBatch(this.context, SynchronizationSupportHelper.buildDropUniqueConstraintSQL(this.context.getDialect(), this.context.getTargetDatabaseProperties().getTables()));
 	}
 	
 	/**
@@ -349,36 +264,7 @@ public class SynchronizationSupportImpl<Z, D extends Database<Z>> implements Syn
 	@Override
 	public void restoreUniqueConstraints() throws SQLException
 	{
-		Dialect dialect = this.context.getDialect();
-
-		Connection connection = this.context.getConnection(this.context.getTargetDatabase());
-		boolean autoCommit = connection.getAutoCommit();
-		try
-		{
-			connection.setAutoCommit(true);
-			
-			try (Statement statement = connection.createStatement())
-			{
-				for (TableProperties table: this.context.getSourceDatabaseProperties().getTables())
-				{
-					// Drop unique constraints on the current table
-					for (UniqueConstraint constraint: table.getUniqueConstraints())
-					{
-						String sql = dialect.getCreateUniqueConstraintSQL(constraint);
-						
-						logger.log(Level.DEBUG, sql);
-						
-						statement.addBatch(sql);
-					}
-				}
-				
-				statement.executeBatch();
-			}
-		}
-		finally
-		{
-			connection.setAutoCommit(autoCommit);
-		}
+		SynchronizationSupportHelper.executeBatch(this.context, SynchronizationSupportHelper.buildCreateUniqueConstraintSQL(this.context.getDialect(), this.context.getSourceDatabaseProperties().getTables()));
 	}
 
 	/**

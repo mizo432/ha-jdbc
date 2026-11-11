@@ -17,17 +17,19 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
- * 名前を持つオブジェクトのインターフェース
+ * Interface for objects with a name.
  * @author Paul Ferraro
- * @param <N> 名前の型
- * @param <T> オブジェクトの型
+ * @param <N> name type
+ * @param <T> object type
  */
 public interface Named<N, T extends Named<N, T>> extends Comparable<T>
 {
 	/**
-	 * 名前を返します
-	 * @return 名前
+	 * Returns the name.
+	 * @return name
 	 */
-	N getName();
+	@NonNull N getName();
 }

@@ -17,27 +17,29 @@
  */
 package net.sf.hajdbc;
 
+import org.jspecify.annotations.NonNull;
+
 /**
- * 列プロパティのインターフェース
+ * Column properties interface.
  * @author Paul Ferraro
  */
 public interface ColumnProperties extends Named<String, ColumnProperties>
 {
 	/**
-	 * SQLタイプを返します
-	 * @return SQLタイプ
+	 * Returns the SQL type.
+	 * @return SQL type
 	 */
 	int getType();
 	
 	/**
-	 * ネイティブタイプ名を返します
-	 * @return ネイティブタイプ名
+	 * Returns the native type name.
+	 * @return native type name
 	 */
-	String getNativeType();
+	@NonNull String getNativeType();
 	
 	/**
-	 * 自動インクリメントかどうかを返します
-	 * @return 自動インクリメントの場合はtrue
+	 * Returns whether this column is auto-increment.
+	 * @return true if auto-increment
 	 */
 	boolean isAutoIncrement();
 }

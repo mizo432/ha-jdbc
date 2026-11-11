@@ -34,13 +34,21 @@ import net.sf.hajdbc.util.reflect.Proxies;
  * 
  * @author Paul Ferraro
  */
-public class ResultSetProxyFactory<Z, D extends Database<Z>, S extends Statement> extends AbstractInputSinkRegistryProxyFactory<Z, D, S, ResultSet>
+public class ResultSetProxyFactory<Z, D extends Database<Z>, S extends Statement> extends AbstractSQLProxyFactory<Z, D, S, ResultSet> implements InputSinkRegistryProxyFactory<Z, D, S, ResultSet>
 {
+	private final InputSinkRegistry<Object> sinkRegistry;
 	private List<Invoker<Z, D, ResultSet, ?, SQLException>> invokers = new LinkedList<>();
 	
 	public ResultSetProxyFactory(S statementProxy, ProxyFactory<Z, D, S, SQLException> statementFactory, Invoker<Z, D, S, ResultSet, SQLException> invoker, Map<D, ResultSet> map, TransactionContext<Z, D> context, InputSinkRegistry<Object> sinkRegistry)
 	{
-		super(statementProxy, statementFactory, invoker, map, context, sinkRegistry);
+		super(statementProxy, statementFactory, invoker, map, context);
+		this.sinkRegistry = sinkRegistry;
+	}
+
+	@Override
+	public InputSinkRegistry<Object> getInputSinkRegistry()
+	{
+		return this.sinkRegistry;
 	}
 
 	public void addInvoker(Invoker<Z, D, ResultSet, ?, SQLException> invoker)

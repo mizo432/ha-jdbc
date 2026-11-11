@@ -23,8 +23,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamReader;
-
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.SequenceProperties;
@@ -54,11 +52,7 @@ public interface Messages
 	String resourceNotFound(String resource);
 	String init(Version version, XMLStreamFactory factory);
 
-	String unsupportedNamespace(XMLStreamReader reader);
-	String unexpectedAttribute(XMLStreamReader reader, int index);
-	String invalidAttribute(XMLStreamReader reader, int index);
-	String missingRequiredAttribute(XMLStreamReader reader, String attribute);
-	String unexpectedElement(XMLStreamReader reader);
+	String unsupportedNamespace();
 
 	// Configuration
 	String invalidJavaBeanProperty(Class<?> bean, String property);
@@ -112,4 +106,5 @@ public interface Messages
 	String sendCommandToClusterFailed(Command<?, ?> command);
 	String sendCommandToMemberFailed(Command<?, ?> command, Member member);
 	String executeCommandFailed(Command<?, ?> command, Member member);
+	String acquireLockFailed(Object lockDescriptor);
 }

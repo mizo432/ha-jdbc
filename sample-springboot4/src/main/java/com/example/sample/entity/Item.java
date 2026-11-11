@@ -1,25 +1,46 @@
 package com.example.sample.entity;
 
-import jakarta.persistence.*;
+import com.example.sample.dto.ItemRequest;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import org.hibernate.envers.Audited;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "items")
+@Audited
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name is required")
+    @Size(max = 100, message = "Name must be 100 characters or less")
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Size(max = 500, message = "Description must be 500 characters or less")
     @Column(length = 500)
     private String description;
 
+    @NotNull(message = "Price is required")
+    @Min(value = 0, message = "Price must be 0 or greater")
     @Column(nullable = false)
     private Integer price;
 
+    @NotNull(message = "Stock is required")
+    @Min(value = 0, message = "Stock must be 0 or greater")
     @Column(nullable = false)
     private Integer stock;
 
@@ -37,6 +58,28 @@ public class Item {
         this.description = description;
         this.price = price;
         this.stock = stock;
+    }
+
+    /**
+     * Create a new Item from a request DTO.
+     */
+    public static Item from(ItemRequest request) {
+        Item item = new Item();
+        item.setName(request.getName());
+        item.setDescription(request.getDescription());
+        item.setPrice(request.getPrice());
+        item.setStock(request.getStock());
+        return item;
+    }
+
+    /**
+     * Update this Item from a request DTO.
+     */
+    public void updateFrom(ItemRequest request) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.price = request.getPrice();
+        this.stock = request.getStock();
     }
 
     @PrePersist

@@ -19,6 +19,7 @@ package net.sf.hajdbc.sql.xa;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
@@ -51,8 +52,24 @@ public class XADataSourceDatabase extends CommonDataSourceDatabase<XADataSource>
 	{
 		XADataSource dataSource = this.getConnectionSource();
 		Credentials credentials = this.getCredentials();
-		XAConnection connection = (credentials != null) ? dataSource.getXAConnection(credentials.getUser(), credentials.decodePassword(decoder)) : dataSource.getXAConnection();
-		return connection.getConnection();
+		if (credentials == null)
+		{
+			return dataSource.getXAConnection().getConnection();
+		}
+		char[] password = null;
+		try
+		{
+			password = credentials.decodePassword(decoder);
+			XAConnection connection = dataSource.getXAConnection(credentials.getUser(), new String(password));
+			return connection.getConnection();
+		}
+		finally
+		{
+			if (password != null)
+			{
+				Arrays.fill(password, (char) 0);
+			}
+		}
 	}
 
 	public boolean isForce2PC()
