@@ -86,7 +86,7 @@ public class OracleDialect extends StandardDialect
 	}
 
 	@Override
-	protected String schemaPattern(DatabaseMetaData metaData) throws SQLException
+	public String schemaPattern(DatabaseMetaData metaData) throws SQLException
 	{
 		return metaData.getUserName();
 	}
@@ -139,10 +139,10 @@ public class OracleDialect extends StandardDialect
 	}
 
 	@Override
-	protected boolean indicatesFailure(String sqlState)
+	protected boolean indicatesFailureSQLState(String sqlState)
 	{
 		// 66 class SQLStates indicate SQL*Net driver errors
 		// 69 class SQLStates indicate SQL*Connect errors
-		return super.indicatesFailure(sqlState) || sqlState.startsWith("66") || sqlState.startsWith("69");
+		return super.indicatesFailureSQLState(sqlState) || sqlState.startsWith("66") || sqlState.startsWith("69");
 	}
 }

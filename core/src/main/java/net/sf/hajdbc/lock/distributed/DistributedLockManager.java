@@ -293,6 +293,30 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 			}
 		}
 		
+
+		/** Acquires the local lock; returns {@code true} if acquired, {@code false} otherwise. */
+		@FunctionalInterface
+		interface LocalLockAcquirer {
+			boolean acquire() throws InterruptedException;
+		}
+
+		/**
+		 * Acquires the lock as coordinator: acquires the local lock, then locks all members.
+		 * If member locking fails, releases the local lock before returning.
+		 * @param coordinator the current coordinator member
+		 * @param acquirer how to acquire the local lock
+		 * @return {@code true} if both local and member locks were acquired
+		 */
+		private boolean acquireAsCoordinator(Member coordinator, LocalLockAcquirer acquirer) throws InterruptedException
+		{
+			acquirer.acquire();
+			boolean locked = this.lockMembers(coordinator);
+			if (!locked)
+			{
+				this.lock.unlock();
+			}
+			return locked;
+		}
 		@Override
 			public void lock()
 			{
@@ -316,18 +340,14 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 					
 					if (this.dispatcher.getLocal().equals(coordinator))
 					{
-						this.lock.lock();
-						
 						try
 						{
-							locked = this.lockMembers(coordinator);
+							locked = this.acquireAsCoordinator(coordinator, () -> { this.lock.lock(); return true; });
 						}
-						finally
+						catch (InterruptedException e)
 						{
-							if (!locked)
-							{
-								this.lock.unlock();
-							}
+							Thread.currentThread().interrupt();
+							break;
 						}
 					}
 					else
@@ -354,19 +374,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 					
 					if (this.dispatcher.getLocal().equals(coordinator))
 					{
-						this.lock.lockInterruptibly();
-						
-						try
-						{
-							locked = this.lockMembers(coordinator);
-						}
-						finally
-						{
-							if (!locked)
-							{
-								this.lock.unlock();
-							}
-						}
+						locked = this.acquireAsCoordinator(coordinator, () -> { this.lock.lockInterruptibly(); return true; });
 					}
 					else
 					{
@@ -398,20 +406,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 					
 					if (this.dispatcher.getLocal().equals(coordinator))
 					{
-						if (this.lock.tryLock())
-						{
-							try
-							{
-								locked = this.lockMembers(coordinator);
-							}
-							finally
-							{
-								if (!locked)
-								{
-									this.lock.unlock();
-								}
-							}
-						}
+						locked = this.acquireAsCoordinator(coordinator, () -> this.lock.tryLock());
 					}
 					else
 					{
@@ -448,20 +443,7 @@ public class DistributedLockManager implements LockManager, LockCommandContext, 
 					long timeout = stop - now;
 					if (this.dispatcher.getLocal().equals(coordinator))
 					{
-						if (this.lock.tryLock(timeout, TimeUnit.MILLISECONDS))
-						{
-							try
-							{
-								locked = this.lockMembers(coordinator);
-							}
-							finally
-							{
-								if (!locked)
-								{
-									this.lock.unlock();
-								}
-							}
-						}
+						locked = this.acquireAsCoordinator(coordinator, () -> this.lock.tryLock(timeout, TimeUnit.MILLISECONDS));
 					}
 					else
 					{

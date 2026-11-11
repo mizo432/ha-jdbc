@@ -39,6 +39,7 @@ import net.sf.hajdbc.state.DatabaseEvent;
 import net.sf.hajdbc.state.DurabilityListenerAdapter;
 import net.sf.hajdbc.state.SerializedDurabilityListener;
 import net.sf.hajdbc.state.StateManager;
+import net.sf.hajdbc.state.StateManagerDurabilityHelper;
 import net.sf.hajdbc.util.Objects;
 
 import com.sleepycat.bind.ByteArrayBinding;
@@ -71,7 +72,7 @@ public class BerkeleyDBStateManager extends CloseablePoolProvider<Environment, D
 	private final PoolFactory poolFactory;
 	private final EnvironmentConfig config;
 	final DurabilityEventFactory eventFactory;
-	final DurabilityListenerAdapter listener;
+	final StateManagerDurabilityHelper durability;
 	
 	private volatile Pool<Environment, DatabaseException> pool;
 
@@ -82,7 +83,8 @@ public class BerkeleyDBStateManager extends CloseablePoolProvider<Environment, D
 		this.poolFactory = poolFactory;
 		this.config = config;
 		this.eventFactory = cluster.getDurability();
-		this.listener = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		DurabilityListenerAdapter adapter = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		this.durability = new StateManagerDurabilityHelper(adapter);
 	}
 
 	@Override
@@ -180,25 +182,25 @@ public class BerkeleyDBStateManager extends CloseablePoolProvider<Environment, D
 	@Override
 	public void beforeInvocation(InvocationEvent event)
 	{
-		this.listener.beforeInvocation(event);
+		this.durability.beforeInvocation(event);
 	}
 
 	@Override
 	public void afterInvocation(InvocationEvent event)
 	{
-		this.listener.afterInvocation(event);
+		this.durability.afterInvocation(event);
 	}
 
 	@Override
 	public void beforeInvoker(InvokerEvent event)
 	{
-		this.listener.beforeInvoker(event);
+		this.durability.beforeInvoker(event);
 	}
 
 	@Override
 	public void afterInvoker(InvokerEvent event)
 	{
-		this.listener.afterInvoker(event);
+		this.durability.afterInvoker(event);
 	}
 
 	@Override
@@ -284,8 +286,8 @@ public class BerkeleyDBStateManager extends CloseablePoolProvider<Environment, D
 			{
 				for (Map.Entry<InvocationKey, Byte> entry: createInvocationMap(database, true).entrySet())
 				{
-					InvocationKey key = entry.getKey();
-					result.put(BerkeleyDBStateManager.this.listener.createInvocationEvent(key.getTransactionId(), key.getPhase(), entry.getValue()), new HashMap<String, InvokerEvent>());
+ 				InvocationKey key = entry.getKey();
+					result.put(BerkeleyDBStateManager.this.durability.createInvocationEvent(key.getTransactionId(), key.getPhase(), entry.getValue()), new HashMap<String, InvokerEvent>());
 				}
 				return null;
 			}
@@ -298,8 +300,8 @@ public class BerkeleyDBStateManager extends CloseablePoolProvider<Environment, D
 			{
 				for (Map.Entry<InvokerKey, byte[]> entry: createInvokerMap(database, true).entrySet())
 				{
-					InvokerKey key = entry.getKey();
-					DurabilityEvent event = BerkeleyDBStateManager.this.listener.createEvent(key.getTransactionId(), key.getPhase());
+ 				InvokerKey key = entry.getKey();
+					DurabilityEvent event = BerkeleyDBStateManager.this.durability.createEvent(key.getTransactionId(), key.getPhase());
 					Map<String, InvokerEvent> invokers = result.get(event);
 					if (invokers != null)
 					{

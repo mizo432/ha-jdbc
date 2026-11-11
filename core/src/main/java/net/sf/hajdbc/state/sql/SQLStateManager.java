@@ -57,6 +57,7 @@ import net.sf.hajdbc.state.DatabaseEvent;
 import net.sf.hajdbc.state.DurabilityListenerAdapter;
 import net.sf.hajdbc.state.SerializedDurabilityListener;
 import net.sf.hajdbc.state.StateManager;
+import net.sf.hajdbc.state.StateManagerDurabilityHelper;
 import net.sf.hajdbc.util.Objects;
 import net.sf.hajdbc.util.ServiceLoaders;
 
@@ -96,7 +97,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 	private static final Logger logger = LoggerFactory.getLogger(SQLStateManager.class);
 	
 	final DurabilityEventFactory eventFactory;
-	final DurabilityListenerAdapter listener;
+	final StateManagerDurabilityHelper durability;
 	private final DatabaseCluster<Z, D> cluster;
 	private final PoolFactory poolFactory;
 	private final DriverDatabase database;
@@ -109,7 +110,8 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 		this.database = database;
 		this.poolFactory = poolFactory;
 		this.eventFactory = cluster.getDurability();
-		this.listener = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		DurabilityListenerAdapter adapter = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		this.durability = new StateManagerDurabilityHelper(adapter);
 	}
 
 	/**
@@ -391,7 +393,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 	@Override
 	public void beforeInvocation(InvocationEvent event)
 	{
-		this.listener.beforeInvocation(event);
+		this.durability.beforeInvocation(event);
 	}
 	
 	/**
@@ -401,7 +403,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 	@Override
 	public void afterInvocation(InvocationEvent event)
 	{
-		this.listener.afterInvocation(event);
+		this.durability.afterInvocation(event);
 	}
 	
 	void execute(Connection connection, String sql, byte[] transactionId, byte phase) throws SQLException 
@@ -437,7 +439,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 					{
 						while (resultSet.next())
 						{
-							map.put(SQLStateManager.this.listener.createInvocationEvent(resultSet.getBytes(1), resultSet.getByte(2), resultSet.getByte(3)), new HashMap<String, InvokerEvent>());
+							map.put(SQLStateManager.this.durability.createInvocationEvent(resultSet.getBytes(1), resultSet.getByte(2), resultSet.getByte(3)), new HashMap<String, InvokerEvent>());
 						}
 					}
 				}
@@ -451,7 +453,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 							byte[] txId = resultSet.getBytes(1);
 							byte phase = resultSet.getByte(2);
 							
-							DurabilityEvent event = SQLStateManager.this.listener.createEvent(txId, phase);
+							DurabilityEvent event = SQLStateManager.this.durability.createEvent(txId, phase);
 							Map<String, InvokerEvent> invokers = map.get(event);
 							
 							if (invokers != null)
@@ -493,7 +495,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 	@Override
 	public void beforeInvoker(InvokerEvent event)
 	{
-		this.listener.beforeInvoker(event);
+		this.durability.beforeInvoker(event);
 	}
 
 	/**
@@ -503,7 +505,7 @@ public class SQLStateManager<Z, D extends Database<Z>> implements StateManager, 
 	@Override
 	public void afterInvoker(InvokerEvent event)
 	{
-		this.listener.afterInvoker(event);
+		this.durability.afterInvoker(event);
 	}
 
 	@Override

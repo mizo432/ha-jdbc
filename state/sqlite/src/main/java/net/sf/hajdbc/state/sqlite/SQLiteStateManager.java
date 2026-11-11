@@ -46,6 +46,7 @@ import net.sf.hajdbc.state.DatabaseEvent;
 import net.sf.hajdbc.state.DurabilityListenerAdapter;
 import net.sf.hajdbc.state.SerializedDurabilityListener;
 import net.sf.hajdbc.state.StateManager;
+import net.sf.hajdbc.state.StateManagerDurabilityHelper;
 import net.sf.hajdbc.util.Objects;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -81,7 +82,7 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 	static final String CREATE_INVOKER_INDEX = MessageFormat.format("CREATE INDEX {0} ON {1} ({2}, {3})", INVOKER_TABLE_INDEX, INVOKER_TABLE, TRANSACTION_COLUMN, PHASE_COLUMN);
 	static final String CREATE_STATE_SQL = MessageFormat.format("CREATE TABLE {0} ({1} TEXT NOT NULL, PRIMARY KEY ({1}))", STATE_TABLE, DATABASE_COLUMN);
 
-	final DurabilityListenerAdapter listener;
+	final StateManagerDurabilityHelper durability;
 	final DurabilityEventFactory eventFactory;
 	private final File file;
 	private final PoolFactory poolFactory;
@@ -95,7 +96,8 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 		this.file = file;
 		this.poolFactory = poolFactory;
 		this.eventFactory = cluster.getDurability();
-		this.listener = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		DurabilityListenerAdapter adapter = new DurabilityListenerAdapter(this, cluster.getTransactionIdentifierFactory(), this.eventFactory);
+		this.durability = new StateManagerDurabilityHelper(adapter);
 	}
 	
 	@Override
@@ -173,7 +175,7 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 	@Override
 	public void beforeInvocation(InvocationEvent event)
 	{
-		this.listener.beforeInvocation(event);
+		this.durability.beforeInvocation(event);
 	}
 
 	/**
@@ -183,7 +185,7 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 	@Override
 	public void afterInvocation(InvocationEvent event)
 	{
-		this.listener.afterInvocation(event);
+		this.durability.afterInvocation(event);
 	}
 
 	/**
@@ -193,7 +195,7 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 	@Override
 	public void beforeInvoker(InvokerEvent event)
 	{
-		this.listener.beforeInvoker(event);
+		this.durability.beforeInvoker(event);
 	}
 
 	/**
@@ -203,7 +205,7 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 	@Override
 	public void afterInvoker(InvokerEvent event)
 	{
-		this.listener.afterInvoker(event);
+		this.durability.afterInvoker(event);
 	}
 
 	/**
@@ -376,7 +378,7 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 							byte[] transactionId = cursor.getBlobAsArray(TRANSACTION_COLUMN);
 							byte phase = (byte) cursor.getInteger(PHASE_COLUMN);
 							byte exceptionType = (byte) cursor.getInteger(EXCEPTION_COLUMN);
-							map.put(SQLiteStateManager.this.listener.createInvocationEvent(transactionId, phase, exceptionType), new HashMap<String, InvokerEvent>());
+							map.put(SQLiteStateManager.this.durability.createInvocationEvent(transactionId, phase, exceptionType), new HashMap<String, InvokerEvent>());
 						}
 						while (cursor.next());
 					}
@@ -394,7 +396,7 @@ public class SQLiteStateManager<Z, D extends Database<Z>> implements StateManage
 						{
 							byte[] transactionId = cursor.getBlobAsArray(TRANSACTION_COLUMN);
 							byte phase = (byte) cursor.getInteger(PHASE_COLUMN);
-							DurabilityEvent event = SQLiteStateManager.this.listener.createEvent(transactionId, phase);
+							DurabilityEvent event = SQLiteStateManager.this.durability.createEvent(transactionId, phase);
 							Map<String, InvokerEvent> invokers = map.get(event);
 							if (invokers != null)
 							{
