@@ -5,7 +5,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
-val haJdbcVersion = "4.0.0-alpha-1-SNAPSHOT"
+val haJdbcVersion = "5.0.0-alpha-1"
 
 plugins {
     id("com.github.spotbugs") version "6.5.13" apply false
