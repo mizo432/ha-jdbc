@@ -21,9 +21,32 @@ import java.util.SortedMap;
 
 import net.sf.hajdbc.Database;
 
+/**
+ * Factory for creating and comparing invocation results.
+ * <p>
+ * This factory is used by the proxy factory hierarchy to aggregate results from
+ * multiple database invocations. It compares results from primary and backup databases
+ * to detect inconsistencies, and creates a consolidated result from all invocations.
+ * </p>
+ *
+ * @param <Z> database connection source
+ * @param <D> database descriptor
+ * @param <R> result type
+ */
 public interface InvocationResultFactory<Z, D extends Database<Z>, R>
 {
+	/**
+	 * Compares results from primary and backup databases to detect inconsistencies.
+	 * @param primaryResult result from the primary database
+	 * @param backupResult result from the backup database
+	 * @return true if the results differ
+	 */
 	boolean differs(R primaryResult, R backupResult);
 
+	/**
+	 * Creates a consolidated result from all database invocations.
+	 * @param results map of database to result
+	 * @return consolidated result
+	 */
 	R createResult(SortedMap<D, R> results);
 }

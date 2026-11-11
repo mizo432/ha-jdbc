@@ -18,15 +18,21 @@
 package net.sf.hajdbc.pool;
 
 /**
- * オブジェクトプールを作成するためのファクトリです。
- * @author Paul Ferraro
+ * Factory for creating object pools.
+ * <p>
+ * This factory is used internally by HA-JDBC to manage connection pools. It abstracts
+ * the underlying pooling implementation, allowing different pool providers to be used.
+ * </p>
+ *
+ * @see Pool
+ * @see PoolProvider
  */
 public interface PoolFactory
 {
 	/**
 	 * Creates a pool using the specified provider.
-	 * @param <T> 
-	 * @param <E>
+	 * @param <T> pooled object type
+	 * @param <E> exception type thrown by the provider
 	 * @param provider a pool provider
 	 * @return a new pool
 	 */

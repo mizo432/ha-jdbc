@@ -23,17 +23,28 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 
 /**
- * @author Paul Ferraro
+ * Factory for creating XML stream sources and results.
+ * <p>
+ * This factory is used by {@link XMLDatabaseClusterConfigurationFactory} to read and write
+ * XML configuration files. It abstracts the underlying XML parsing implementation,
+ * allowing for different XML formats (DOM, SAX, StAX) to be used.
+ * </p>
+ *
+ * @see XMLDatabaseClusterConfigurationFactory
+ * @see javax.xml.transform.Source
+ * @see javax.xml.transform.Result
  */
 public interface XMLStreamFactory extends Serializable
 {
 	/**
-	 * @return an xml source
+	 * Creates an XML source for reading configuration.
+	 * @return XML source
 	 */
 	Source createSource();
-	
+
 	/**
-	 * @return an xml result
+	 * Creates an XML result for writing configuration.
+	 * @return XML result
 	 */
 	Result createResult();
 }

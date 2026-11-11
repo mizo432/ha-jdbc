@@ -20,7 +20,25 @@ package net.sf.hajdbc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Factory for creating {@link SequenceProperties} instances.
+ * <p>
+ * This factory is part of the {@link net.sf.hajdbc.dialect.DialectFactoryProvider} hierarchy,
+ * providing database vendor-specific sequence metadata. Each dialect supplies its own
+ * implementation to handle vendor-specific sequence naming and increment rules.
+ * </p>
+ *
+ * @see net.sf.hajdbc.dialect.DialectFactoryContract#createSequencePropertiesFactory()
+ * @see SequenceProperties
+ */
 public interface SequencePropertiesFactory
 {
+	/**
+	 * Creates sequence properties.
+	 * @param schema schema name, or null for default schema
+	 * @param name sequence name
+	 * @param increment sequence increment value
+	 * @return new sequence properties
+	 */
 	@NonNull SequenceProperties createSequenceProperties(@Nullable String schema, @NonNull String name, int increment);
 }

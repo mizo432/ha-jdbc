@@ -20,11 +20,38 @@ package net.sf.hajdbc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Factory for creating {@link QualifiedName} instances.
+ * <p>
+ * This factory is part of the {@link net.sf.hajdbc.dialect.DialectFactoryProvider} hierarchy,
+ * providing database vendor-specific qualified name (schema.table) handling. Each dialect
+ * supplies its own implementation to handle vendor-specific naming conventions, such as
+ * case sensitivity and identifier quoting rules.
+ * </p>
+ *
+ * @see net.sf.hajdbc.dialect.DialectFactoryContract#createQualifiedNameFactory()
+ * @see QualifiedName
+ */
 public interface QualifiedNameFactory
 {
+	/**
+	 * Creates a qualified name from schema and table components.
+	 * @param schema schema name, or null for default schema
+	 * @param table table name
+	 * @return new qualified name
+	 */
 	@NonNull QualifiedName createQualifiedName(@Nullable String schema, @NonNull String table);
 
+	/**
+	 * Returns the identifier normalizer used by this factory.
+	 * @return identifier normalizer
+	 */
 	@NonNull IdentifierNormalizer getIdentifierNormalizer();
 
+	/**
+	 * Parses a raw qualified name string into a {@link QualifiedName} instance.
+	 * @param raw raw qualified name string (e.g., "schema.table")
+	 * @return parsed qualified name
+	 */
 	@NonNull QualifiedName parse(@NonNull String raw);
 }

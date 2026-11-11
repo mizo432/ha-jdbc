@@ -23,10 +23,26 @@ import java.sql.SQLException;
 import net.sf.hajdbc.Identifiable;
 
 /**
- * @author Paul Ferraro
+ * Factory for creating {@link Codec} instances.
+ * <p>
+ * A codec provides both encoding and decoding capabilities. This factory extends
+ * {@link DecoderFactory} and is used to create codecs for serializing state data.
+ * Common implementations include base64, hex, and cipher (encrypted) codecs.
+ * </p>
  *
+ * @see Codec
+ * @see DecoderFactory
+ * @see net.sf.hajdbc.codec.base64.Base64CodecFactory
+ * @see net.sf.hajdbc.codec.hex.HexCodecFactory
+ * @see net.sf.hajdbc.codec.crypto.CipherCodecFactory
  */
 public interface CodecFactory extends Identifiable, Serializable
 {
+	/**
+	 * Creates a new codec for the specified cluster.
+	 * @param clusterId unique cluster identifier
+	 * @return new codec
+	 * @throws SQLException if codec creation fails
+	 */
 	Codec createCodec(String clusterId) throws SQLException;
 }

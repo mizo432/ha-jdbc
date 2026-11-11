@@ -19,7 +19,24 @@ package net.sf.hajdbc;
 
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Factory for creating {@link UniqueConstraint} instances.
+ * <p>
+ * This factory is part of the {@link net.sf.hajdbc.dialect.DialectFactoryProvider} hierarchy,
+ * providing database vendor-specific unique constraint metadata. Each dialect supplies
+ * its own implementation to handle vendor-specific constraint naming and column handling.
+ * </p>
+ *
+ * @see net.sf.hajdbc.dialect.DialectFactoryContract#createUniqueConstraintFactory()
+ * @see UniqueConstraint
+ */
 public interface UniqueConstraintFactory
 {
+	/**
+	 * Creates a unique constraint.
+	 * @param name constraint name
+	 * @param table qualified name of the constrained table
+	 * @return new unique constraint
+	 */
 	@NonNull UniqueConstraint createUniqueConstraint(@NonNull String name, @NonNull QualifiedName table);
 }
