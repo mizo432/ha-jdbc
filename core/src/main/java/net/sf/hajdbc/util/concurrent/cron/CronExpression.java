@@ -423,11 +423,7 @@ public final class CronExpression implements Serializable {
     }
     
     
-    ////////////////////////////////////////////////////////////////////////////
-    //
     // Expression Parsing Functions
-    //
-    ////////////////////////////////////////////////////////////////////////////
 
     protected void buildExpression(String expression) throws ParseException {
         expressionParsed = true;
@@ -552,11 +548,7 @@ public final class CronExpression implements Serializable {
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    //
     // Computation Functions
-    //
-    ////////////////////////////////////////////////////////////////////////////
 
     public Date getTimeAfter(Date afterTime) {
         return getEvaluator().getTimeAfter(afterTime);
