@@ -4,8 +4,8 @@ Spring Boot 4 + JPA + PostgreSQL のサンプルプロジェクトです。
 
 ## 技術スタック
 
-- **Java 21**
-- **Spring Boot 4.0.0**
+- **Java 25**
+- **Spring Boot 4.1.2**
 - **Spring Data JPA**
 - **PostgreSQL 17**
 - **Flyway** (データベースマイグレーション)
