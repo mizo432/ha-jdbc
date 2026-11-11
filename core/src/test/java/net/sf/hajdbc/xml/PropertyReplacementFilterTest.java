@@ -604,6 +604,11 @@ public class PropertyReplacementFilterTest
 		this.properties.setProperty("java.version", "25.0.1");
 		this.properties.setProperty("user.name", "testuser");
 		this.properties.setProperty("os.name", "Linux");
+		this.properties.setProperty("os.arch", "amd64");
+		this.properties.setProperty("os.version", "5.15");
+		this.properties.setProperty("file.separator", "/");
+		this.properties.setProperty("file.encoding", "UTF-8");
+		this.properties.setProperty("path.separator", ":");
 
 		when(this.reader.getText()).thenReturn("${java.version}");
 		assertThat(this.filter.getText()).isEqualTo("25.0.1");
@@ -613,6 +618,51 @@ public class PropertyReplacementFilterTest
 
 		when(this.reader.getText()).thenReturn("${os.name}");
 		assertThat(this.filter.getText()).isEqualTo("Linux");
+
+		when(this.reader.getText()).thenReturn("${os.arch}");
+		assertThat(this.filter.getText()).isEqualTo("amd64");
+
+		when(this.reader.getText()).thenReturn("${os.version}");
+		assertThat(this.filter.getText()).isEqualTo("5.15");
+
+		when(this.reader.getText()).thenReturn("${file.separator}");
+		assertThat(this.filter.getText()).isEqualTo("/");
+
+		when(this.reader.getText()).thenReturn("${file.encoding}");
+		assertThat(this.filter.getText()).isEqualTo("UTF-8");
+
+		when(this.reader.getText()).thenReturn("${path.separator}");
+		assertThat(this.filter.getText()).isEqualTo(":");
+	}
+
+	@Test
+	public void blockedSensitiveOsProperties()
+	{
+		// Test that os.* properties beyond the allowed specific ones are blocked
+		this.properties.setProperty("os.environment", "production");
+
+		when(this.reader.getText()).thenReturn("${os.environment}");
+		assertThat(this.filter.getText()).isEqualTo("${os.environment}");
+	}
+
+	@Test
+	public void blockedSensitiveFileProperties()
+	{
+		// Test that file.* properties beyond the allowed specific ones are blocked
+		this.properties.setProperty("file.create.onExit", "true");
+
+		when(this.reader.getText()).thenReturn("${file.create.onExit}");
+		assertThat(this.filter.getText()).isEqualTo("${file.create.onExit}");
+	}
+
+	@Test
+	public void blockedSensitivePathProperties()
+	{
+		// Test that path.* properties beyond the allowed specific ones are blocked
+		this.properties.setProperty("path.info", "secret");
+
+		when(this.reader.getText()).thenReturn("${path.info}");
+		assertThat(this.filter.getText()).isEqualTo("${path.info}");
 	}
 
 	@Test

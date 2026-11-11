@@ -52,9 +52,12 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 			"user.language",      // User language
 			"user.country",       // User country
 			"user.timezone",      // User timezone
-			"os.",                // OS properties (os.name, os.arch, etc.)
-			"file.",              // File properties (file.separator, file.encoding, etc.)
-			"path.",              // Path separator property
+			"os.name",            // OS name
+			"os.arch",            // OS architecture
+			"os.version",         // OS version
+			"file.separator",     // File separator
+			"file.encoding",      // File encoding
+			"path.separator",     // Path separator
 			"jgroups.",           // JGroups properties
 			"spring.",            // Spring framework properties
 			"javax.xml.",         // XML-related properties
