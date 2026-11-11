@@ -87,13 +87,6 @@ public class SmokeTest
 		// BerkeleyDBStateManagerFactoryは利用できないためスキップ
 	}
 	
-	@Test
-	@Disabled("Derbyドライバはテスト環境で利用できない")
-	public void derby() throws Exception
-	{
-		// Derbyドライバは利用できないためスキップ
-	}
-	
 	private static void test(StateManagerFactory factory) throws Exception
 	{
 		JdbcDataSource ds1 = new JdbcDataSource();
