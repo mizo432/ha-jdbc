@@ -212,7 +212,7 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		// Distributable
 		if (config.getDistributable() != null)
 		{
-   String id = config.getDistributable().getId() != null ? config.getDistributable().getId() : "pekko";
+   String id = config.getDistributable().getId() != null ? config.getDistributable().getId() : "jgroups";
 			net.sf.hajdbc.configuration.ServiceBuilder<net.sf.hajdbc.distributed.CommandDispatcherFactory> distBuilder = builder.distributable(id);
 			for (Property p : config.getDistributable().getProperty())
 			{

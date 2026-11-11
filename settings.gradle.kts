@@ -10,7 +10,6 @@ pluginManagement {
 include("core")
 include("distributed")
 include("distributed:jgroups")
-include("distributed:pekko")
 include("i18n")
 include("i18n:gettext")
 include("logging")

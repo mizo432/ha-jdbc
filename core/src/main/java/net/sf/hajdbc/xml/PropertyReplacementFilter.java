@@ -59,7 +59,7 @@ public class PropertyReplacementFilter
 			"file.separator",     // File separator
 			"file.encoding",      // File encoding
 			"path.separator",     // Path separator
-			"pekko.",             // Pekko properties
+   "jgroups.",           // JGroups properties
 			"spring.",            // Spring framework properties
 			"javax.xml.",         // XML-related properties
 			"awt.",               // AWT properties (font settings, etc.)

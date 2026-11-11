@@ -27,14 +27,14 @@ import net.sf.hajdbc.Identifiable;
  * <p>
  * This factory is a core component of the HA-JDBC distributed architecture, registered via
  * {@link net.sf.hajdbc.DatabaseClusterConfiguration#getDispatcherFactory()}. The command dispatcher
- * enables remote command execution across cluster nodes, typically backed by Apache Pekko.
+ * enables remote command execution across cluster nodes, typically backed by JGroups.
  * It is used by {@link net.sf.hajdbc.lock.distributed.DistributedLockManager} and
  * {@link net.sf.hajdbc.state.distributed.DistributedStateManager} to synchronize state
  * and locks across nodes.
  *
  * @see CommandDispatcher
  * @see net.sf.hajdbc.DatabaseClusterConfiguration#getDispatcherFactory()
- * @see net.sf.hajdbc.distributed.pekko.PekkoCommandDispatcherFactory
+ * @see net.sf.hajdbc.distributed.jgroups.JGroupsCommandDispatcherFactory
  */
 public interface CommandDispatcherFactory extends Identifiable, Serializable
 {

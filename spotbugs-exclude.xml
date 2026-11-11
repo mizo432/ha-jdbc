@@ -42,12 +42,12 @@
         <Bug code="IMSE" />
     </Match>
 
-    <!-- SE_BAD_FIELD: PekkoMember fields are serialized via HA-JDBC's own mechanism -->
+    <!-- SE_BAD_FIELD: AddressMember fields are serialized via HA-JDBC's own mechanism -->
     <Match>
         <Bug code="Se" />
     </Match>
 
-    <!-- AT_STALE_THREAD_WRITE_OF_PRIMITIVE: PekkoCommandDispatcher config fields are set before start() -->
+    <!-- AT_STALE_THREAD_WRITE_OF_PRIMITIVE: JGroupsCommandDispatcher config fields are set before start() -->
     <Match>
         <Bug code="AT" />
     </Match>

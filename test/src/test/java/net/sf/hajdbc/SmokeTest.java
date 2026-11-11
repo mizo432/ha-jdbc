@@ -111,7 +111,7 @@ public class SmokeTest
 			builder.metaDataCache("none");
 			builder.state(factory);
 			builder.durability("fine");
-//			builder.distributable("pekko");
+//			builder.distributable("jgroups");
 
 			try (Connection c1 = ds1.getConnection())
 			{
