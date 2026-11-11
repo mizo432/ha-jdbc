@@ -57,6 +57,11 @@ public class SharedLazyDatabaseMetaDataCache<Z, D extends Database<Z>> implement
 	@Override
 	public synchronized void flush()
 	{
+		Map.Entry<DatabaseProperties, LazyDatabaseMetaDataProvider> entry = this.entryRef.get();
+		if (entry != null)
+		{
+			entry.getValue().remove();
+		}
 		this.entryRef.clear();
 	}
 

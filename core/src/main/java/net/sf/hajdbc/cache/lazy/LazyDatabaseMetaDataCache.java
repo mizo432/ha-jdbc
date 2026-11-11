@@ -56,6 +56,10 @@ public class LazyDatabaseMetaDataCache<Z, D extends Database<Z>> implements Data
 	{
 		synchronized (this.map)
 		{
+			for (Map.Entry<DatabaseProperties, LazyDatabaseMetaDataProvider> entry : this.map.values())
+			{
+				entry.getValue().remove();
+			}
 			this.map.clear();
 		}
 	}
