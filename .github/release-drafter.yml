@@ -58,21 +58,21 @@ categories:
     type: version-resolver
     semver-increment: major
     when:
-      label:
+      labels:
         - 'major'
         - 'breaking'
   - title: '⬆️ Minor Version'
     type: version-resolver
     semver-increment: minor
     when:
-      label:
+      labels:
         - 'minor'
         - 'feature'
   - title: '⬆️ Patch Version'
     type: version-resolver
     semver-increment: patch
     when:
-      label:
+      labels:
         - 'patch'
         - 'bugfix'
         - 'fix'
