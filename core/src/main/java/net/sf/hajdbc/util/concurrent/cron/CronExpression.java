@@ -197,7 +197,7 @@ import net.sf.hajdbc.logging.LoggerFactory;
  * @author Refactoring from CronTrigger to CronExpression by Aaron Craven
  */
 @SuppressWarnings({ "static-method", "unqualified-field-access", "unused" })
-public final class CronExpression implements Serializable, Cloneable {
+public final class CronExpression implements Serializable {
 
     private static final long serialVersionUID = 12423409423L;
     
@@ -273,7 +273,7 @@ public final class CronExpression implements Serializable, Cloneable {
             throw new AssertionError();
         }
         if (expression.getTimeZone() != null) {
-            setTimeZone((TimeZone) expression.getTimeZone().clone());
+            setTimeZone(TimeZone.getTimeZone(expression.getTimeZone().getID()));
         }
     }
 
@@ -646,9 +646,4 @@ public final class CronExpression implements Serializable, Cloneable {
         }
     }    
     
-    @Override
-    @Deprecated
-    public Object clone() {
-        return new CronExpression(this);
-    }
 }

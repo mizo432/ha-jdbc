@@ -277,13 +277,13 @@ public class CronExpressionTest
 	}
 	
 	@Test
-	public void expressionClone() throws ParseException
+	public void expressionCopyConstructor() throws ParseException
 	{
 		CronExpression original = new CronExpression("0 0 9 * * ?");
-		CronExpression cloned = (CronExpression) original.clone();
+		CronExpression copied = new CronExpression(original);
 		
-		Assertions.assertEquals(original.toString(), cloned.toString());
-		Assertions.assertNotSame(original, cloned);
+		Assertions.assertEquals(original.toString(), copied.toString());
+		Assertions.assertNotSame(original, copied);
 	}
 	
 	@Test
