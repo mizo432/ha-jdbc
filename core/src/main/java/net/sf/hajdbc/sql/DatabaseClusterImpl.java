@@ -19,23 +19,17 @@ package net.sf.hajdbc.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.Lock;
 
-import javax.management.JMException;
-
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.DatabaseClusterConfiguration;
 import net.sf.hajdbc.DatabaseClusterConfigurationListener;
 import net.sf.hajdbc.DatabaseClusterListener;
-import net.sf.hajdbc.Locality;
 import net.sf.hajdbc.SynchronizationListener;
 import net.sf.hajdbc.SynchronizationStrategy;
 import net.sf.hajdbc.TransactionMode;
@@ -44,13 +38,9 @@ import net.sf.hajdbc.balancer.Balancer;
 import net.sf.hajdbc.cache.DatabaseMetaDataCache;
 import net.sf.hajdbc.codec.Decoder;
 import net.sf.hajdbc.dialect.Dialect;
-import net.sf.hajdbc.distributed.CommandDispatcherFactory;
 import net.sf.hajdbc.durability.Durability;
-import net.sf.hajdbc.durability.InvocationEvent;
-import net.sf.hajdbc.durability.InvokerEvent;
 import net.sf.hajdbc.io.InputSinkStrategy;
 import net.sf.hajdbc.lock.LockManager;
-import net.sf.hajdbc.lock.distributed.DistributedLockManager;
 import net.sf.hajdbc.logging.Level;
 import net.sf.hajdbc.logging.Logger;
 import net.sf.hajdbc.logging.LoggerFactory;
@@ -63,12 +53,9 @@ import net.sf.hajdbc.messages.Messages;
 import net.sf.hajdbc.messages.MessagesFactory;
 import net.sf.hajdbc.state.DatabaseEvent;
 import net.sf.hajdbc.state.StateManager;
-import net.sf.hajdbc.state.distributed.DistributedStateManager;
 import net.sf.hajdbc.sync.SynchronizationContext;
 import net.sf.hajdbc.sync.SynchronizationContextImpl;
-import net.sf.hajdbc.tx.SimpleTransactionIdentifierFactory;
 import net.sf.hajdbc.tx.TransactionIdentifierFactory;
-import net.sf.hajdbc.tx.UUIDTransactionIdentifierFactory;
 import net.sf.hajdbc.util.concurrent.cron.CronExpression;
 import net.sf.hajdbc.util.concurrent.cron.CronThreadPoolExecutor;
 
@@ -104,6 +91,24 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	private boolean active = false;
 
 	private final ClusterListenerManager<Z, D> listenerManager = new ClusterListenerManager<>();
+	private final DatabaseClusterLifecycleManager<Z, D> lifecycleManager;
+
+	// Package-private setters for lifecycle manager
+	void setDecoder(Decoder decoder) { this.decoder = decoder; }
+	void setLockManager(LockManager lockManager) { this.lockManager = lockManager; }
+	void setStateManager(StateManager stateManager) { this.stateManager = stateManager; }
+	void setBalancer(Balancer<Z, D> balancer) { this.balancer = balancer; }
+	void setDialect(Dialect dialect) { this.dialect = dialect; }
+	void setDurability(Durability<Z, D> durability) { this.durability = durability; }
+	void setExecutor(ExecutorService executor) { this.executor = executor; }
+	void setInputSinkStrategy(InputSinkStrategy<? extends Object> strategy) { this.sinkSourceFactory = strategy; }
+	void setTransactionIdentifierFactory(TransactionIdentifierFactory<? extends Object> factory) { this.txIdentifierFactory = factory; }
+	void setDatabaseMetaDataCache(DatabaseMetaDataCache<Z, D> cache) { this.databaseMetaDataCache = cache; }
+	void setRegistrar(MBeanRegistrar<Z, D> registrar) { this.registrar = registrar; }
+	void setActive(boolean active) { this.active = active; }
+
+	// Package-private getters for lifecycle manager
+	MBeanRegistrar<Z, D> getRegistrar() { return this.registrar; }
 	
 	public DatabaseClusterImpl(String id, DatabaseClusterConfiguration<Z, D> configuration)
 	{
@@ -114,6 +119,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	{
 		this.id = id;
 		this.configuration = configuration;
+		this.lifecycleManager = new DatabaseClusterLifecycleManager<>(this, configuration);
 		
 		if (listener != null)
 		{
@@ -680,99 +686,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	{
 		if (this.active) return;
 		
-		this.initializeComponents();
-		this.initializeDatabases();
-		this.initializeRecovery();
-		this.initializeCache();
+		this.lifecycleManager.start(this);
 		this.initializeScheduledTasks();
-		this.registerMBeans();
-
-		this.active = true;
 		
 		logger.log(Level.INFO, messages.start(this));
-	}
-
-	private void initializeComponents() throws SQLException
-	{
-		CommandDispatcherFactory dispatcherFactory = this.configuration.getDispatcherFactory();
-		
-		this.decoder = this.configuration.getDecoderFactory().createDecoder(this.id);
-		this.lockManager = this.configuration.getLockManagerFactory().createLockManager();
-		this.stateManager = this.configuration.getStateManagerFactory().createStateManager(this);
-		
-		if (dispatcherFactory != null)
-		{
-			try
-			{
-				this.lockManager = new DistributedLockManager(this, dispatcherFactory, this.configuration.getLockTimeoutMs());
-				this.stateManager = new DistributedStateManager<>(this, dispatcherFactory);
-			}
-			catch (Exception e)
-			{
-				throw new SQLException(e);
-			}
-		}
-		
-		this.balancer = this.configuration.getBalancerFactory().createBalancer(new TreeSet<D>());
-		this.dialect = this.configuration.getDialectFactory().createDialect();
-		this.durability = this.configuration.getDurabilityFactory().createDurability(this);
-		this.executor = this.configuration.getExecutorProvider().getExecutor(this.configuration.getThreadFactory());
-		this.sinkSourceFactory = this.configuration.getInputSinkProvider().createInputSinkStrategy();
-		this.txIdentifierFactory = (dispatcherFactory != null) ? new UUIDTransactionIdentifierFactory() : new SimpleTransactionIdentifierFactory();
-
-		this.lockManager.start();
-		this.stateManager.start();
-	}
-
-	private void initializeDatabases()
-	{
-		Set<String> databases = this.stateManager.getActiveDatabases();
-		
-		if (!databases.isEmpty())
-		{
-			messages.initialClusterState(this, databases);
-			
-			for (String databaseId: databases)
-			{
-				D database = this.getDatabase(databaseId);
-				this.balancer.add(database);
-			}
-		}
-		else
-		{
-			messages.initialClusterStateEmpty(this);
-			
-			for (D database: this.configuration.getDatabaseMap().values())
-			{
-				if (this.isAlive(database, Level.WARN))
-				{
-					this.activate(database, this.stateManager);
-				}
-			}
-		}
-	}
-
-	private void initializeRecovery()
-	{
-		Map<InvocationEvent, Map<String, InvokerEvent>> invokers = this.stateManager.recover();
-		if (!invokers.isEmpty())
-		{
-			this.durability.recover(invokers);
-		}
-	}
-
-	private void initializeCache()
-	{
-		this.databaseMetaDataCache = this.configuration.getDatabaseMetaDataCacheFactory().createCache(this);
-		
-		try
-		{
-			this.flushMetaDataCache();
-		}
-		catch (IllegalStateException e)
-		{
-			// Ignore - cache will initialize lazily.
-		}
 	}
 
 	private void initializeScheduledTasks()
@@ -785,34 +702,15 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		{
 			this.cronExecutor = new CronThreadPoolExecutor(threads, this.configuration.getThreadFactory());
 			
-			if (failureDetectionExpression != null)
+ 		if (failureDetectionExpression != null)
 			{
-				this.cronExecutor.schedule(new FailureDetectionTask(), failureDetectionExpression);
+				this.cronExecutor.schedule(new DatabaseClusterFailureDetectionTask<>(this), failureDetectionExpression);
 			}
 			
 			if (autoActivationExpression != null)
 			{
-				this.cronExecutor.schedule(new AutoActivationTask(), autoActivationExpression);
+				this.cronExecutor.schedule(new DatabaseClusterAutoActivationTask<>(this), autoActivationExpression);
 			}
-		}
-	}
-
-	private void registerMBeans() throws SQLException
-	{
-		this.registrar = this.configuration.getMBeanRegistrarFactory().createMBeanRegistrar();
-
-		try
-		{
-			this.registrar.register(this);
-			
-			for (D database: this.configuration.getDatabaseMap().values())
-			{
-				this.registrar.register(this, database);
-			}
-		}
-		catch (JMException e)
-		{
-			throw new SQLException(e);
 		}
 	}
 
@@ -820,7 +718,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	{
 		return (expression != null) ? 1 : 0;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @see net.sf.hajdbc.Lifecycle#stop()
@@ -832,47 +730,8 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		
 		this.active = false;
 		
-		this.deactivateEmbeddedDatabases();
-		this.unregisterMBeans();
 		this.shutdownCronExecutor();
-		this.stopStateManager();
-		this.stopLockManager();
-		this.shutdownExecutor();
-		this.clearBalancer();
-	}
-
-	private void deactivateEmbeddedDatabases()
-	{
-		if (this.balancer != null)
-		{
-			for (D database: this.balancer)
-			{
-				if (database.getLocality() == Locality.EMBEDDED)
-				{
-					this.deactivate(database, this.stateManager);
-				}
-			}
-		}
-	}
-
-	private void unregisterMBeans()
-	{
-		try
-		{
-			if (this.registrar != null)
-			{
-				this.registrar.unregister(this);
-				
-				for (D database: this.configuration.getDatabaseMap().values())
-				{
-					this.registrar.unregister(this, database);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			logger.log(Level.WARN, e, "Failed to unregister MBeans");
-		}
+		this.lifecycleManager.stop(this);
 	}
 
 	private void shutdownCronExecutor()
@@ -892,64 +751,6 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 				this.cronExecutor.shutdownNow();
 				Thread.currentThread().interrupt();
 			}
-		}
-	}
-
-	private void stopStateManager()
-	{
-		try
-		{
-			if (this.stateManager != null)
-			{
-				this.stateManager.stop();
-			}
-		}
-		catch (Exception e)
-		{
-			logger.log(Level.WARN, e, "Failed to stop state manager");
-		}
-	}
-
-	private void stopLockManager()
-	{
-		try
-		{
-			if (this.lockManager != null)
-			{
-				this.lockManager.stop();
-			}
-		}
-		catch (Exception e)
-		{
-			logger.log(Level.WARN, e, "Failed to stop lock manager");
-		}
-	}
-
-	private void shutdownExecutor()
-	{
-		if (this.executor != null)
-		{
-			this.executor.shutdown();
-			try
-			{
-				if (!this.executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS))
-				{
-					this.executor.shutdownNow();
-				}
-			}
-			catch (InterruptedException e)
-			{
-				this.executor.shutdownNow();
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
-
-	private void clearBalancer()
-	{
-		if (this.balancer != null)
-		{
-			this.balancer.clear();
 		}
 	}
 
@@ -1010,79 +811,4 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		}
 	}
 
-	class FailureDetectionTask implements Runnable
-	{
-		@Override
-		public void run()
-		{
-			if (!DatabaseClusterImpl.this.getStateManager().isEnabled()) return;
-			
-			Set<D> databases = DatabaseClusterImpl.this.getBalancer();
-			
-			int size = databases.size();
-			
-			if ((size > 1) || DatabaseClusterImpl.this.configuration.isEmptyClusterAllowed())
-			{
-				List<D> deadList = new ArrayList<>(size);
-				
-				for (D database: databases)
-				{
-					if (!DatabaseClusterImpl.this.isAlive(database, Level.WARN))
-					{
-						deadList.add(database);
-					}
-				}
-
-				if ((deadList.size() < size) || DatabaseClusterImpl.this.configuration.isEmptyClusterAllowed())
-				{
-					for (D database: deadList)
-					{
-						if (DatabaseClusterImpl.this.deactivate(database, DatabaseClusterImpl.this.getStateManager()))
-						{
-							logger.log(Level.ERROR, messages.deactivated(DatabaseClusterImpl.this, database));
-						}
-					}
-				}
-			}
-		}
-	}	
-	
-	class AutoActivationTask implements Runnable
-	{
-		@Override
-		public void run()
-		{
-			if (!DatabaseClusterImpl.this.getStateManager().isEnabled()) return;
-			
-			try
-			{
-				Set<D> activeDatabases = DatabaseClusterImpl.this.getBalancer();
-				
-				if (!activeDatabases.isEmpty())
-				{
-					for (D database: DatabaseClusterImpl.this.configuration.getDatabaseMap().values())
-					{
-						if (!activeDatabases.contains(database))
-						{
-							try
-							{
-								if (DatabaseClusterImpl.this.activate(database, DatabaseClusterImpl.this.configuration.getSynchronizationStrategyMap().get(DatabaseClusterImpl.this.configuration.getDefaultSynchronizationStrategy())))
-								{
-									logger.log(Level.INFO, messages.activated(DatabaseClusterImpl.this, database));
-								}
-							}
-							catch (SQLException e)
-							{
-								logger.log(Level.DEBUG, e);
-							}
-						}
-					}
-				}
-			}
-			catch (InterruptedException e)
-			{
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
 }
