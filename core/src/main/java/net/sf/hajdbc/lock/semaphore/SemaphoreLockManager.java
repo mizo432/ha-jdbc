@@ -100,7 +100,15 @@ public class SemaphoreLockManager implements LockManager
 		public void lock()
 		{
 			this.globalLock.lock();
-			this.lock.lock();
+			try
+			{
+				this.lock.lock();
+			}
+			catch (Throwable t)
+			{
+				this.globalLock.unlock();
+				throw t;
+			}
 		}
 
 		@Override

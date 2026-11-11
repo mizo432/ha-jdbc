@@ -756,7 +756,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 			}
 			catch (IllegalStateException e)
 			{
-				// Ignore - cache will initialize lazily.
+				logger.log(Level.DEBUG, e, "Database metadata cache initialization skipped - will initialize lazily");
 			}
 		}
 

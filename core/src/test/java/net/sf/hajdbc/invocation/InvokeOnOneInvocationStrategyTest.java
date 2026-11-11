@@ -229,4 +229,54 @@ public class InvokeOnOneInvocationStrategyTest {
 		assertThat(result.size()).isEqualTo(1);
 		assertThat(result.get(database2)).isEqualTo("result");
 	}
+
+	@Test
+	public void invokeThrowsWhenDeactivateReturnsFalse() throws Exception {
+		// Tests the fix for infinite loop prevention: when cluster.deactivate() returns false
+		// (database already deactivated by another thread), the exception is thrown immediately
+		// instead of continuing the loop which could re-select the same failed database.
+		MockDatabase database1 = new MockDatabase("1");
+		Balancer<Void, MockDatabase> balancer = mock(Balancer.class);
+		DatabaseCluster<Void, MockDatabase> cluster = mock(DatabaseCluster.class);
+		ProxyFactory<Void, MockDatabase, String, Exception> factory = mock(ProxyFactory.class);
+		ExceptionFactory<Exception> exceptionFactory = mock(ExceptionFactory.class);
+		Dialect dialect = mock(Dialect.class);
+		StateManager stateManager = mock(StateManager.class);
+
+		RuntimeException failureException = new RuntimeException("Database failure");
+
+		when(cluster.getBalancer()).thenReturn(balancer);
+		when(cluster.getDialect()).thenReturn(dialect);
+		when(cluster.getStateManager()).thenReturn(stateManager);
+		when(factory.getDatabaseCluster()).thenReturn(cluster);
+		when(factory.getExceptionFactory()).thenReturn(exceptionFactory);
+
+		// Database is still in balancer (not concurrently removed) but deactivate returns false
+		// (already deactivated by another thread)
+		when(balancer.next()).thenReturn(database1);
+		when(balancer.contains(database1)).thenReturn(true);
+		when(cluster.deactivate(eq(database1), eq(stateManager))).thenReturn(false);
+
+		when(exceptionFactory.createException(any(Exception.class))).thenReturn(failureException);
+		when(exceptionFactory.indicatesFailure(eq(failureException), eq(dialect))).thenReturn(true);
+
+		when(balancer.invoke(any(Invoker.class), eq(database1), eq("obj1")))
+			.thenThrow(new RuntimeException("Database failure"));
+		when(factory.get(database1)).thenReturn("obj1");
+
+		InvokeOnOneInvocationStrategy strategy = new InvokeOnOneInvocationStrategy(new NextDatabaseSelector());
+
+		// Should throw the failure exception immediately instead of looping
+		assertThatThrownBy(() -> strategy.invoke(factory, new Invoker<Void, MockDatabase, String, String, Exception>() {
+			@Override
+			public String invoke(MockDatabase database, String object) {
+				throw new RuntimeException("Database failure");
+			}
+		}))
+			.isSameAs(failureException);
+
+		// Verify deactivate was called exactly once, and the loop did not continue
+		verify(cluster, times(1)).deactivate(eq(database1), eq(stateManager));
+		verify(balancer, times(1)).next();
+	}
 }

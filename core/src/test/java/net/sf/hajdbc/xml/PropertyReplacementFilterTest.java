@@ -596,4 +596,89 @@ public class PropertyReplacementFilterTest
 		
 		assertThat(result).isTrue();
 	}
+
+	@Test
+	public void allowedPropertyPrefixes()
+	{
+		// Test that allowed specific properties are resolved
+		this.properties.setProperty("java.version", "25.0.1");
+		this.properties.setProperty("user.name", "testuser");
+		this.properties.setProperty("os.name", "Linux");
+
+		when(this.reader.getText()).thenReturn("${java.version}");
+		assertThat(this.filter.getText()).isEqualTo("25.0.1");
+
+		when(this.reader.getText()).thenReturn("${user.name}");
+		assertThat(this.filter.getText()).isEqualTo("testuser");
+
+		when(this.reader.getText()).thenReturn("${os.name}");
+		assertThat(this.filter.getText()).isEqualTo("Linux");
+	}
+
+	@Test
+	public void blockedSensitiveJavaProperties()
+	{
+		// Test that sensitive java.* properties (beyond the allowed specific ones) are blocked
+		// and return the unresolved placeholder
+		this.properties.setProperty("java.security.auth.login.config", "/etc/jaas.conf");
+		this.properties.setProperty("java.awt.graphicsenv", "someValue");
+
+		when(this.reader.getText()).thenReturn("${java.security.auth.login.config}");
+		// Should NOT be replaced - property is blocked by whitelist
+		assertThat(this.filter.getText()).isEqualTo("${java.security.auth.login.config}");
+
+		when(this.reader.getText()).thenReturn("${java.awt.graphicsenv}");
+		assertThat(this.filter.getText()).isEqualTo("${java.awt.graphicsenv}");
+	}
+
+	@Test
+	public void blockedSensitiveUserProperties()
+	{
+		// Test that sensitive user.* properties (beyond the allowed specific ones) are blocked
+		this.properties.setProperty("user.home", "/home/testuser");
+		this.properties.setProperty("user.dir", "/opt/app");
+
+		when(this.reader.getText()).thenReturn("${user.home}");
+		// Should NOT be replaced - property is blocked by whitelist
+		assertThat(this.filter.getText()).isEqualTo("${user.home}");
+
+		when(this.reader.getText()).thenReturn("${user.dir}");
+		assertThat(this.filter.getText()).isEqualTo("${user.dir}");
+	}
+
+	@Test
+	public void allowedUserPropertiesStillWork()
+	{
+		// Test that specifically allowed user.* properties still work
+		this.properties.setProperty("user.language", "en");
+		this.properties.setProperty("user.country", "US");
+		this.properties.setProperty("user.timezone", "UTC");
+
+		when(this.reader.getText()).thenReturn("${user.language}");
+		assertThat(this.filter.getText()).isEqualTo("en");
+
+		when(this.reader.getText()).thenReturn("${user.country}");
+		assertThat(this.filter.getText()).isEqualTo("US");
+
+		when(this.reader.getText()).thenReturn("${user.timezone}");
+		assertThat(this.filter.getText()).isEqualTo("UTC");
+	}
+
+	@Test
+	public void allowedJavaPropertiesStillWork()
+	{
+		// Test that specifically allowed java.* properties still work
+		this.properties.setProperty("java.home", "/usr/lib/jvm/java-25");
+		this.properties.setProperty("java.io.tmpdir", "/tmp");
+		this.properties.setProperty("java.class.path", "/app/classes");
+
+		when(this.reader.getText()).thenReturn("${java.home}");
+		assertThat(this.filter.getText()).isEqualTo("/usr/lib/jvm/java-25");
+
+		when(this.reader.getText()).thenReturn("${java.io.tmpdir}");
+		assertThat(this.filter.getText()).isEqualTo("/tmp");
+
+		when(this.reader.getText()).thenReturn("${java.class.path}");
+		assertThat(this.filter.getText()).isEqualTo("/app/classes");
+	}
 }

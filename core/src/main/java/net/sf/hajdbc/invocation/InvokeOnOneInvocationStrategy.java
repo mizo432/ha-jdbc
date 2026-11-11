@@ -98,6 +98,12 @@ public class InvokeOnOneInvocationStrategy implements InvocationStrategy
 						{
 							logger.log(Level.ERROR, exception, messages.deactivated(cluster, database));
 						}
+						else
+						{
+							// Database was already deactivated by another thread but still in balancer.
+							// Throw to prevent infinite loop if the database keeps getting re-selected.
+							throw exception;
+						}
 					}
 					else
 					{

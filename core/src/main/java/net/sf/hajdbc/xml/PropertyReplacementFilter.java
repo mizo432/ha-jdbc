@@ -38,11 +38,20 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 	private static final Pattern PATTERN = Pattern.compile("\\$\\{([^\\}]+)\\}");
 
 	// Whitelist of allowed property prefixes to prevent reading sensitive system properties
+	// Only specific safe properties are allowed; broad prefixes like "java." and "user." are avoided
+	// to prevent leaking sensitive information (e.g., java.security.auth.login.config, user.home).
 	private static final List<String> ALLOWED_PREFIXES = Arrays.asList(
 			"ha-jdbc.",           // HA-JDBC specific properties
 			"net.sf.hajdbc.",     // HA-JDBC internal properties
-			"java.",              // Standard Java properties (java.version, java.home, etc.)
-			"user.",              // User properties (user.name, user.home, etc.)
+			"java.version",       // Java version
+			"java.home",          // Java home directory
+			"java.io.tmpdir",     // Temporary directory
+			"java.class.path",    // Class path
+			"java.library.path",  // Library path
+			"user.name",          // User name
+			"user.language",      // User language
+			"user.country",       // User country
+			"user.timezone",      // User timezone
 			"os.",                // OS properties (os.name, os.arch, etc.)
 			"file.",              // File properties (file.separator, file.encoding, etc.)
 			"path.",              // Path separator property

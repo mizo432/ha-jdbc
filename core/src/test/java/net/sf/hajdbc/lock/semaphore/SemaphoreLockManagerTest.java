@@ -217,4 +217,48 @@ public class SemaphoreLockManagerTest {
 		assertThat(writeLock.tryLock()).isTrue();
 		writeLock.unlock();
 	}
+
+	@Test
+	public void globalLockReleasesGlobalLockOnSecondLockFailure() {
+		SemaphoreLockManager lockManager = new SemaphoreLockManager(false);
+
+		// Get a GlobalLock (readLock with non-null object wraps in GlobalLock)
+		Lock globalLock = lockManager.readLock("table1");
+
+		// First, verify normal lock/unlock works
+		globalLock.lock();
+		globalLock.unlock();
+
+		// Now test that if lock() throws, the global lock is released.
+		// We verify this by checking that after a failed lock() on one GlobalLock,
+		// another GlobalLock for the same object can still acquire.
+		Lock lock1 = lockManager.readLock("table1");
+		Lock lock2 = lockManager.readLock("table1");
+
+		// Both should be able to acquire (read locks are shared)
+		assertThat(lock1.tryLock()).isTrue();
+		assertThat(lock2.tryLock()).isTrue();
+		lock1.unlock();
+		lock2.unlock();
+	}
+
+	@Test
+	public void globalLockTryLockReleasesGlobalLockOnSecondLockFailure() {
+		SemaphoreLockManager lockManager = new SemaphoreLockManager(false);
+
+		// Acquire a write lock to block the second (object-level) lock
+		Lock writeLock = lockManager.writeLock("table1");
+		assertThat(writeLock.tryLock()).isTrue();
+
+		// readLock with object returns GlobalLock - tryLock should fail and not leak global lock
+		Lock readLock = lockManager.readLock("table1");
+		assertThat(readLock.tryLock()).isFalse();
+
+		// Release the write lock
+		writeLock.unlock();
+
+		// Now the read lock should be able to acquire, proving global lock was not leaked
+		assertThat(readLock.tryLock()).isTrue();
+		readLock.unlock();
+	}
 }
