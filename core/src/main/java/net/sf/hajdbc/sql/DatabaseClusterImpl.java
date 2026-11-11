@@ -24,21 +24,26 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import javax.management.JMException;
+
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.DatabaseClusterConfiguration;
 import net.sf.hajdbc.DatabaseClusterConfigurationListener;
 import net.sf.hajdbc.DatabaseClusterListener;
+import net.sf.hajdbc.Locality;
 import net.sf.hajdbc.SynchronizationListener;
 import net.sf.hajdbc.SynchronizationStrategy;
 import net.sf.hajdbc.TransactionMode;
 import net.sf.hajdbc.balancer.Balancer;
 import net.sf.hajdbc.cache.DatabaseMetaDataCache;
 import net.sf.hajdbc.codec.Decoder;
+import net.sf.hajdbc.distributed.CommandDispatcherFactory;
 import net.sf.hajdbc.dialect.Dialect;
 import net.sf.hajdbc.durability.Durability;
 import net.sf.hajdbc.io.InputSinkStrategy;
 import net.sf.hajdbc.lock.LockManager;
+import net.sf.hajdbc.lock.distributed.DistributedLockManager;
 import net.sf.hajdbc.logging.Level;
 import net.sf.hajdbc.logging.Logger;
 import net.sf.hajdbc.logging.LoggerFactory;
@@ -50,7 +55,10 @@ import net.sf.hajdbc.messages.Messages;
 import net.sf.hajdbc.messages.MessagesFactory;
 import net.sf.hajdbc.state.DatabaseEvent;
 import net.sf.hajdbc.state.StateManager;
+import net.sf.hajdbc.state.distributed.DistributedStateManager;
+import net.sf.hajdbc.tx.SimpleTransactionIdentifierFactory;
 import net.sf.hajdbc.tx.TransactionIdentifierFactory;
+import net.sf.hajdbc.tx.UUIDTransactionIdentifierFactory;
 
 /**
  * @author Paul Ferraro
@@ -83,26 +91,12 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	private boolean active = false;
 
 	private final ClusterListenerManager<Z, D> listenerManager = new ClusterListenerManager<>();
-	private final DatabaseClusterLifecycleManager<Z, D> lifecycleManager;
+	private final LifecycleManager lifecycleManager;
 	private final DatabaseClusterScheduler<Z, D> scheduler;
 	private final DatabaseClusterActivationHandler<Z, D> activationHandler;
 	private final DatabaseClusterOperations<Z, D> operations;
 
-	// Package-private setters for lifecycle manager
-	void setDecoder(Decoder decoder) { this.decoder = decoder; }
-	void setLockManager(LockManager lockManager) { this.lockManager = lockManager; }
-	void setStateManager(StateManager stateManager) { this.stateManager = stateManager; }
-	void setBalancer(Balancer<Z, D> balancer) { this.balancer = balancer; }
-	void setDialect(Dialect dialect) { this.dialect = dialect; }
-	void setDurability(Durability<Z, D> durability) { this.durability = durability; }
-	void setExecutor(ExecutorService executor) { this.executor = executor; }
-	void setInputSinkStrategy(InputSinkStrategy<? extends Object> strategy) { this.sinkSourceFactory = strategy; }
-	void setTransactionIdentifierFactory(TransactionIdentifierFactory<? extends Object> factory) { this.txIdentifierFactory = factory; }
-	void setDatabaseMetaDataCache(DatabaseMetaDataCache<Z, D> cache) { this.databaseMetaDataCache = cache; }
-	void setRegistrar(MBeanRegistrar<Z, D> registrar) { this.registrar = registrar; }
-	void setActive(boolean active) { this.active = active; }
-
-	// Package-private getters for lifecycle manager
+	// Package-private getter for lifecycle manager
 	MBeanRegistrar<Z, D> getRegistrar() { return this.registrar; }
 
 	// Package-private getters for activation handler and operations
@@ -118,7 +112,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	{
 		this.id = id;
 		this.configuration = configuration;
-		this.lifecycleManager = new DatabaseClusterLifecycleManager<>(this, configuration);
+		this.lifecycleManager = new LifecycleManager();
 		this.scheduler = new DatabaseClusterScheduler<>(this, configuration);
 		this.activationHandler = new DatabaseClusterActivationHandler<>(this);
 		this.operations = new DatabaseClusterOperations<>(this, configuration, this.activationHandler);
@@ -593,7 +587,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	{
 		if (this.active) return;
 		
-		this.lifecycleManager.start(this);
+		this.lifecycleManager.start();
 		this.scheduler.initialize();
 		
 		logger.log(Level.INFO, messages.start(this));
@@ -611,7 +605,7 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		this.active = false;
 		
 		this.scheduler.shutdown();
-		this.lifecycleManager.stop(this);
+		this.lifecycleManager.stop();
 	}
 
 	boolean isAlive(D database, Level level)
@@ -624,4 +618,263 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 		return this.activationHandler.activate(database, strategy);
 	}
 
+	/**
+	 * Private inner class that manages the lifecycle (start/stop) of this database cluster.
+	 * As an inner class, it has direct access to all private fields of DatabaseClusterImpl,
+	 * eliminating the need for package-private setters that break encapsulation.
+	 */
+	private class LifecycleManager
+	{
+		private final Logger logger = LoggerFactory.getLogger(LifecycleManager.class);
+
+		void start() throws SQLException
+		{
+			try
+			{
+				initializeComponents();
+				initializeDatabases();
+				initializeRecovery();
+				initializeCache();
+				registerMBeans();
+
+				DatabaseClusterImpl.this.active = true;
+
+				logger.log(Level.INFO, messages.start(DatabaseClusterImpl.this));
+			}
+			catch (SQLException e)
+			{
+				cleanupOnFailure();
+				throw e;
+			}
+		}
+
+		void stop()
+		{
+			logger.log(Level.INFO, messages.stop(DatabaseClusterImpl.this));
+
+			DatabaseClusterImpl.this.active = false;
+
+			deactivateEmbeddedDatabases();
+			unregisterMBeans();
+			stopStateManager();
+			stopLockManager();
+			shutdownExecutor();
+			clearBalancer();
+		}
+
+		private void cleanupOnFailure()
+		{
+			logger.log(Level.WARN, "Initialization failed - cleaning up resources");
+
+			unregisterMBeans();
+			shutdownExecutor();
+			stopStateManager();
+			stopLockManager();
+			clearBalancer();
+		}
+
+		private void initializeComponents() throws SQLException
+		{
+			CommandDispatcherFactory dispatcherFactory = DatabaseClusterImpl.this.configuration.getDispatcherFactory();
+
+			DatabaseClusterImpl.this.decoder = DatabaseClusterImpl.this.configuration.getDecoderFactory().createDecoder(DatabaseClusterImpl.this.getId());
+			LockManager lockManager = DatabaseClusterImpl.this.configuration.getLockManagerFactory().createLockManager();
+			StateManager stateManager = DatabaseClusterImpl.this.configuration.getStateManagerFactory().createStateManager(DatabaseClusterImpl.this);
+
+			if (dispatcherFactory != null)
+			{
+				try
+				{
+					lockManager = new DistributedLockManager(DatabaseClusterImpl.this, dispatcherFactory, DatabaseClusterImpl.this.configuration.getLockTimeoutMs());
+					stateManager = new DistributedStateManager<>(DatabaseClusterImpl.this, dispatcherFactory);
+				}
+				catch (Exception e)
+				{
+					throw new SQLException(e);
+				}
+			}
+
+			DatabaseClusterImpl.this.lockManager = lockManager;
+			DatabaseClusterImpl.this.stateManager = stateManager;
+			DatabaseClusterImpl.this.balancer = DatabaseClusterImpl.this.configuration.getBalancerFactory().createBalancer(new java.util.TreeSet<D>());
+			DatabaseClusterImpl.this.dialect = DatabaseClusterImpl.this.configuration.getDialectFactory().createDialect();
+			DatabaseClusterImpl.this.durability = DatabaseClusterImpl.this.configuration.getDurabilityFactory().createDurability(DatabaseClusterImpl.this);
+			DatabaseClusterImpl.this.executor = DatabaseClusterImpl.this.configuration.getExecutorProvider().getExecutor(DatabaseClusterImpl.this.configuration.getThreadFactory());
+			DatabaseClusterImpl.this.sinkSourceFactory = DatabaseClusterImpl.this.configuration.getInputSinkProvider().createInputSinkStrategy();
+			DatabaseClusterImpl.this.txIdentifierFactory = (dispatcherFactory != null) ? new UUIDTransactionIdentifierFactory() : new SimpleTransactionIdentifierFactory();
+
+			lockManager.start();
+			stateManager.start();
+		}
+
+		private void initializeDatabases()
+		{
+			Set<String> databases = DatabaseClusterImpl.this.stateManager.getActiveDatabases();
+
+			if (!databases.isEmpty())
+			{
+				messages.initialClusterState(DatabaseClusterImpl.this, databases);
+
+				for (String databaseId: databases)
+				{
+					D database = DatabaseClusterImpl.this.getDatabase(databaseId);
+					DatabaseClusterImpl.this.balancer.add(database);
+				}
+			}
+			else
+			{
+				messages.initialClusterStateEmpty(DatabaseClusterImpl.this);
+
+				for (D database: DatabaseClusterImpl.this.configuration.getDatabaseMap().values())
+				{
+					if (DatabaseClusterImpl.this.isAlive(database, Level.WARN))
+					{
+						DatabaseClusterImpl.this.activate(database, DatabaseClusterImpl.this.stateManager);
+					}
+				}
+			}
+		}
+
+		private void initializeRecovery()
+		{
+			var invokers = DatabaseClusterImpl.this.stateManager.recover();
+			if (!invokers.isEmpty())
+			{
+				DatabaseClusterImpl.this.getDurability().recover(invokers);
+			}
+		}
+
+		private void initializeCache()
+		{
+			var cache = DatabaseClusterImpl.this.configuration.getDatabaseMetaDataCacheFactory().createCache(DatabaseClusterImpl.this);
+			DatabaseClusterImpl.this.databaseMetaDataCache = cache;
+
+			try
+			{
+				DatabaseClusterImpl.this.flushMetaDataCache();
+			}
+			catch (IllegalStateException e)
+			{
+				// Ignore - cache will initialize lazily.
+			}
+		}
+
+		private void registerMBeans() throws SQLException
+		{
+			MBeanRegistrar<Z, D> registrar = DatabaseClusterImpl.this.configuration.getMBeanRegistrarFactory().createMBeanRegistrar();
+			DatabaseClusterImpl.this.registrar = registrar;
+
+			try
+			{
+				registrar.register(DatabaseClusterImpl.this);
+
+				for (D database: DatabaseClusterImpl.this.configuration.getDatabaseMap().values())
+				{
+					registrar.register(DatabaseClusterImpl.this, database);
+				}
+			}
+			catch (JMException e)
+			{
+				throw new SQLException(e);
+			}
+		}
+
+		private void deactivateEmbeddedDatabases()
+		{
+			Balancer<Z, D> balancer = DatabaseClusterImpl.this.balancer;
+			if (balancer != null)
+			{
+				for (D database: balancer)
+				{
+					if (database.getLocality() == Locality.EMBEDDED)
+					{
+						DatabaseClusterImpl.this.deactivate(database, DatabaseClusterImpl.this.stateManager);
+					}
+				}
+			}
+		}
+
+		private void unregisterMBeans()
+		{
+			try
+			{
+				MBeanRegistrar<Z, D> registrar = DatabaseClusterImpl.this.registrar;
+				if (registrar != null)
+				{
+					registrar.unregister(DatabaseClusterImpl.this);
+
+					for (D database: DatabaseClusterImpl.this.configuration.getDatabaseMap().values())
+					{
+						registrar.unregister(DatabaseClusterImpl.this, database);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				logger.log(Level.WARN, e, "Failed to unregister MBeans");
+			}
+		}
+
+		private void stopStateManager()
+		{
+			try
+			{
+				StateManager stateManager = DatabaseClusterImpl.this.stateManager;
+				if (stateManager != null)
+				{
+					stateManager.stop();
+				}
+			}
+			catch (Exception e)
+			{
+				logger.log(Level.WARN, e, "Failed to stop state manager");
+			}
+		}
+
+		private void stopLockManager()
+		{
+			try
+			{
+				LockManager lockManager = DatabaseClusterImpl.this.lockManager;
+				if (lockManager != null)
+				{
+					lockManager.stop();
+				}
+			}
+			catch (Exception e)
+			{
+				logger.log(Level.WARN, e, "Failed to stop lock manager");
+			}
+		}
+
+		private void shutdownExecutor()
+		{
+			var executor = DatabaseClusterImpl.this.executor;
+			if (executor != null)
+			{
+				executor.shutdown();
+				try
+				{
+					if (!executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS))
+					{
+						executor.shutdownNow();
+					}
+				}
+				catch (InterruptedException e)
+				{
+					executor.shutdownNow();
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+
+		private void clearBalancer()
+		{
+			Balancer<Z, D> balancer = DatabaseClusterImpl.this.balancer;
+			if (balancer != null)
+			{
+				balancer.clear();
+			}
+		}
+	}
 }
