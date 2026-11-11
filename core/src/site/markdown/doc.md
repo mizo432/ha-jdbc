@@ -113,13 +113,6 @@ HA-JDBC includes dialects for the following databases:
 		<td></td>
 	</tr>
 	<tr>
-		<td>**firebird**</td>
-		<td>Firebird, InterBase</td>
-		<td>&#x2714;</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
 		<td>**h2**</td>
 		<td>H2 Database</td>
 		<td>&#x2714;</td>

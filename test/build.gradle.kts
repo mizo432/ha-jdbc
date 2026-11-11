@@ -18,7 +18,6 @@ dependencies {
     testImplementation(libs.hsqldb)
     testImplementation(libs.h2)
     testImplementation(libs.postgresql)
-    testImplementation(libs.firebird)
 
     // Logging
     testImplementation(libs.logback.classic)
