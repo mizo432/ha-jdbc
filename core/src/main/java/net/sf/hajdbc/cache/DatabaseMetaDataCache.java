@@ -25,7 +25,7 @@ import net.sf.hajdbc.DatabaseProperties;
 
 
 /**
- * 事前に処理されたキャッシュされたデータベースメタデータを取得するためのインターフェースです。
+ * Interface for retrieving pre-processed cached database metadata.
  * 
  * @author Paul Ferraro
  * @since 2.0
@@ -33,8 +33,8 @@ import net.sf.hajdbc.DatabaseProperties;
 public interface DatabaseMetaDataCache<Z, D extends Database<Z>>
 {
 	/**
-	 * このキャッシュをフラッシュします。
-	 * @throws SQLException フラッシュに失敗した場合
+	 * Flushes this cache.
+	 * @throws SQLException if flush fails
 	 */
 	void flush() throws SQLException;
 	

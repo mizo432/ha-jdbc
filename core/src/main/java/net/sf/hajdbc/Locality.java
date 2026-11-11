@@ -22,21 +22,21 @@ import java.util.Locale;
 import org.jspecify.annotations.NonNull;
 
 /**
- * データベースの所在地を示す列挙型
+ * Enumeration indicating the locality of a database.
  * @author Paul Ferraro
  */
 public enum Locality
 {
 	/**
-	 * リモート
+	 * Remote
 	 */
 	REMOTE(false),
 	/**
-	 * ローカル
+	 * Local
 	 */
 	LOCAL(true),
 	/**
-	 * エンベデッド
+	 * Embedded
 	 */
 	EMBEDDED(true),
 	;
@@ -44,8 +44,8 @@ public enum Locality
 	private final boolean local;
 
 	/**
-	 * ローカルかどうかを指定してコンストラクトします
-	 * @param local ローカルの場合はtrue
+	 * Constructs with the local flag.
+	 * @param local true if local
 	 */
 	private Locality(boolean local)
 	{
@@ -53,8 +53,8 @@ public enum Locality
 	}
 
 	/**
-	 * ローカルかどうかを返します
-	 * @return ローカルの場合はtrue
+	 * Returns whether this locality is local.
+	 * @return true if local
 	 */
 	public boolean isLocal()
 	{

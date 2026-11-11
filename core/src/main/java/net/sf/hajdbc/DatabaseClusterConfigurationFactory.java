@@ -23,18 +23,18 @@ import java.sql.SQLException;
 import org.jspecify.annotations.NonNull;
 
 /**
- * データベースクラスタ設定ファクトリのインターフェース
+ * Database cluster configuration factory interface.
  * @author Paul Ferraro
- * @param <Z> 接続ソース（例：Driver、DataSourceなど）
- * @param <D> データベースの実装
+ * @param <Z> connection source (e.g., Driver, DataSource, etc.)
+ * @param <D> database implementation
  */
 public interface DatabaseClusterConfigurationFactory<Z, D extends Database<Z>> extends DatabaseClusterConfigurationListener<Z, D>, Serializable
 {
 	/**
-	 * データベースクラスタ設定を作成します
-	 * @param builder 設定ビルダー
-	 * @return データベースクラスタ設定
-	 * @throws SQLException 設定の作成に失敗した場合
+	 * Creates a database cluster configuration.
+	 * @param builder configuration builder
+	 * @return database cluster configuration
+	 * @throws SQLException if configuration creation fails
 	 */
 	<B extends DatabaseBuilder<Z, D>> @NonNull DatabaseClusterConfiguration<Z, D> createConfiguration(@NonNull DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws SQLException;
 }

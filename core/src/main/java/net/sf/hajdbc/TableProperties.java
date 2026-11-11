@@ -24,51 +24,51 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * テーブルプロパティのインターフェース
+ * Table properties interface.
  * @author Paul Ferraro
  */
 public interface TableProperties extends Named<QualifiedName, TableProperties>
 {
 	/**
-	 * 列名のコレクションを返します
-	 * @return 列名のコレクション
-	 * @throws SQLException エラーが発生した場合
+	 * Returns a collection of column names.
+	 * @return collection of column names
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull Collection<String> getColumns() throws SQLException;
 	
 	/**
-	 * 指定された列のプロパティを返します
-	 * @param column 列名
-	 * @return 列プロパティ
-	 * @throws SQLException エラーが発生した場合
+	 * Returns the properties of the specified column.
+	 * @param column column name
+	 * @return column properties
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull ColumnProperties getColumnProperties(@NonNull String column) throws SQLException;
 	
 	/**
-	 * 主キー制約を返します
-	 * @return 主キー制約
-	 * @throws SQLException エラーが発生した場合
+	 * Returns the primary key constraint.
+	 * @return primary key constraint
+	 * @throws SQLException if an error occurs
 	 */
 	@Nullable UniqueConstraint getPrimaryKey() throws SQLException;
 	
 	/**
-	 * 外部キー制約のコレクションを返します
-	 * @return 外部キー制約のコレクション
-	 * @throws SQLException エラーが発生した場合
+	 * Returns a collection of foreign key constraints.
+	 * @return collection of foreign key constraints
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull Collection<ForeignKeyConstraint> getForeignKeyConstraints() throws SQLException;
 	
 	/**
-	 * 一意制約のコレクションを返します
-	 * @return 一意制約のコレクション
-	 * @throws SQLException エラーが発生した場合
+	 * Returns a collection of unique constraints.
+	 * @return collection of unique constraints
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull Collection<UniqueConstraint> getUniqueConstraints() throws SQLException;
 	
 	/**
-	 * アイデンティティ列名のコレクションを返します
-	 * @return アイデンティティ列名のコレクション
-	 * @throws SQLException エラーが発生した場合
+	 * Returns a collection of identity column names.
+	 * @return collection of identity column names
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull Collection<String> getIdentityColumns() throws SQLException;
 }

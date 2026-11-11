@@ -36,52 +36,52 @@ import net.sf.hajdbc.dialect.Dialect;
 public interface SynchronizationContext<Z, D extends Database<Z>> extends AutoCloseable
 {
 	/**
-	 * 指定されたデータベースへの接続を返します。
-	 * @param database 接続するデータベース
-	 * @return データベース接続
-	 * @throws SQLException 接続を取得できなかった場合
+	 * Returns a connection to the specified database.
+	 * @param database the database to connect to
+	 * @return database connection
+	 * @throws SQLException if the connection could not be obtained
 	 */
 	Connection getConnection(D database) throws SQLException;
 	
 	/**
-	 * 同期するソースデータベースを返します。
-	 * @return データベース
+	 * Returns the source database to synchronize from.
+	 * @return database
 	 */
 	D getSourceDatabase();
 	
 	/**
-	 * 同期するターゲットデータベースを返します。
-	 * @return データベース
+	 * Returns the target database to synchronize to.
+	 * @return database
 	 */
 	D getTargetDatabase();
 	
 	/**
-	 * 同期が開始された時点でのクラスタのアクティブなデータベースのスナップショットを返します。
-	 * @return データベースのコレクション
+	 * Returns a snapshot of the cluster's active databases at the time synchronization started.
+	 * @return collection of databases
 	 */
 	Set<D> getActiveDatabaseSet();
 	
 	/**
-	 * ソースデータベースのデータベースメタデータのキャッシュを返します。
-	 * @return データベースメタデータのキャッシュ
+	 * Returns the database metadata cache for the source database.
+	 * @return database metadata cache
 	 */
 	DatabaseProperties getSourceDatabaseProperties();
 	
 	/**
-	 * ターゲットデータベースのデータベースメタデータのキャッシュを返します。
-	 * @return データベースメタデータのキャッシュ
+	 * Returns the database metadata cache for the target database.
+	 * @return database metadata cache
 	 */
 	DatabaseProperties getTargetDatabaseProperties();
 	
 	/**
-	 * クラスタのDialectを返します。
+	 * Returns the Dialect of the cluster.
 	 * @return Dialect
 	 */
 	Dialect getDialect();
 	
 	/**
-	 * タスクを非同期に実行するためのエグゼキュータサービスです。
-	 * @return エグゼキュータサービス
+	 * Returns the executor service for executing tasks asynchronously.
+	 * @return executor service
 	 */
 	ExecutorService getExecutor();
 	

@@ -23,20 +23,20 @@ import net.sf.hajdbc.state.DatabaseEvent;
 import org.jspecify.annotations.NonNull;
 
 /**
- * 同期通知のリスナーインターフェース
+ * Listener interface for synchronization notifications.
  * @author Paul Ferraro
  */
 public interface SynchronizationListener extends EventListener
 {
 	/**
-	 * 同期が開始される直前に呼び出されます
-	 * @param event 同期対象のデータベースを識別するイベント
+	 * Called just before synchronization starts.
+	 * @param event identifying the database being synchronized
 	 */
 	void beforeSynchronization(@NonNull DatabaseEvent event);
 	
 	/**
-	 * 同期が完了した直後に呼び出されます
-	 * @param event 同期対象のデータベースを識別するイベント
+	 * Called just after synchronization completes.
+	 * @param event identifying the database being synchronized
 	 */
 	void afterSynchronization(@NonNull DatabaseEvent event);
 }

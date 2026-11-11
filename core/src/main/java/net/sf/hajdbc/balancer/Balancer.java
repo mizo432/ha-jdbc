@@ -23,44 +23,44 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.invocation.Invoker;
 
 /**
- * アクティブなデータベースのセットと、次のバランシングターゲットを決定する戦略です。
+ * A set of active databases and a strategy for determining the next balancing target.
  * 
  * @author Paul Ferraro
  *
- * @param <Z> データベース接続ソース
- * @param <D> データベース記述子
+ * @param <Z> database connection source
+ * @param <D> database descriptor
  */
 public interface Balancer<Z, D extends Database<Z>> extends Set<D>
 {
 	/**
-	 * プライマリデータベースを返します。
-	 * このメソッドが返すデータベースは、すべてのノード間で一貫している必要があります。
-	 * @return プライマリデータベース
+	 * Returns the primary database.
+	 * The database returned by this method must be consistent across all nodes.
+	 * @return primary database
 	 */
 	D primary();
 	
 	/**
-	 * プライマリ以外のデータベースです。
-	 * @return イテレート可能なデータベースのコレクション
+	 * Returns the non-primary databases.
+	 * @return iterable collection of databases
 	 */
 	Iterable<D> backups();
 	
 	/**
-	 * このバランサーから次のデータベースを返します
-	 * @return 次のデータベース
+	 * Returns the next database from this balancer.
+	 * @return next database
 	 */
 	D next();
 
 	/**
-	 * 指定されたデータベースに対して指定されたオブジェクトで指定されたインボーカーを実行し、バランサーに通知する可能性があります。
-	 * @param <T> インボーカーのターゲットオブジェクト型
-	 * @param <R> インボーカーの戻り値型
-	 * @param <E> インボーカーの例外型
-	 * @param invoker インボーカー
-	 * @param database データベース
-	 * @param object ターゲットオブジェクト
-	 * @return 実行結果
-	 * @throws E 例外
+	 * Executes the given invoker on the given object for the specified database, and may notify the balancer.
+	 * @param <T> invoker target object type
+	 * @param <R> invoker return type
+	 * @param <E> invoker exception type
+	 * @param invoker invoker
+	 * @param database database
+	 * @param object target object
+	 * @return execution result
+	 * @throws E exception
 	 */
 	<T, R, E extends Exception> R invoke(Invoker<Z, D, T, R, E> invoker, D database, T object) throws E;
 }

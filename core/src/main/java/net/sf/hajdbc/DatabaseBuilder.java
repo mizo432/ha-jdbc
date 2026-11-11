@@ -22,51 +22,51 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * データベースビルダーのインターフェース
+ * Database builder interface.
  * @author Paul Ferraro
- * @param <Z> 接続ソース（例：Driver、DataSourceなど）
- * @param <D> データベースの実装
+ * @param <Z> connection source (e.g., Driver, DataSource, etc.)
+ * @param <D> database implementation
  */
 public interface DatabaseBuilder<Z, D extends Database<Z>> extends PropertiesBuilder<D>
 {
 	/**
-	 * データベースIDの最大サイズ
+	 * Maximum size of database ID
 	 */
 	int ID_MAX_SIZE = 64;
 
 	/**
-	 * 接続ソースを設定します
-	 * @param connectionSource 接続ソース
-	 * @return このビルダー
+	 * Sets the connection source.
+	 * @param connectionSource the connection source
+	 * @return this builder
 	 */
 	@NonNull DatabaseBuilder<Z, D> connectionSource(@NonNull Z connectionSource);
 
 	/**
-	 * データベースの場所を設定します
-	 * @param location 場所
-	 * @return このビルダー
+	 * Sets the database location.
+	 * @param location the location
+	 * @return this builder
 	 */
 	@NonNull DatabaseBuilder<Z, D> location(@NonNull String location);
 
 	/**
-	 * 認証情報を設定します
-	 * @param user ユーザー名
-	 * @param password パスワード
-	 * @return このビルダー
+	 * Sets the credentials.
+	 * @param user the username
+	 * @param password the password
+	 * @return this builder
 	 */
 	@NonNull DatabaseBuilder<Z, D> credentials(@Nullable String user, @Nullable String password);
 
 	/**
-	 * 重みを設定します
-	 * @param weight 重み
-	 * @return このビルダー
+	 * Sets the weight.
+	 * @param weight the weight
+	 * @return this builder
 	 */
 	@NonNull DatabaseBuilder<Z, D> weight(int weight);
 
 	/**
-	 * 所在地を設定します
-	 * @param locality 所在地
-	 * @return このビルダー
+	 * Sets the locality.
+	 * @param locality the locality
+	 * @return this builder
 	 */
 	@NonNull DatabaseBuilder<Z, D> locality(@NonNull Locality locality);
 }

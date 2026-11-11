@@ -20,24 +20,24 @@ package net.sf.hajdbc;
 import org.jspecify.annotations.NonNull;
 
 /**
- * データベースクラスタ設定の変更を監視するリスナーのインターフェース
+ * Listener interface for monitoring database cluster configuration changes.
  * @author Paul Ferraro
- * @param <Z> 接続ソース（例：Driver、DataSourceなど）
- * @param <D> データベースの実装
+ * @param <Z> connection source (e.g., Driver, DataSource, etc.)
+ * @param <D> database implementation
  */
 public interface DatabaseClusterConfigurationListener<Z, D extends Database<Z>>
 {
 	/**
-	 * データベースが追加されたときに呼び出されます
-	 * @param database 追加されたデータベース
-	 * @param configuration データベースクラスタ設定
+	 * Called when a database is added.
+	 * @param database the added database
+	 * @param configuration database cluster configuration
 	 */
 	void added(@NonNull D database, @NonNull DatabaseClusterConfiguration<Z, D> configuration);
 	
 	/**
-	 * データベースが削除されたときに呼び出されます
-	 * @param database 削除されたデータベース
-	 * @param configuration データベースクラスタ設定
+	 * Called when a database is removed.
+	 * @param database the removed database
+	 * @param configuration database cluster configuration
 	 */
 	void removed(@NonNull D database, @NonNull DatabaseClusterConfiguration<Z, D> configuration);
 }

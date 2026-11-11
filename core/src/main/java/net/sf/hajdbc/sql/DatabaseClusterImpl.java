@@ -79,13 +79,13 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	private DatabaseMetaDataCache<Z, D> databaseMetaDataCache;
 	private ExecutorService executor;
 	private Decoder decoder;
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "同期は一貫して管理されている")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "Sync is consistently managed")
 	private LockManager lockManager;
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "同期は一貫して管理されている")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "Sync is consistently managed")
 	private StateManager stateManager;
 	private InputSinkStrategy<? extends Object> sinkSourceFactory;
 	private TransactionIdentifierFactory<? extends Object> txIdentifierFactory;
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "同期は一貫して管理されている")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "Sync is consistently managed")
 	private MBeanRegistrar<Z, D> registrar;
 	
 	private boolean active = false;
@@ -160,10 +160,10 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	}
 	
 	/**
-	 * 指定されたデータベースが応答しているかどうかを判定します
-	 * @param databaseId データベース識別子
-	 * @return データベースが生きている場合はtrue、そうでない場合はfalse
-	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合。
+	 * Determines if the specified database is responding.
+	 * @param databaseId database identifier
+	 * @return true if the database is alive, false otherwise
+	 * @throws IllegalArgumentException if no database exists with the specified identifier.
 	 */
 	@ManagedOperation
 	public boolean isAlive(String databaseId)
@@ -172,8 +172,8 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	}
 	
 	/**
-	 * このクラスタのアクティブなデータベースのコレクションを返します。
-	 * @return データベース識別子のリスト
+	 * Returns the collection of active databases in this cluster.
+	 * @return list of database identifiers
 	 */
 	@ManagedAttribute
 	public Set<String> getActiveDatabases()
@@ -182,8 +182,8 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 	}
 	
 	/**
-	 * このクラスタの非アクティブなデータベースのコレクションを返します。
-	 * @return データベース識別子のコレクション
+	 * Returns the collection of inactive databases in this cluster.
+	 * @return collection of database identifiers
 	 */
 	@ManagedAttribute
 	public Set<String> getInactiveDatabases()

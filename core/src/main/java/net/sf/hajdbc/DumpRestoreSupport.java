@@ -23,28 +23,28 @@ import net.sf.hajdbc.codec.Decoder;
 import org.jspecify.annotations.NonNull;
 
 /**
- * ダンプ・リストア機能のサポートインターフェース
+ * Support interface for dump and restore functionality.
  * @author Paul Ferraro
  */
 public interface DumpRestoreSupport
 {
 	/**
-	 * データベースをダンプします
-	 * @param database データベース
-	 * @param decoder デコーダー
-	 * @param file 出力ファイル
-	 * @param dataOnly データのみをダンプする場合はtrue
-	 * @throws Exception エラーが発生した場合
+	 * Dumps a database.
+	 * @param database database
+	 * @param decoder decoder
+	 * @param file output file
+	 * @param dataOnly true to dump data only
+	 * @throws Exception if an error occurs
 	 */
 	<Z, D extends Database<Z>> void dump(@NonNull D database, @NonNull Decoder decoder, @NonNull File file, boolean dataOnly) throws Exception;
 
 	/**
-	 * データベースをリストアします
-	 * @param database データベース
-	 * @param decoder デコーダー
-	 * @param file 入力ファイル
-	 * @param dataOnly データのみをリストアする場合はtrue
-	 * @throws Exception エラーが発生した場合
+	 * Restores a database.
+	 * @param database database
+	 * @param decoder decoder
+	 * @param file input file
+	 * @param dataOnly true to restore data only
+	 * @throws Exception if an error occurs
 	 */
 	<Z, D extends Database<Z>> void restore(@NonNull D database, @NonNull Decoder decoder, @NonNull File file, boolean dataOnly) throws Exception;
 }

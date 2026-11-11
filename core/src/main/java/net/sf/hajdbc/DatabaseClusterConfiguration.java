@@ -42,9 +42,9 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	@NonNull CommandDispatcherFactory getDispatcherFactory();
 	
 	/**
-	 * このクラスタのデータベースを識別子でインデックス付けて返します
-	 * @return データベースのマップ
-	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合
+	 * Returns the databases of this cluster indexed by identifier.
+	 * @return map of databases
+	 * @throws IllegalArgumentException if no database exists with the specified identifier
 	 */
 	@NonNull ConcurrentMap<String, D> getDatabaseMap();
 	
@@ -53,8 +53,8 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	@NonNull String getDefaultSynchronizationStrategy();
 	
 	/**
-	 * このデータベースクラスタで使用されるBalancerの実装を返します。
-	 * @return <code>Balancer</code>の実装
+	 * Returns the Balancer implementation used by this database cluster.
+	 * @return the <code>Balancer</code> implementation
 	 */
 	@NonNull BalancerFactory getBalancerFactory();
 
@@ -63,20 +63,20 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	@NonNull ExecutorServiceProvider getExecutorProvider();
 	
 	/**
-	 * データベースベンダー固有の値を返すことができるDialectを返します。
-	 * @return <code>Dialect</code>の実装
+	 * Returns the Dialect that can return database vendor-specific values.
+	 * @return the <code>Dialect</code> implementation
 	 */
 	@NonNull DialectFactory getDialectFactory();
 	
 	/**
-	 * データベースクラスタの状態を永続化するためのStateManagerを返します。
-	 * @return StateManagerの実装
+	 * Returns the StateManager for persisting the state of the database cluster.
+	 * @return the StateManager implementation
 	 */
 	@NonNull StateManagerFactory getStateManagerFactory();
 	
 	/**
-	 * DatabaseMetaDataキャッシュを返します。
-	 * @return <code>DatabaseMetaDataCache</code>の実装
+	 * Returns the DatabaseMetaData cache.
+	 * @return the <code>DatabaseMetaDataCache</code> implementation
 	 */
 	@NonNull DatabaseMetaDataCacheFactory getDatabaseMetaDataCacheFactory();
 
@@ -135,8 +135,8 @@ public interface DatabaseClusterConfiguration<Z, D extends Database<Z>>
 	@NonNull InputSinkProvider getInputSinkProvider();
 
 	/**
-	 * 分散ロックの取得タイムアウトをミリ秒単位で返します。
-	 * @return ロックタイムアウト（ミリ秒）
+	 * Returns the distributed lock acquisition timeout in milliseconds.
+	 * @return lock timeout in milliseconds
 	 */
 	long getLockTimeoutMs();
 }

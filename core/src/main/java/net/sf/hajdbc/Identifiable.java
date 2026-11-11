@@ -20,14 +20,14 @@ package net.sf.hajdbc;
 import org.jspecify.annotations.NonNull;
 
 /**
- * 識別子を持つオブジェクトのインターフェース
+ * Interface for objects with an identifier.
  * @author Paul Ferraro
  */
 public interface Identifiable
 {
 	/**
-	 * 識別子を返します
-	 * @return 識別子
+	 * Returns the identifier.
+	 * @return identifier
 	 */
 	@NonNull String getId();
 }

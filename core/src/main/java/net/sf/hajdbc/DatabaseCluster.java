@@ -39,8 +39,8 @@ import org.jspecify.annotations.NonNull;
 public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 {
 	/**
-	 * このクラスタの識別子を返します。
-	 * @return 識別子
+	 * Returns the identifier of this cluster.
+	 * @return identifier
 	 */
 	@NonNull String getId();
 	
@@ -61,16 +61,16 @@ public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 	boolean deactivate(@NonNull D database, @NonNull StateManager manager);
 	
 	/**
-	 * 指定されたIDで識別されるデータベースを返します
-	 * @param id データベース識別子
-	 * @return データベース記述子
-	 * @throws IllegalArgumentException 指定された識別子を持つデータベースが存在しない場合
+	 * Returns the database identified by the given ID.
+	 * @param id database identifier
+	 * @return database descriptor
+	 * @throws IllegalArgumentException if no database exists with the given identifier
 	 */
 	@NonNull D getDatabase(@NonNull String id);
 	
 	/**
-	 * このデータベースクラスタで使用されるBalancerの実装を返します。
-	 * @return <code>Balancer</code>の実装
+	 * Returns the Balancer implementation used by this database cluster.
+	 * @return the <code>Balancer</code> implementation
 	 */
 	@NonNull Balancer<Z, D> getBalancer();
 	
@@ -79,26 +79,26 @@ public interface DatabaseCluster<Z, D extends Database<Z>> extends Lifecycle
 	@NonNull ExecutorService getExecutor();
 	
 	/**
-	 * データベースベンダー固有の値を返すことができるDialectを返します。
-	 * @return <code>Dialect</code>の実装
+	 * Returns the Dialect that can return database vendor-specific values.
+	 * @return the <code>Dialect</code> implementation
 	 */
 	@NonNull Dialect getDialect();
 	
 	/**
-	 * このデータベースクラスタ内の特定のオブジェクトに対して名前付きの読み取り/書き込みロックを取得できるLockManagerを返します。
-	 * @return LockManagerの実装
+	 * Returns the LockManager that can acquire named read/write locks on specific objects within this database cluster.
+	 * @return the LockManager implementation
 	 */
 	@NonNull LockManager getLockManager();
 	
 	/**
-	 * データベースクラスタの状態を永続化するためのStateManagerを返します。
-	 * @return StateManagerの実装
+	 * Returns the StateManager for persisting the state of the database cluster.
+	 * @return the StateManager implementation
 	 */
 	@NonNull StateManager getStateManager();
 	
 	/**
-	 * DatabaseMetaDataキャッシュを返します。
-	 * @return <code>DatabaseMetaDataCache</code>の実装
+	 * Returns the DatabaseMetaData cache.
+	 * @return the <code>DatabaseMetaDataCache</code> implementation
 	 */
 	@NonNull DatabaseMetaDataCache<Z, D> getDatabaseMetaDataCache();
 	

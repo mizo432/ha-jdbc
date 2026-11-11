@@ -25,59 +25,59 @@ import org.jspecify.annotations.NonNull;
 
 
 /**
- * 例外ファクトリのインターフェース
+ * Exception factory interface.
  * @author Paul Ferraro
- * @param <E> 例外の型
+ * @param <E> exception type
  */
 public interface ExceptionFactory<E extends Exception> extends Serializable
 {
 	/**
-	 * 対象の例外クラスを返します
-	 * @return 例外クラス
+	 * Returns the target exception class.
+	 * @return exception class
 	 */
 	@NonNull Class<E> getTargetClass();
 	
 	/**
-	 * 指定されたスロー可能オブジェクトから例外を作成します
-	 * @param e スロー可能オブジェクト
-	 * @return 作成された例外
+	 * Creates an exception from the given throwable.
+	 * @param e throwable
+	 * @return the created exception
 	 */
 	@NonNull E createException(@NonNull Throwable e);
 	
 	/**
-	 * 指定されたメッセージから例外を作成します
-	 * @param message メッセージ
-	 * @return 作成された例外
+	 * Creates an exception from the given message.
+	 * @param message message
+	 * @return the created exception
 	 */
 	@NonNull E createException(@NonNull String message);
 	
 	/**
-	 * 2つの例外が等しいかどうかを比較します
-	 * @param exception1 最初の例外
-	 * @param exception2 2番目の例外
-	 * @return 等しい場合はtrue
+	 * Compares two exceptions for equality.
+	 * @param exception1 first exception
+	 * @param exception2 second exception
+	 * @return true if equal
 	 */
 	boolean equals(@NonNull E exception1, @NonNull E exception2);
 	
 	/**
-	 * 例外が失敗を示しているかどうかを判定します
-	 * @param exception 例外
-	 * @param dialect ダイアレクト
-	 * @return 失敗を示す場合はtrue
+	 * Determines if the exception indicates failure.
+	 * @param exception exception
+	 * @param dialect dialect
+	 * @return true if it indicates failure
 	 */
 	boolean indicatesFailure(@NonNull E exception, @NonNull Dialect dialect);
 	
 	/**
-	 * 例外のタイプを返します
-	 * @return 例外タイプ
+	 * Returns the exception type.
+	 * @return exception type
 	 */
 	@NonNull ExceptionType getType();
 	
 	/**
-	 * 例外がヒューリスティックに正しいフェーズに属しているかどうかを判定します
-	 * @param exception 例外
-	 * @param phase 永続性フェーズ
-	 * @return 正しい場合はtrue
+	 * Determines if the exception heuristically belongs to the correct phase.
+	 * @param exception exception
+	 * @param phase durability phase
+	 * @return true if correct
 	 */
 	boolean correctHeuristic(@NonNull E exception, Durability.@NonNull Phase phase);
 }

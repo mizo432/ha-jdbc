@@ -24,14 +24,14 @@ import org.jspecify.annotations.NonNull;
 public interface Constraint<T extends Constraint<T>> extends Named<String, T>
 {
 	/**
-	 * この制約のテーブルを返します
-	 * @return テーブル名
+	 * Returns the table of this constraint.
+	 * @return table name
 	 */
 	@NonNull QualifiedName getTable();
 	
 	/**
-	 * この一意制約に含まれる列のリストを返します
-	 * @return 列名のリスト
+	 * Returns the list of columns included in this unique constraint.
+	 * @return list of column names
 	 */
 	@NonNull List<String> getColumnList();
 }

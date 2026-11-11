@@ -27,9 +27,10 @@ import java.util.TreeSet;
 import net.sf.hajdbc.Database;
 
 /**
- * {@link Balancer#next()}を除く、Balancerインターフェースの大部分を実装するスレッドセーフな抽象バランサー実装です。
- * {@link #add(Object)}、{@link #remove(Object)}、{@link #clear()}にはコピーオンライトアルゴリズムを使用します。
- * {@link #iterator()}の呼び出しはノンブロッキングです。
+ * Thread-safe abstract balancer implementation that implements most of the Balancer interface,
+ * except for {@link Balancer#next()}.
+ * Uses copy-on-write algorithm for {@link #add(Object)}, {@link #remove(Object)}, and {@link #clear()}.
+ * Calls to {@link #iterator()} are non-blocking.
  * 
  * @author Paul Ferraro
  * @param <Z>

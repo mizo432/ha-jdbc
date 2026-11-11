@@ -45,7 +45,7 @@ import net.sf.hajdbc.codec.Decoder;
 
 
 /**
- * データベースベンダー固有のSQL構文をカプセル化します。
+ * Encapsulates database vendor-specific SQL syntax.
  * 
  * @author  Paul Ferraro
  * @since   1.1
@@ -53,121 +53,121 @@ import net.sf.hajdbc.codec.Decoder;
 public interface Dialect
 {
 	/**
-	 * テーブルを切り捨てるために使用されるSQL文を返します。
-	 * @param properties テーブルのメタデータ
-	 * @return SQL文
-	 * @throws SQLException メタデータの取得にエラーが発生した場合
+	 * Returns the SQL statement used to truncate a table.
+	 * @param properties table metadata
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs retrieving metadata
 	 */
 	String getTruncateTableSQL(TableProperties properties) throws SQLException;
 	
 	/**
-	 * 外部キー制約を作成するために使用されるSQL文を返します。
-	 * @param constraint 外部キー制約のメタデータ
-	 * @return SQL文
-	 * @throws SQLException メタデータの取得にエラーが発生した場合
+	 * Returns the SQL statement used to create a foreign key constraint.
+	 * @param constraint foreign key constraint metadata
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs retrieving metadata
 	 */
 	String getCreateForeignKeyConstraintSQL(ForeignKeyConstraint constraint) throws SQLException;
 
 	/**
-	 * 外部キー制約を削除するために使用されるSQL文を返します。
-	 * @param constraint 外部キー制約のメタデータ
-	 * @return SQL文
-	 * @throws SQLException メタデータの取得にエラーが発生した場合
+	 * Returns the SQL statement used to drop a foreign key constraint.
+	 * @param constraint foreign key constraint metadata
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs retrieving metadata
 	 */
 	String getDropForeignKeyConstraintSQL(ForeignKeyConstraint constraint) throws SQLException;
 
 	/**
-	 * 一意制約を作成するために使用されるSQL文を返します。
-	 * @param constraint 一意制約のメタデータ
-	 * @return SQL文
-	 * @throws SQLException メタデータの取得にエラーが発生した場合
+	 * Returns the SQL statement used to create a unique constraint.
+	 * @param constraint unique constraint metadata
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs retrieving metadata
 	 */
 	String getCreateUniqueConstraintSQL(UniqueConstraint constraint) throws SQLException;
 
 	/**
-	 * 一意制約を削除するために使用されるSQL文を返します。
-	 * @param constraint 一意制約のメタデータ
-	 * @return SQL文
-	 * @throws SQLException メタデータの取得にエラーが発生した場合
+	 * Returns the SQL statement used to drop a unique constraint.
+	 * @param constraint unique constraint metadata
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs retrieving metadata
 	 */
 	String getDropUniqueConstraintSQL(UniqueConstraint constraint) throws SQLException;
 	
 	/**
-	 * 指定されたSQLがSELECT ... FOR UPDATE文かどうかを判定します
-	 * @param sql SQL文
-	 * @return SELECT ... FOR UPDATE文の場合はtrue、そうでない場合はfalse
-	 * @throws SQLException メタデータの取得にエラーが発生した場合
+	 * Determines if the given SQL is a SELECT ... FOR UPDATE statement.
+	 * @param sql SQL statement
+	 * @return true if SELECT ... FOR UPDATE, false otherwise
+	 * @throws SQLException if an error occurs retrieving metadata
 	 */
 	boolean isSelectForUpdate(String sql) throws SQLException;
 	
 	/**
-	 * 指定されたスキーマとテーブルの指定された列のデータ型を返します。
-	 * このメソッドはJDBCドライバーの型マッピングの癖を修正するために使用されます。
-	 * @param properties テーブル列のメタデータ
-	 * @return この列のJDBCデータ型
-	 * @throws SQLException 
+	 * Returns the data type of the specified column in the given schema and table.
+	 * This method is used to fix JDBC driver type mapping quirks.
+	 * @param properties column metadata
+	 * @return the JDBC data type of this column
+	 * @throws SQLException
 	 */
 	int getColumnType(ColumnProperties properties) throws SQLException;
 	
 	/**
-	 * スキーマの検索パスを返します
-	 * @param metaData データベースメタデータ
-	 * @return スキーマ名のリスト
-	 * @throws SQLException 
+	 * Returns the schema search path.
+	 * @param metaData database metadata
+	 * @return list of schema names
+	 * @throws SQLException
 	 * @since 2.0
 	 */
 	List<String> getDefaultSchemas(DatabaseMetaData metaData) throws SQLException;
 	
 	/**
-	 * 非決定論的なCURRENT_DATE関数を決定論的な静的値に置き換えます。
-	 * @param sql SQL文
-	 * @param date 置き換えの日付
-	 * @return 同等の決定論的なSQL文
-	 * @throws SQLException 
+	 * Replaces the non-deterministic CURRENT_DATE function with a deterministic static value.
+	 * @param sql SQL statement
+	 * @param date the date to replace with
+	 * @return an equivalent deterministic SQL statement
+	 * @throws SQLException
 	 * @since 2.0.2
 	 */
 	String evaluateCurrentDate(String sql, java.sql.Date date);
 	
 	/**
-	 * 非決定論的なCURRENT_TIME関数を決定論的な静的値に置き換えます。
-	 * @param sql SQL文
-	 * @param time 置き換えの時刻
-	 * @return 同等の決定論的なSQL文
-	 * @throws SQLException 
+	 * Replaces the non-deterministic CURRENT_TIME function with a deterministic static value.
+	 * @param sql SQL statement
+	 * @param time the time to replace with
+	 * @return an equivalent deterministic SQL statement
+	 * @throws SQLException
 	 * @since 2.0.2
 	 */
 	String evaluateCurrentTime(String sql, java.sql.Time time);
 	
 	/**
-	 * 非決定論的なCURRENT_TIMESTAMP関数を決定論的な静的値に置き換えます。
-	 * @param sql SQL文
-	 * @param timestamp 置き換えのタイムスタンプ
-	 * @return 同等の決定論的なSQL文
-	 * @throws SQLException 
+	 * Replaces the non-deterministic CURRENT_TIMESTAMP function with a deterministic static value.
+	 * @param sql SQL statement
+	 * @param timestamp the timestamp to replace with
+	 * @return an equivalent deterministic SQL statement
+	 * @throws SQLException
 	 * @since 2.0.2
 	 */
 	String evaluateCurrentTimestamp(String sql, java.sql.Timestamp timestamp);
 	
 	/**
-	 * 非決定論的なRAND()関数を決定論的な静的値に置き換えます。
-	 * @param sql SQL文
-	 * @return 同等の決定論的なSQL文
-	 * @throws SQLException 
+	 * Replaces the non-deterministic RAND() function with a deterministic static value.
+	 * @param sql SQL statement
+	 * @return an equivalent deterministic SQL statement
+	 * @throws SQLException
 	 * @since 2.0.2
 	 */
 	String evaluateRand(String sql);
 	
 	/**
-	 * 指定された例外が致命的なエラーを示しているかどうかを判定します。
-	 * @param e 例外
-	 * @return 例外が致命的なエラーを示す場合はtrue、そうでない場合はfalse
+	 * Determines if the given exception indicates a fatal error.
+	 * @param e the exception
+	 * @return true if the exception indicates a fatal error, false otherwise
 	 */
 	boolean indicatesFailure(SQLException e);
 	
 	/**
-	 * 指定された例外が致命的なエラーを示しているかどうかを判定します。
-	 * @param e 例外
-	 * @return 例外が致命的なエラーを示す場合はtrue、そうでない場合はfalse
+	 * Determines if the given exception indicates a fatal error.
+	 * @param e the exception
+	 * @return true if the exception indicates a fatal error, false otherwise
 	 */
 	boolean indicatesFailure(XAException e);
 
@@ -184,62 +184,62 @@ public interface Dialect
 	String getDropSchemaSQL(String schema);
 	
 	/**
-	 * このデータベースのすべてのテーブルをスキーマ別にマッピングして返します。
-	 * @param metaData DatabaseMetaDataの実装
-	 * @return スキーマ名からテーブル名のコレクションへのマップ
-	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
+	 * Returns all tables in this database mapped by schema.
+	 * @param metaData DatabaseMetaData implementation
+	 * @return map from schema name to collection of table names
+	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
 	Collection<QualifiedName> getTables(DatabaseMetaData metaData, QualifiedNameFactory factory) throws SQLException;
 
 	/**
-	 * 指定されたテーブルの列を返します。
-	 * @param metaData DatabaseMetaDataの実装
-	 * @param table スキーマ修飾されたテーブル名
-	 * @return 列名から列プロパティへのマップ
-	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
+	 * Returns the columns of the specified table.
+	 * @param metaData DatabaseMetaData implementation
+	 * @param table schema-qualified table name
+	 * @return map from column name to column properties
+	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
 	Map<String, ColumnProperties> getColumns(DatabaseMetaData metaData, QualifiedName table, ColumnPropertiesFactory factory) throws SQLException;
 
 	/**
-	 * 指定されたテーブルの主キーを返します。
-	 * @param metaData DatabaseMetaDataの実装
-	 * @param table スキーマ修飾されたテーブル名
-	 * @return 一意制約
-	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
+	 * Returns the primary key of the specified table.
+	 * @param metaData DatabaseMetaData implementation
+	 * @param table schema-qualified table name
+	 * @return unique constraint
+	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
 	UniqueConstraint getPrimaryKey(DatabaseMetaData metaData, QualifiedName table, UniqueConstraintFactory factory) throws SQLException;
 
 	/**
-	 * 指定されたテーブルの外部キー制約を返します。
-	 * @param metaData DatabaseMetaDataの実装
-	 * @param table スキーマ修飾されたテーブル名
-	 * @return 外部キー制約のコレクション
-	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
+	 * Returns the foreign key constraints of the specified table.
+	 * @param metaData DatabaseMetaData implementation
+	 * @param table schema-qualified table name
+	 * @return collection of foreign key constraints
+	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
 	Collection<ForeignKeyConstraint> getForeignKeyConstraints(DatabaseMetaData metaData, QualifiedName table, ForeignKeyConstraintFactory factory) throws SQLException;
 
 	/**
-	 * 指定されたテーブルの一意制約を返します - テーブルの主キーは除外されます。
-	 * @param metaData DatabaseMetaDataの実装
-	 * @param table 修飾されたテーブル名
-	 * @param primaryKey このテーブルの主キー
-	 * @return 一意制約のコレクション
-	 * @throws SQLException DatabaseMetaDataへのアクセスでエラーが発生した場合
+	 * Returns the unique constraints of the specified table - excluding the table's primary key.
+	 * @param metaData DatabaseMetaData implementation
+	 * @param table qualified table name
+	 * @param primaryKey the primary key of this table
+	 * @return collection of unique constraints
+	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
 	Collection<UniqueConstraint> getUniqueConstraints(DatabaseMetaData metaData, QualifiedName table, UniqueConstraint primaryKey, UniqueConstraintFactory factory) throws SQLException;
 	
 	/**
-	 * 指定された列のコレクションからID列を特定します
-	 * @param columns テーブルの列
-	 * @return 列名のコレクション
+	 * Identifies ID columns from the given collection of columns.
+	 * @param columns table columns
+	 * @return collection of column names
 	 * @throws SQLException
 	 */
 	Collection<String> getIdentityColumns(Collection<ColumnProperties> columns) throws SQLException;
 	
 	/**
-	 * 標準JDBC型からネイティブ型へのマッピングを返します
-	 * @param metaData データベースメタデータ
-	 * @return JDBC型のマップ
+	 * Returns the mapping from standard JDBC types to native types.
+	 * @param metaData database metadata
+	 * @return map of JDBC types
 	 * @throws SQLException
 	 */
 	Map<Integer, Map.Entry<String, Integer>> getTypes(DatabaseMetaData metaData) throws SQLException;

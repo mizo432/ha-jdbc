@@ -38,14 +38,14 @@ import net.sf.hajdbc.util.Strings;
 import net.sf.hajdbc.util.SystemProperties;
 
 /**
- * キーストアに保存された共通鍵を使用して設定ファイルのパスワードを復号化するために使用します。
- * 設定ファイルで使用するためのBase64エンコードされた暗号化パスワードを生成するには、次のコマンドを使用します:<br/>
+ * Uses a shared key stored in a keystore to decrypt passwords in configuration files.
+ * To generate a Base64-encoded encrypted password for use in configuration files, use the following command:<br/>
  * <p><code>java -classpath ha-jdbc.jar net.sf.hajdbc.codec.crypto.CipherCodecFactory [password]</code></p>
- * 次のシステムプロパティを使用して、鍵および/またはキーストアのプロパティをカスタマイズできます:
+ * The following system properties can be used to customize key and/or keystore properties:
  * <table>
  * 	<tr>
- * 		<th>プロパティ</th>
- * 		<th>デフォルト</th>
+ * 		<th>Property</th>
+ * 		<th>Default</th>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.keystore.file</td>
@@ -57,11 +57,11 @@ import net.sf.hajdbc.util.SystemProperties;
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.keystore.password</td>
- * 		<td><em>なし</em></td>
+ * 		<td><em>None</em></td>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.keystore.password.file</td>
- * 		<td><em>なし</em></td>
+ * 		<td><em>None</em></td>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.key.alias</td>
@@ -69,21 +69,21 @@ import net.sf.hajdbc.util.SystemProperties;
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.key.password</td>
- * 		<td><em>必須</em><td>
+ * 		<td><em>Required</em><td>
  * 	</tr>
  * 	<tr>
  * 		<td>ha-jdbc.key.password.file</td>
- * 		<td><em>なし</em></td>
+ * 		<td><em>None</em></td>
  * 	</tr>
  * </table>
- * パスワードプロパティ（<code>ha-jdbc.keystore.password</code>および<code>ha-jdbc.key.password</code>）は、
- * 以下の優先順位で解決されます（高い順）:
+ * Password properties (<code>ha-jdbc.keystore.password</code> and <code>ha-jdbc.key.password</code>) are resolved
+ * in the following order of precedence (highest first):
  * <ol>
- * 	<li>ファイルベース: <code>ha-jdbc.keystore.password.file</code>システムプロパティで指定されたファイルの内容</li>
- * 	<li>環境変数: <code>HA_JDBC_KEYSTORE_PASSWORD</code>環境変数</li>
- * 	<li>システムプロパティ: <code>ha-jdbc.keystore.password</code></li>
+ * 	<li>File-based: contents of the file specified by <code>ha-jdbc.keystore.password.file</code> system property</li>
+ * 	<li>Environment variable: <code>HA_JDBC_KEYSTORE_PASSWORD</code> environment variable</li>
+ * 	<li>System property: <code>ha-jdbc.keystore.password</code></li>
  * </ol>
- * ファイルベースと環境変数の方法は、コマンドライン履歴やプロセスリストにパスワードが露出するリスクを回避するために推奨されます。
+ * The file-based and environment variable methods are recommended to avoid exposing passwords in command-line history or process lists.
  * @author Paul Ferraro
  */
 public class CipherCodecFactory implements CodecFactory
@@ -117,12 +117,12 @@ public class CipherCodecFactory implements CodecFactory
 	}
 	
 	/**
-	 * パスワード関連のプロパティに対応する環境変数名を返します。
-	 * 例: keystore.password → HA_JDBC_KEYSTORE_PASSWORD
+	 * Returns the environment variable name corresponding to a password-related property.
+	 * Example: keystore.password → HA_JDBC_KEYSTORE_PASSWORD
 	 */
 	private static String getEnvironmentVariableName(Property property)
 	{
-		// "keystore.password" → "HA_JDBC_KEYSTORE_PASSWORD" に変換
+		// "keystore.password" → "HA_JDBC_KEYSTORE_PASSWORD"
 		String base = property.name.replace("ha-jdbc.", "").replace(".", "_").toUpperCase();
 		return "HA_JDBC_" + base;
 	}
@@ -141,17 +141,17 @@ public class CipherCodecFactory implements CodecFactory
 	}
 	
 	/**
-	 * センシティブなプロパティ（パスワードなど）を取得します。
-	 * 優先順位は以下の通りです（高い順）:
+	 * Retrieves a sensitive property (e.g., password).
+	 * The order of precedence (highest first) is:
 	 * <ol>
-	 * 	<li>ファイルベース: .file サフィックス付きのプロパティで指定されたファイルの内容</li>
-	 * 	<li>環境変数: HA_JDBC_ 接頭辞付きの環境変数</li>
-	 * 	<li>システムプロパティ: 通常のプロパティ名</li>
+	 * 	<li>File-based: contents of the file specified by the property with .file suffix</li>
+	 * 	<li>Environment variable: environment variable with HA_JDBC_ prefix</li>
+	 * 	<li>System property: the normal property name</li>
 	 * </ol>
 	 */
 	private static String getPropertySecure(String id, Property passwordProperty, Property fileProperty)
 	{
-		// 1. ファイルベースのパスワードを試す
+		// 1. Try file-based password
 		String filePath = getProperty(id, fileProperty);
 		if (filePath != null && !filePath.isEmpty())
 		{
@@ -162,7 +162,7 @@ public class CipherCodecFactory implements CodecFactory
 			}
 		}
 		
-		// 2. 環境変数を試す
+		// 2. Try environment variable
 		String envName = getEnvironmentVariableName(passwordProperty);
 		String envValue = SystemProperties.getEnvironmentVariable(envName);
 		if (envValue != null && !envValue.isEmpty())
@@ -170,15 +170,15 @@ public class CipherCodecFactory implements CodecFactory
 			return envValue;
 		}
 		
-		// 3. システムプロパティを試す（既存の動作）
+		// 3. Try system property (existing behavior)
 		return getProperty(id, passwordProperty);
 	}
 	
 	/**
-	 * ファイルからパスワードを読み取ります。
-	 * ファイルの内容をトリムして返します。
-	 * 空または空白のみのコンテンツの場合は null を返します。
-	 * ファイル権限をチェックし、他のユーザーから読み書き可能な場合は警告をログに記録します。
+	 * Reads a password from a file.
+	 * Returns the trimmed contents of the file.
+	 * Returns null for empty or whitespace-only content.
+	 * Checks file permissions and logs a warning if readable/writable by others.
 	 */
 	private static String readPasswordFromFile(String filePath)
 	{
@@ -202,8 +202,8 @@ public class CipherCodecFactory implements CodecFactory
 	}
 	
 	/**
-	 * パスワードファイルの権限をチェックします。
-	 * 他のユーザーから読み書き可能な場合は警告をログに記録します。
+	 * Checks the permissions of a password file.
+	 * Logs a warning if the file is readable/writable by others.
 	 */
 	private static void checkPasswordFilePermissions(File file)
 	{

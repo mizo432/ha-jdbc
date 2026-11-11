@@ -25,52 +25,52 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * シーケンスのサポートインターフェース
+ * Sequence support interface.
  * @author Paul Ferraro
  */
 public interface SequenceSupport
 {
 	/**
-	 * 指定されたSQLステートメントからシーケンス名を解析します
-	 * @param sql SQLステートメント
-	 * @return シーケンス名、またはSQLステートメントがシーケンスを参照しない場合またはこのダイアレクトがシーケンスをサポートしない場合はnull
-	 * @throws SQLException エラーが発生した場合
+	 * Parses a sequence name from the given SQL statement.
+	 * @param sql SQL statement
+	 * @return sequence name, or null if the SQL statement does not reference a sequence or this dialect does not support sequences
+	 * @throws SQLException if an error occurs
 	 * @since 2.0
 	 */
 	@Nullable String parseSequence(@NonNull String sql) throws SQLException;
 	
 	/**
-	 * ダイアレクト固有のロジックを使用してシーケンスのコレクションを返します
-	 * @param metaData データベースメタデータ
-	 * @param factory シーケンスプロパティファクトリ
-	 * @return シーケンスのコレクション
-	 * @throws SQLException エラーが発生した場合
+	 * Returns a collection of sequences using dialect-specific logic.
+	 * @param metaData database metadata
+	 * @param factory sequence properties factory
+	 * @return collection of sequences
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull Collection<SequenceProperties> getSequences(@NonNull DatabaseMetaData metaData, @NonNull SequencePropertiesFactory factory) throws SQLException;
 	
 	/**
-	 * 指定されたシーケンスの次の値を取得するためのSQLステートメントを返します
-	 * @param sequence シーケンスプロパティ
-	 * @return SQLステートメント
-	 * @throws SQLException エラーが発生した場合
+	 * Returns the SQL statement to get the next value of the given sequence.
+	 * @param sequence sequence properties
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs
 	 * @since 2.0
 	 */
 	@NonNull String getNextSequenceValueSQL(@NonNull SequenceProperties sequence) throws SQLException;
 
 	/**
-	 * シーケンスの現在値をリセットするために使用するSQLステートメントを返します
-	 * @param sequence シーケンスプロパティ
-	 * @param value シーケンス値
-	 * @return SQLステートメント
-	 * @throws SQLException エラーが発生した場合
+	 * Returns the SQL statement to reset the current value of a sequence.
+	 * @param sequence sequence properties
+	 * @param value sequence value
+	 * @return SQL statement
+	 * @throws SQLException if an error occurs
 	 * @since 2.0
 	 */
 	@NonNull String getAlterSequenceSQL(@NonNull SequenceProperties sequence, long value) throws SQLException;
 
 	/**
-	 * シーケンスプロパティファクトリを作成します
-	 * @param factory 修飾名前ファクトリ
-	 * @return シーケンスプロパティファクトリ
+	 * Creates a sequence properties factory.
+	 * @param factory qualified name factory
+	 * @return sequence properties factory
 	 */
 	@NonNull SequencePropertiesFactory createSequencePropertiesFactory(@NonNull QualifiedNameFactory factory);
 }

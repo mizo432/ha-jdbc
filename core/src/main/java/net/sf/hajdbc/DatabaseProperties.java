@@ -24,61 +24,61 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * データベースプロパティのインターフェース
+ * Database properties interface.
  * @author Paul Ferraro
  */
 public interface DatabaseProperties
 {
 	/**
-	 * テーブルプロパティのコレクションを返します
-	 * @return テーブルプロパティのコレクション
-	 * @throws SQLException エラーが発生した場合
+	 * Returns a collection of table properties.
+	 * @return collection of table properties
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull Collection<TableProperties> getTables() throws SQLException;
 
 	/**
-	 * SELECT FOR UPDATEをサポートしているかどうかを返します
-	 * @return サポートしている場合はtrue
-	 * @throws SQLException エラーが発生した場合
+	 * Returns whether SELECT FOR UPDATE is supported.
+	 * @return true if supported
+	 * @throws SQLException if an error occurs
 	 */
 	boolean supportsSelectForUpdate() throws SQLException;
 	
 	/**
-	 * ロケータがコピーを更新するかどうかを返します
-	 * @return 更新する場合はtrue
-	 * @throws SQLException エラーが発生した場合
+	 * Returns whether locators update copies.
+	 * @return true if locators update copies
+	 * @throws SQLException if an error occurs
 	 */
 	boolean locatorsUpdateCopy() throws SQLException;
 	
 	/**
-	 * 指定されたテーブル名のプロパティを検索します
-	 * @param table テーブル名
-	 * @return テーブルプロパティ
-	 * @throws SQLException エラーが発生した場合
+	 * Finds properties for the given table name.
+	 * @param table table name
+	 * @return table properties
+	 * @throws SQLException if an error occurs
 	 */
 	@Nullable TableProperties findTable(@NonNull String table) throws SQLException;
 	
 	/**
-	 * シーケンスプロパティのコレクションを返します
-	 * @return シーケンスプロパティのコレクション
-	 * @throws SQLException エラーが発生した場合
+	 * Returns a collection of sequence properties.
+	 * @return collection of sequence properties
+	 * @throws SQLException if an error occurs
 	 */
 	@NonNull Collection<SequenceProperties> getSequences() throws SQLException;
 	
 	/**
-	 * 指定されたシーケンス名のプロパティを検索します
-	 * @param sequence シーケンス名
-	 * @return シーケンスプロパティ
-	 * @throws SQLException エラーが発生した場合
+	 * Finds properties for the given sequence name.
+	 * @param sequence sequence name
+	 * @return sequence properties
+	 * @throws SQLException if an error occurs
 	 */
 	@Nullable SequenceProperties findSequence(@NonNull String sequence) throws SQLException;
 	
 	/**
-	 * 指定された精度と型に一致する型名を検索します
-	 * @param precision 精度
-	 * @param types 型のリスト
-	 * @return 型名
-	 * @throws SQLException エラーが発生した場合
+	 * Finds a type name matching the given precision and types.
+	 * @param precision precision
+	 * @param types list of types
+	 * @return type name
+	 * @throws SQLException if an error occurs
 	 */
 	@Nullable String findType(int precision, int... types) throws SQLException;
 }

@@ -22,16 +22,16 @@ import java.util.concurrent.ExecutorService;
 import org.jspecify.annotations.NonNull;
 
 /**
- * トランザクションモードのインターフェース
+ * Transaction mode interface.
  * @author Paul Ferraro
  */
 public interface TransactionMode
 {
 	/**
-	 * トランザクションエグゼキューターを返します
-	 * @param executor エグゼキューター
-	 * @param end 終了時にコミットする場合はtrue
-	 * @return トランザクションエグゼキューター
+	 * Returns the transaction executor.
+	 * @param executor executor
+	 * @param end true to commit on end
+	 * @return transaction executor
 	 */
 	@NonNull ExecutorService getTransactionExecutor(@NonNull ExecutorService executor, boolean end);
 }

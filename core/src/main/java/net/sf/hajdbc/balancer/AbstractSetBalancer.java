@@ -30,7 +30,7 @@ import net.sf.hajdbc.invocation.Invoker;
 import net.sf.hajdbc.util.Collections;
 
 /**
- * セットベースの{@link Balancer}の抽象実装です。
+ * Set-based abstract implementation of {@link Balancer}.
  * @author Paul Ferraro
  */
 public abstract class AbstractSetBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, D>

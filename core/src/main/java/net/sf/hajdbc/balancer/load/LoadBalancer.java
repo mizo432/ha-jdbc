@@ -34,10 +34,10 @@ import net.sf.hajdbc.invocation.Invoker;
 import net.sf.hajdbc.util.Collections;
 
 /**
- * {@link #next()}の実装で最も負荷の少ないデータベースを返すバランサーの実装です。
+ * Balancer implementation that returns the least loaded database in its {@link #next()} implementation.
  *
  * @author  Paul Ferraro
- * @param <D> java.sql.Driverまたはjavax.sql.DataSourceのいずれか
+ * @param <D> either java.sql.Driver or javax.sql.DataSource
  */
 public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, D>
 {
@@ -73,8 +73,8 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	};
 
 	/**
-	 * 新しいLoadBalancerを構築します
-	 * @param databases データベースのセット
+	 * Constructs a new LoadBalancer.
+	 * @param databases set of databases
 	 */
 	public LoadBalancer(Set<D> databases)
 	{

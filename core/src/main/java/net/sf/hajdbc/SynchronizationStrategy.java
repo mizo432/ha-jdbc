@@ -25,27 +25,27 @@ import org.jspecify.annotations.NonNull;
 
 
 /**
- * 同期戦略のインターフェース
+ * Synchronization strategy interface.
  * @author  Paul Ferraro
  */
 public interface SynchronizationStrategy extends Identifiable, Serializable
 {
 	/**
-	 * 同期戦略を初期化します
-	 * @param cluster データベースクラスタ
+	 * Initializes the synchronization strategy.
+	 * @param cluster database cluster
 	 */
 	<Z, D extends Database<Z>> void init(@NonNull DatabaseCluster<Z, D> cluster);
 	
 	/**
-	 * 同期コンテキストで定義されたソースデータベースとターゲットデータベースを同期します
-	 * @param context 同期コンテキスト
-	 * @throws SQLException 同期に失敗した場合
+	 * Synchronizes the source and target databases defined in the synchronization context.
+	 * @param context synchronization context
+	 * @throws SQLException if synchronization fails
 	 */
 	<Z, D extends Database<Z>> void synchronize(@NonNull SynchronizationContext<Z, D> context) throws SQLException;
 	
 	/**
-	 * 同期戦略を破棄します
-	 * @param cluster データベースクラスタ
+	 * Destroys the synchronization strategy.
+	 * @param cluster database cluster
 	 */
 	<Z, D extends Database<Z>> void destroy(@NonNull DatabaseCluster<Z, D> cluster);	
 }

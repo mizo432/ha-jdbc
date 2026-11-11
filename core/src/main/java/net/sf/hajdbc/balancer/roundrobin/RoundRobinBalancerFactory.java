@@ -24,7 +24,7 @@ import net.sf.hajdbc.balancer.Balancer;
 import net.sf.hajdbc.balancer.BalancerFactory;
 
 /**
- * {@link RoundRobinBalancer}を作成するためのファクトリです。
+ * Factory for creating {@link RoundRobinBalancer}.
  * @author Paul Ferraro
  */
 public class RoundRobinBalancerFactory implements BalancerFactory

@@ -23,9 +23,9 @@ import org.jspecify.annotations.NonNull;
 
 
 /**
- * 例外ファクトリの抽象ベースクラス
+ * Abstract base class for exception factories.
  * @author paul
- * @param <E> 例外の型
+ * @param <E> exception type
  */
 public abstract class AbstractExceptionFactory<E extends Exception> implements ExceptionFactory<E>
 {
@@ -34,8 +34,8 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	private @NonNull Class<E> targetClass;
 	
 	/**
-	 * 対象の例外クラスを指定してコンストラクトします
-	 * @param targetClass 対象の例外クラス
+	 * Constructs with the target exception class.
+	 * @param targetClass target exception class
 	 */
 	protected AbstractExceptionFactory(@NonNull Class<E> targetClass)
 	{
@@ -64,7 +64,7 @@ public abstract class AbstractExceptionFactory<E extends Exception> implements E
 	 * {@inheritDoc}
 	 */
 	@Override
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "isInstanceチェック後にcastするため安全")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "Safe to cast after isInstance check")
 	public @NonNull E createException(@NonNull Throwable e)
 	{
 		if (e == null)
