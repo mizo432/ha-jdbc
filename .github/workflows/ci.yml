@@ -77,5 +77,5 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: spotbugs-reports
-          path: "**/build/spotbugsResults/*.html"
+          path: "**/build/reports/spotbugs/*.html"
           retention-days: 14
