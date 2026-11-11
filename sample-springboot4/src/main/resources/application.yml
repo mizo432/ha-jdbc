@@ -12,13 +12,13 @@ spring:
 
   # JPA / Hibernate settings
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: none
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         envers:
           store_data_at_delete: true
 
