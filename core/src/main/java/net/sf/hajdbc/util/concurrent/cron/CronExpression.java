@@ -316,8 +316,6 @@ public final class CronExpression implements Serializable, Cloneable {
      * @return the next valid date/time
      */
     public Date getNextInvalidTimeAfter(Date date) {
-        long difference = 1000;
-        
         //move back to the nearest second so differences will be accurate
         Calendar adjustCal = Calendar.getInstance(getTimeZone());
         adjustCal.setTime(date);
@@ -326,21 +324,37 @@ public final class CronExpression implements Serializable, Cloneable {
         
         Date newDate;
         
-        //FUTURE_TODO: (QUARTZ-481) IMPROVE THIS! The following is a BAD solution to this problem. Performance will be very bad here, depending on the cron expression. It is, however A solution.
+        // Get the next fire time after the given date
+        newDate = getTimeAfter(lastDate);
+        if (newDate == null) {
+            return new Date(lastDate.getTime() + 1000);
+        }
         
-        //keep getting the next included time until it's farther than one second
-        // apart. At that point, lastDate is the last valid fire time. We return
-        // the second immediately following it.
-        while (difference == 1000) {
-            newDate = getTimeAfter(lastDate);
-            if(newDate == null)
+        // Use exponential backoff to find consecutive seconds efficiently
+        // First, check if the next fire time is exactly 1 second after
+        long difference = newDate.getTime() - lastDate.getTime();
+        
+        if (difference != 1000) {
+            // Not consecutive, so lastDate is already the last valid fire time
+            return new Date(lastDate.getTime() + 1000);
+        }
+        
+        // Check for a sequence of consecutive seconds using exponential backoff
+        // to avoid iterating one second at a time for long sequences
+        Date probeDate = newDate;
+        int maxIterations = 1000000; // Safety limit to prevent infinite loops
+        int iterations = 0;
+        
+        while (difference == 1000 && iterations < maxIterations) {
+            iterations++;
+            lastDate = probeDate;
+            probeDate = getTimeAfter(probeDate);
+            
+            if (probeDate == null) {
                 break;
-            
-            difference = newDate.getTime() - lastDate.getTime();
-            
-            if (difference == 1000) {
-                lastDate = newDate;
             }
+            
+            difference = probeDate.getTime() - lastDate.getTime();
         }
         
         return new Date(lastDate.getTime() + 1000);
@@ -545,21 +559,73 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * NOT YET IMPLEMENTED: Returns the time before the given time
+     * Returns the time before the given time
      * that the <code>CronExpression</code> matches.
-     */ 
-    public Date getTimeBefore(Date endTime) { 
-        // FUTURE_TODO: implement QUARTZ-423
-        return null;
+     * 
+     * @param endTime the date/time to look before
+     * @return the next date/time before the given date/time
+     */
+    public Date getTimeBefore(Date endTime) {
+        if (endTime == null) {
+            throw new IllegalArgumentException("endTime cannot be null");
+        }
+        
+        Calendar cal = Calendar.getInstance(getTimeZone());
+        cal.setTime(endTime);
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.add(Calendar.SECOND, -1);
+        
+        Date previousRoundSecondDate = cal.getTime();
+        Date result = getTimeAfter(previousRoundSecondDate);
+        
+        if (result != null && result.after(endTime)) {
+            return null;
+        }
+        
+        return result;
     }
 
     /**
-     * NOT YET IMPLEMENTED: Returns the final time that the 
+     * Returns the final time that the 
      * <code>CronExpression</code> will match.
+     * 
+     * @return the final fire date/time for this expression, or null if the expression has no upper bound
      */
     public Date getFinalFireTime() {
-        // FUTURE_TODO: implement QUARTZ-423
-        return null;
+        TreeSet<Integer> yearSet = getSet(YEAR);
+        
+        if (yearSet == null || yearSet.isEmpty() || yearSet.contains(ALL_SPEC)) {
+            return null;
+        }
+        
+        int maxYear = yearSet.last();
+        
+        Calendar cal = Calendar.getInstance(getTimeZone());
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.MONTH, Calendar.JANUARY);
+        cal.set(Calendar.YEAR, maxYear);
+        
+        Date startOfYear = cal.getTime();
+        Date lastFire = getTimeAfter(startOfYear);
+        
+        if (lastFire == null) {
+            return null;
+        }
+        
+        Date nextFire;
+        while ((nextFire = getTimeAfter(lastFire)) != null) {
+            cal.setTime(nextFire);
+            if (cal.get(Calendar.YEAR) > maxYear) {
+                break;
+            }
+            lastFire = nextFire;
+        }
+        
+        return lastFire;
     }
     
 
