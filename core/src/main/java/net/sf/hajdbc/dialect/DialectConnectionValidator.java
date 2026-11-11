@@ -22,6 +22,7 @@ import java.sql.SQLException;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.codec.Decoder;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Validates database connections and resolves connection properties.
@@ -39,7 +40,7 @@ public interface DialectConnectionValidator
 	 * @return true if valid, false otherwise
 	 * @throws SQLException if an error occurs validating the connection
 	 */
-	boolean isValid(Connection connection) throws SQLException;
+	boolean isValid(@NonNull Connection connection) throws SQLException;
 
 	/**
 	 * Resolves connection properties from a database instance.
@@ -48,6 +49,6 @@ public interface DialectConnectionValidator
 	 * @return connection properties
 	 * @throws SQLException if an error occurs resolving properties
 	 */
-	<Z, D extends Database<Z>> ConnectionProperties getConnectionProperties(D database, Decoder decoder) throws SQLException;
+	<Z, D extends Database<Z>> @NonNull ConnectionProperties getConnectionProperties(@NonNull D database, @NonNull Decoder decoder) throws SQLException;
 }
 

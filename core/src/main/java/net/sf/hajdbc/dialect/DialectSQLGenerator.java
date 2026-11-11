@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import net.sf.hajdbc.ForeignKeyConstraint;
 import net.sf.hajdbc.TableProperties;
 import net.sf.hajdbc.UniqueConstraint;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Generates database vendor-specific SQL statements for DDL operations.
@@ -39,7 +40,7 @@ public interface DialectSQLGenerator
 	 * @return SQL statement
 	 * @throws SQLException if an error occurs retrieving metadata
 	 */
-	String getTruncateTableSQL(TableProperties properties) throws SQLException;
+	@NonNull String getTruncateTableSQL(@NonNull TableProperties properties) throws SQLException;
 
 	/**
 	 * Returns the SQL statement used to create a foreign key constraint.
@@ -47,7 +48,7 @@ public interface DialectSQLGenerator
 	 * @return SQL statement
 	 * @throws SQLException if an error occurs retrieving metadata
 	 */
-	String getCreateForeignKeyConstraintSQL(ForeignKeyConstraint constraint) throws SQLException;
+	@NonNull String getCreateForeignKeyConstraintSQL(@NonNull ForeignKeyConstraint constraint) throws SQLException;
 
 	/**
 	 * Returns the SQL statement used to drop a foreign key constraint.
@@ -55,7 +56,7 @@ public interface DialectSQLGenerator
 	 * @return SQL statement
 	 * @throws SQLException if an error occurs retrieving metadata
 	 */
-	String getDropForeignKeyConstraintSQL(ForeignKeyConstraint constraint) throws SQLException;
+	@NonNull String getDropForeignKeyConstraintSQL(@NonNull ForeignKeyConstraint constraint) throws SQLException;
 
 	/**
 	 * Returns the SQL statement used to create a unique constraint.
@@ -63,7 +64,7 @@ public interface DialectSQLGenerator
 	 * @return SQL statement
 	 * @throws SQLException if an error occurs retrieving metadata
 	 */
-	String getCreateUniqueConstraintSQL(UniqueConstraint constraint) throws SQLException;
+	@NonNull String getCreateUniqueConstraintSQL(@NonNull UniqueConstraint constraint) throws SQLException;
 
 	/**
 	 * Returns the SQL statement used to drop a unique constraint.
@@ -71,20 +72,20 @@ public interface DialectSQLGenerator
 	 * @return SQL statement
 	 * @throws SQLException if an error occurs retrieving metadata
 	 */
-	String getDropUniqueConstraintSQL(UniqueConstraint constraint) throws SQLException;
+	@NonNull String getDropUniqueConstraintSQL(@NonNull UniqueConstraint constraint) throws SQLException;
 
 	/**
 	 * Returns the SQL statement used to create a schema.
 	 * @param schema schema name
 	 * @return SQL statement
 	 */
-	String getCreateSchemaSQL(String schema);
+	@NonNull String getCreateSchemaSQL(@NonNull String schema);
 
 	/**
 	 * Returns the SQL statement used to drop a schema.
 	 * @param schema schema name
 	 * @return SQL statement
 	 */
-	String getDropSchemaSQL(String schema);
+	@NonNull String getDropSchemaSQL(@NonNull String schema);
 }
 

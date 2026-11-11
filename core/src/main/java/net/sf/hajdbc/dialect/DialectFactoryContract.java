@@ -25,6 +25,7 @@ import net.sf.hajdbc.ForeignKeyConstraintFactory;
 import net.sf.hajdbc.IdentifierNormalizer;
 import net.sf.hajdbc.QualifiedNameFactory;
 import net.sf.hajdbc.UniqueConstraintFactory;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Creates factory instances for database vendor-specific object construction.
@@ -42,7 +43,7 @@ public interface DialectFactoryContract
 	 * @return identifier normalizer
 	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
-	IdentifierNormalizer createIdentifierNormalizer(DatabaseMetaData metaData) throws SQLException;
+	@NonNull IdentifierNormalizer createIdentifierNormalizer(@NonNull DatabaseMetaData metaData) throws SQLException;
 
 	/**
 	 * Creates a qualified name factory for this dialect.
@@ -51,27 +52,27 @@ public interface DialectFactoryContract
 	 * @return qualified name factory
 	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
-	QualifiedNameFactory createQualifiedNameFactory(DatabaseMetaData metaData, IdentifierNormalizer normalizer) throws SQLException;
+	@NonNull QualifiedNameFactory createQualifiedNameFactory(@NonNull DatabaseMetaData metaData, @NonNull IdentifierNormalizer normalizer) throws SQLException;
 
 	/**
 	 * Creates a column properties factory for this dialect.
 	 * @param normalizer identifier normalizer
 	 * @return column properties factory
 	 */
-	ColumnPropertiesFactory createColumnPropertiesFactory(IdentifierNormalizer normalizer);
+	@NonNull ColumnPropertiesFactory createColumnPropertiesFactory(@NonNull IdentifierNormalizer normalizer);
 
 	/**
 	 * Creates a foreign key constraint factory for this dialect.
 	 * @param factory qualified name factory
 	 * @return foreign key constraint factory
 	 */
-	ForeignKeyConstraintFactory createForeignKeyConstraintFactory(QualifiedNameFactory factory);
+	@NonNull ForeignKeyConstraintFactory createForeignKeyConstraintFactory(@NonNull QualifiedNameFactory factory);
 
 	/**
 	 * Creates a unique constraint factory for this dialect.
 	 * @param normalizer identifier normalizer
 	 * @return unique constraint factory
 	 */
-	UniqueConstraintFactory createUniqueConstraintFactory(IdentifierNormalizer normalizer);
+	@NonNull UniqueConstraintFactory createUniqueConstraintFactory(@NonNull IdentifierNormalizer normalizer);
 }
 

@@ -22,6 +22,7 @@ import java.util.Set;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.invocation.Invoker;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A collection of active databases and a strategy for determining the next balancing target.
@@ -41,21 +42,21 @@ public interface Balancer<Z, D extends Database<Z>> extends Iterable<D>
 	 * @param database a database descriptor
 	 * @return true if the database was added, false if it was already active
 	 */
-	boolean add(D database);
+	boolean add(@NonNull D database);
 
 	/**
 	 * Removes the specified database from the active set.
 	 * @param database a database descriptor
 	 * @return true if the database was removed, false if it was not active
 	 */
-	boolean remove(D database);
+	boolean remove(@NonNull D database);
 
 	/**
 	 * Returns whether the specified database is active.
 	 * @param database a database descriptor
 	 * @return true if the database is active
 	 */
-	boolean contains(D database);
+	boolean contains(@NonNull D database);
 
 	/**
 	 * Returns whether no databases are active.
@@ -73,13 +74,13 @@ public interface Balancer<Z, D extends Database<Z>> extends Iterable<D>
 	 * Returns an iterator over the active databases.
 	 * @return iterator
 	 */
-	Iterator<D> iterator();
+	@NonNull Iterator<D> iterator();
 
 	/**
 	 * Returns a snapshot of the active databases as an unmodifiable set.
 	 * @return unmodifiable set of active databases
 	 */
-	Set<D> getActiveDatabases();
+	@NonNull Set<D> getActiveDatabases();
 
 	/**
 	 * Clears all active databases.
@@ -91,19 +92,19 @@ public interface Balancer<Z, D extends Database<Z>> extends Iterable<D>
 	 * The database returned by this method must be consistent across all nodes.
 	 * @return primary database
 	 */
-	D primary();
+	@NonNull D primary();
 	
 	/**
 	 * Returns the non-primary databases.
 	 * @return iterable collection of databases
 	 */
-	Iterable<D> backups();
+	@NonNull Iterable<D> backups();
 	
 	/**
 	 * Returns the next database from this balancer.
 	 * @return next database
 	 */
-	D next();
+	@NonNull D next();
 
 	/**
 	 * Executes the given invoker on the given object for the specified database, and may notify the balancer.
@@ -116,5 +117,5 @@ public interface Balancer<Z, D extends Database<Z>> extends Iterable<D>
 	 * @return execution result
 	 * @throws E exception
 	 */
-	<T, R, E extends Exception> R invoke(Invoker<Z, D, T, R, E> invoker, D database, T object) throws E;
+	<T, R, E extends Exception> R invoke(@NonNull Invoker<Z, D, T, R, E> invoker, @NonNull D database, @NonNull T object) throws E;
 }

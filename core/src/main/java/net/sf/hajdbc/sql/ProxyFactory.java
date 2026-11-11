@@ -24,6 +24,7 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.ExceptionFactory;
 import net.sf.hajdbc.invocation.Invoker;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A factory for creating proxies to SQL objects across a database cluster.
@@ -45,23 +46,23 @@ import net.sf.hajdbc.invocation.Invoker;
  */
 public interface ProxyFactory<Z, D extends Database<Z>, T, E extends Exception>
 {
-	T get(D database);
+	@NonNull T get(@NonNull D database);
 	
-	Set<Map.Entry<D, T>> entries();
+	@NonNull Set<Map.Entry<D, T>> entries();
 
-	DatabaseCluster<Z, D> getDatabaseCluster();
+	@NonNull DatabaseCluster<Z, D> getDatabaseCluster();
 	
-	ExceptionFactory<E> getExceptionFactory();
+	@NonNull ExceptionFactory<E> getExceptionFactory();
 	
-	void record(Invoker<Z, D, T, ?, E> invoker);
+	void record(@NonNull Invoker<Z, D, T, ?, E> invoker);
 
-	void replay(D database, T object) throws E;
+	void replay(@NonNull D database, @NonNull T object) throws E;
 
-	void addChild(ChildProxyFactory<Z, D, T, E, ?, ? extends Exception> child);
+	void addChild(@NonNull ChildProxyFactory<Z, D, T, E, ?, ? extends Exception> child);
 
-	void removeChild(ChildProxyFactory<Z, D, T, E, ?, ? extends Exception> child);
+	void removeChild(@NonNull ChildProxyFactory<Z, D, T, E, ?, ? extends Exception> child);
 	
 	void removeChildren();
 	
-	T createProxy();
+	@NonNull T createProxy();
 }

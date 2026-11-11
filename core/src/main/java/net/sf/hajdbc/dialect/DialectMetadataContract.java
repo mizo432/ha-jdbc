@@ -31,6 +31,7 @@ import net.sf.hajdbc.QualifiedName;
 import net.sf.hajdbc.QualifiedNameFactory;
 import net.sf.hajdbc.UniqueConstraint;
 import net.sf.hajdbc.UniqueConstraintFactory;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Accesses database metadata through DatabaseMetaData for vendor-specific schemas.
@@ -49,7 +50,7 @@ public interface DialectMetadataContract
 	 * @return the JDBC data type of this column
 	 * @throws SQLException
 	 */
-	int getColumnType(ColumnProperties properties) throws SQLException;
+	int getColumnType(@NonNull ColumnProperties properties) throws SQLException;
 
 	/**
 	 * Returns the schema search path.
@@ -58,7 +59,7 @@ public interface DialectMetadataContract
 	 * @throws SQLException
 	 * @since 2.0
 	 */
-	List<String> getDefaultSchemas(DatabaseMetaData metaData) throws SQLException;
+	@NonNull List<String> getDefaultSchemas(@NonNull DatabaseMetaData metaData) throws SQLException;
 
 	/**
 	 * Returns all tables in this database mapped by schema.
@@ -66,7 +67,7 @@ public interface DialectMetadataContract
 	 * @return map from schema name to collection of table names
 	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
-	Collection<QualifiedName> getTables(DatabaseMetaData metaData, QualifiedNameFactory factory) throws SQLException;
+	@NonNull Collection<QualifiedName> getTables(@NonNull DatabaseMetaData metaData, @NonNull QualifiedNameFactory factory) throws SQLException;
 
 	/**
 	 * Returns the columns of the specified table.
@@ -75,7 +76,7 @@ public interface DialectMetadataContract
 	 * @return map from column name to column properties
 	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
-	Map<String, ColumnProperties> getColumns(DatabaseMetaData metaData, QualifiedName table, ColumnPropertiesFactory factory) throws SQLException;
+	@NonNull Map<String, ColumnProperties> getColumns(@NonNull DatabaseMetaData metaData, @NonNull QualifiedName table, @NonNull ColumnPropertiesFactory factory) throws SQLException;
 
 	/**
 	 * Returns the primary key of the specified table.
@@ -84,7 +85,7 @@ public interface DialectMetadataContract
 	 * @return unique constraint
 	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
-	UniqueConstraint getPrimaryKey(DatabaseMetaData metaData, QualifiedName table, UniqueConstraintFactory factory) throws SQLException;
+	@NonNull UniqueConstraint getPrimaryKey(@NonNull DatabaseMetaData metaData, @NonNull QualifiedName table, @NonNull UniqueConstraintFactory factory) throws SQLException;
 
 	/**
 	 * Returns the foreign key constraints of the specified table.
@@ -93,7 +94,7 @@ public interface DialectMetadataContract
 	 * @return collection of foreign key constraints
 	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
-	Collection<ForeignKeyConstraint> getForeignKeyConstraints(DatabaseMetaData metaData, QualifiedName table, ForeignKeyConstraintFactory factory) throws SQLException;
+	@NonNull Collection<ForeignKeyConstraint> getForeignKeyConstraints(@NonNull DatabaseMetaData metaData, @NonNull QualifiedName table, @NonNull ForeignKeyConstraintFactory factory) throws SQLException;
 
 	/**
 	 * Returns the unique constraints of the specified table - excluding the table's primary key.
@@ -103,7 +104,7 @@ public interface DialectMetadataContract
 	 * @return collection of unique constraints
 	 * @throws SQLException if an error occurs accessing DatabaseMetaData
 	 */
-	Collection<UniqueConstraint> getUniqueConstraints(DatabaseMetaData metaData, QualifiedName table, UniqueConstraint primaryKey, UniqueConstraintFactory factory) throws SQLException;
+	@NonNull Collection<UniqueConstraint> getUniqueConstraints(@NonNull DatabaseMetaData metaData, @NonNull QualifiedName table, @NonNull UniqueConstraint primaryKey, @NonNull UniqueConstraintFactory factory) throws SQLException;
 
 	/**
 	 * Identifies ID columns from the given collection of columns.
@@ -111,7 +112,7 @@ public interface DialectMetadataContract
 	 * @return collection of column names
 	 * @throws SQLException
 	 */
-	Collection<String> getIdentityColumns(Collection<ColumnProperties> columns) throws SQLException;
+	@NonNull Collection<String> getIdentityColumns(@NonNull Collection<ColumnProperties> columns) throws SQLException;
 
 	/**
 	 * Returns the mapping from standard JDBC types to native types.
@@ -119,6 +120,6 @@ public interface DialectMetadataContract
 	 * @return map of JDBC types
 	 * @throws SQLException
 	 */
-	Map<Integer, Map.Entry<String, Integer>> getTypes(DatabaseMetaData metaData) throws SQLException;
+	@NonNull Map<Integer, Map.Entry<String, Integer>> getTypes(@NonNull DatabaseMetaData metaData) throws SQLException;
 }
 

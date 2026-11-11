@@ -21,6 +21,8 @@ import java.sql.SQLException;
 
 import javax.transaction.xa.XAException;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Detects fatal database failures from exceptions.
  * This interface isolates failure detection concerns from other dialect responsibilities,
@@ -36,13 +38,13 @@ public interface DialectFailureContract
 	 * @param e the exception
 	 * @return true if the exception indicates a fatal error, false otherwise
 	 */
-	boolean indicatesFailure(SQLException e);
+	boolean indicatesFailure(@NonNull SQLException e);
 
 	/**
 	 * Determines if the given XA exception indicates a fatal error.
 	 * @param e the exception
 	 * @return true if the exception indicates a fatal error, false otherwise
 	 */
-	boolean indicatesFailure(XAException e);
+	boolean indicatesFailure(@NonNull XAException e);
 }
 

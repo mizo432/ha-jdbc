@@ -21,6 +21,7 @@ import net.sf.hajdbc.DumpRestoreSupport;
 import net.sf.hajdbc.IdentityColumnSupport;
 import net.sf.hajdbc.SequenceSupport;
 import net.sf.hajdbc.TriggerSupport;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Encapsulates database vendor-specific SQL syntax.
@@ -48,25 +49,25 @@ public interface Dialect extends
 {
 	/**
 	 * Returns the sequence support for this dialect, or null if not supported.
-	 * @return sequence support
+	 * @return sequence support, or null if not supported
 	 */
-	SequenceSupport getSequenceSupport();
+	@Nullable SequenceSupport getSequenceSupport();
 	
 	/**
 	 * Returns the identity column support for this dialect, or null if not supported.
-	 * @return identity column support
+	 * @return identity column support, or null if not supported
 	 */
-	IdentityColumnSupport getIdentityColumnSupport();
+	@Nullable IdentityColumnSupport getIdentityColumnSupport();
 	
 	/**
 	 * Returns the dump/restore support for this dialect, or null if not supported.
-	 * @return dump/restore support
+	 * @return dump/restore support, or null if not supported
 	 */
-	DumpRestoreSupport getDumpRestoreSupport();
+	@Nullable DumpRestoreSupport getDumpRestoreSupport();
 	
 	/**
 	 * Returns the trigger support for this dialect, or null if not supported.
-	 * @return trigger support
+	 * @return trigger support, or null if not supported
 	 */
-	TriggerSupport getTriggerSupport();
+	@Nullable TriggerSupport getTriggerSupport();
 }

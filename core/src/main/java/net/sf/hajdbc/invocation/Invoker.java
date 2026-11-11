@@ -18,6 +18,7 @@
 package net.sf.hajdbc.invocation;
 
 import net.sf.hajdbc.Database;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Represents a method invocation against a SQL object in a database.
@@ -54,5 +55,5 @@ public interface Invoker<Z, D extends Database<Z>, T, R, E extends Exception>
 	 * @return the invocation result
 	 * @throws Exception
 	 */
-	R invoke(D database, T object) throws E;
+	R invoke(@NonNull D database, @NonNull T object) throws E;
 }

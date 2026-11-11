@@ -18,6 +18,7 @@
 package net.sf.hajdbc.sql;
 
 import net.sf.hajdbc.Database;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A factory for creating child proxies, where each child is derived from a parent SQL object.
@@ -48,13 +49,13 @@ import net.sf.hajdbc.Database;
  */
 public interface ChildProxyFactory<Z, D extends Database<Z>, P, PE extends Exception, T, E extends Exception> extends ProxyFactory<Z, D, T, E>
 {
-	ProxyFactory<Z, D, P, PE> getParent();
+	@NonNull ProxyFactory<Z, D, P, PE> getParent();
 	
-	P getParentProxy();
+	@NonNull P getParentProxy();
 
 	void remove();
 	
-	void close(D database);
+	void close(@NonNull D database);
 
-	void close(D database, T object) throws E;
+	void close(@NonNull D database, @NonNull T object) throws E;
 }

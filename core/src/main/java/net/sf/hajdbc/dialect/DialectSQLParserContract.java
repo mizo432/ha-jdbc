@@ -19,6 +19,8 @@ package net.sf.hajdbc.dialect;
 
 import java.sql.SQLException;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Parses and evaluates SQL statements for database vendor-specific syntax.
  * This interface isolates SQL parsing concerns from other dialect responsibilities,
@@ -35,7 +37,7 @@ public interface DialectSQLParserContract
 	 * @return true if SELECT ... FOR UPDATE, false otherwise
 	 * @throws SQLException if an error occurs retrieving metadata
 	 */
-	boolean isSelectForUpdate(String sql) throws SQLException;
+	boolean isSelectForUpdate(@NonNull String sql) throws SQLException;
 
 	/**
 	 * Replaces the non-deterministic CURRENT_DATE function with a deterministic static value.
@@ -45,7 +47,7 @@ public interface DialectSQLParserContract
 	 * @throws SQLException
 	 * @since 2.0.2
 	 */
-	String evaluateCurrentDate(String sql, java.sql.Date date);
+	@NonNull String evaluateCurrentDate(@NonNull String sql, java.sql.Date date);
 
 	/**
 	 * Replaces the non-deterministic CURRENT_TIME function with a deterministic static value.
@@ -55,7 +57,7 @@ public interface DialectSQLParserContract
 	 * @throws SQLException
 	 * @since 2.0.2
 	 */
-	String evaluateCurrentTime(String sql, java.sql.Time time);
+	@NonNull String evaluateCurrentTime(@NonNull String sql, java.sql.Time time);
 
 	/**
 	 * Replaces the non-deterministic CURRENT_TIMESTAMP function with a deterministic static value.
@@ -65,7 +67,7 @@ public interface DialectSQLParserContract
 	 * @throws SQLException
 	 * @since 2.0.2
 	 */
-	String evaluateCurrentTimestamp(String sql, java.sql.Timestamp timestamp);
+	@NonNull String evaluateCurrentTimestamp(@NonNull String sql, java.sql.Timestamp timestamp);
 
 	/**
 	 * Replaces the non-deterministic RAND() function with a deterministic static value.
@@ -74,6 +76,6 @@ public interface DialectSQLParserContract
 	 * @throws SQLException
 	 * @since 2.0.2
 	 */
-	String evaluateRand(String sql);
+	@NonNull String evaluateRand(@NonNull String sql);
 }
 

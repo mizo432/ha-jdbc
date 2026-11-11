@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import net.sf.hajdbc.codec.Decoder;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author  Paul Ferraro
@@ -30,20 +31,59 @@ import org.jspecify.annotations.NonNull;
  */
 public interface Database<Z> extends Comparable<Database<Z>>
 {
+	/**
+	 * Returns the unique identifier for this database.
+	 * @return database id
+	 */
 	@NonNull String getId();
 
+	/**
+	 * Returns the connection source (e.g., Driver, DataSource) for this database.
+	 * @return connection source
+	 */
 	@NonNull Z getConnectionSource();
 
+	/**
+	 * Returns the credentials for connecting to this database.
+	 * @return credentials
+	 */
 	@NonNull Credentials getCredentials();
-	
+
+	/**
+	 * Returns the weight of this database for load balancing.
+	 * @return weight (1 or greater)
+	 */
 	int getWeight();
+
+	/**
+	 * Sets the weight of this database for load balancing.
+	 * @param weight weight (1 or greater)
+	 */
 	void setWeight(int weight);
 
+	/**
+	 * Returns the locality (local or remote) of this database.
+	 * @return locality
+	 */
 	@NonNull Locality getLocality();
 
+	/**
+	 * Connects to this database using the specified decoder.
+	 * @param decoder codec decoder
+	 * @return database connection
+	 * @throws SQLException if connection fails
+	 */
 	@NonNull Connection connect(@NonNull Decoder decoder) throws SQLException;
 
+	/**
+	 * Returns the location string for this database.
+	 * @return location
+	 */
 	@NonNull String getLocation();
 
+	/**
+	 * Returns the properties for this database.
+	 * @return properties
+	 */
 	@NonNull Properties getProperties();
 }
