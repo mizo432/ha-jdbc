@@ -27,6 +27,7 @@ import java.util.concurrent.locks.Lock;
 
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.invocation.Invoker;
+import net.sf.hajdbc.io.InputSinkRegistry;
 import net.sf.hajdbc.io.InputSinkRegistryImpl;
 import net.sf.hajdbc.io.InputSinkStrategy;
 import net.sf.hajdbc.logging.Level;
@@ -35,15 +36,23 @@ import net.sf.hajdbc.logging.Level;
  * 
  * @author Paul Ferraro
  */
-public abstract class AbstractStatementProxyFactory<Z, D extends Database<Z>, S extends Statement> extends AbstractInputSinkRegistryProxyFactory<Z, D, Connection, S>
+public abstract class AbstractStatementProxyFactory<Z, D extends Database<Z>, S extends Statement> extends AbstractSQLProxyFactory<Z, D, Connection, S> implements InputSinkRegistryProxyFactory<Z, D, Connection, S>
 {
+	private final InputSinkRegistry<Object> sinkRegistry;
 	private final List<Invoker<Z, D, S, ?, SQLException>> batchInvokers = new LinkedList<>();
 	private final List<String> batch = new LinkedList<>();
 	
 	@SuppressWarnings("unchecked")
 	protected AbstractStatementProxyFactory(Connection parent, ProxyFactory<Z, D, Connection, SQLException> parentFactory, Invoker<Z, D, Connection, S, SQLException> invoker, Map<D, S> map, TransactionContext<Z, D> context)
 	{
-		super(parent, parentFactory, invoker, map, context, new InputSinkRegistryImpl<>((InputSinkStrategy<Object>) parentFactory.getDatabaseCluster().getInputSinkStrategy()));
+		super(parent, parentFactory, invoker, map, context);
+		this.sinkRegistry = new InputSinkRegistryImpl<>((InputSinkStrategy<Object>) parentFactory.getDatabaseCluster().getInputSinkStrategy());
+	}
+
+	@Override
+	public InputSinkRegistry<Object> getInputSinkRegistry()
+	{
+		return this.sinkRegistry;
 	}
 
 	@Override

@@ -24,7 +24,7 @@ import net.sf.hajdbc.io.InputSinkRegistry;
  * 
  * @author Paul Ferraro
  */
-public interface InputSinkRegistryProxyFactory<Z, D extends Database<Z>, P, T> extends TransactionalProxyFactory<Z, D, P, T>
+public interface InputSinkRegistryProxyFactory<Z, D extends Database<Z>, P, T> extends SQLProxyFactory<Z, D, P, T>
 {
 	InputSinkRegistry<Object> getInputSinkRegistry();
 }
