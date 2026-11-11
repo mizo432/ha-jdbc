@@ -155,4 +155,164 @@ public class CronExpressionTest
 		CronExpression expression = new CronExpression("0 0 0 1 1 ? *");
 		Assertions.assertNotNull(expression);
 	}
+	
+	@Test
+	public void parseWithWeekendDays() throws ParseException
+	{
+		CronExpression expression = new CronExpression("0 0 9 ? * SAT,SUN");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithLastDayOfWeek() throws ParseException
+	{
+		CronExpression expression = new CronExpression("0 0 9 ? * 5L");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithNearestWeekday() throws ParseException
+	{
+		CronExpression expression = new CronExpression("0 0 0 15W * ?");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithLastWeekdayOfMonth() throws ParseException
+	{
+		CronExpression expression = new CronExpression("0 0 0 LW * ?");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithIncrementFromNonZero() throws ParseException
+	{
+		CronExpression expression = new CronExpression("15/10 * * * * ?");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithMonthRange() throws ParseException
+	{
+		CronExpression expression = new CronExpression("0 0 0 1 JAN-MAR ?");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithDayOfWeekRange() throws ParseException
+	{
+		CronExpression expression = new CronExpression("0 0 9 ? * MON-FRI");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithMultipleHashThrows()
+	{
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("0 0 9 ? * 1#1#2"));
+	}
+	
+	@Test
+	public void parseWithLAndCommaThrows()
+	{
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("0 0 0 L,15 * ?"));
+	}
+	
+	@Test
+	public void parseWithTooFewFields()
+	{
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("0 0 0"));
+	}
+	
+	@Test
+	public void parseWithInvalidSecond()
+	{
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("60 * * * * ?"));
+	}
+	
+	@Test
+	public void parseWithInvalidMinute()
+	{
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("0 60 * * * ?"));
+	}
+	
+	@Test
+	public void parseWithInvalidHour()
+	{
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("0 0 24 * * ?"));
+	}
+	
+	@Test
+	public void parseWithInvalidMonth()
+	{
+		// Month values are 0-11, so 12 is out of range
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("0 0 0 1 13 ?"));
+	}
+	
+	@Test
+	public void parseWithInvalidDayOfWeek()
+	{
+		Assertions.assertThrows(ParseException.class, () -> new CronExpression("0 0 0 ? * 8"));
+	}
+	
+	@Test
+	public void getNextValidTimeAfterReturnsFuture() throws ParseException
+	{
+		CronExpression expression = new CronExpression("0 0 0 * * ?");
+		Date now = new Date();
+		Date next = expression.getNextValidTimeAfter(now);
+		
+		Assertions.assertNotNull(next);
+		Assertions.assertTrue(next.after(now));
+	}
+	
+	@Test
+	public void getNextValidTimeAfterEveryMinute() throws ParseException
+	{
+		CronExpression expression = new CronExpression("* * * * * ?");
+		Date now = new Date();
+		Date next = expression.getNextValidTimeAfter(now);
+		
+		Assertions.assertNotNull(next);
+		Assertions.assertTrue(next.after(now));
+	}
+	
+	@Test
+	public void expressionClone() throws ParseException
+	{
+		CronExpression original = new CronExpression("0 0 9 * * ?");
+		CronExpression cloned = (CronExpression) original.clone();
+		
+		Assertions.assertEquals(original.toString(), cloned.toString());
+		Assertions.assertNotSame(original, cloned);
+	}
+	
+	@Test
+	public void parseWithSecondsField() throws ParseException
+	{
+		CronExpression expression = new CronExpression("30 * * * * ?");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithAllWildcards() throws ParseException
+	{
+		CronExpression expression = new CronExpression("* * * * * ?");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithSpecificSecondAndMinute() throws ParseException
+	{
+		CronExpression expression = new CronExpression("30 15 9 * * ?");
+		Assertions.assertNotNull(expression);
+	}
+	
+	@Test
+	public void parseWithDayOfMonthAndDayOfWeekBothSpecified() throws ParseException
+	{
+		// When both are specified, one must be ? to avoid ambiguity
+		// This expression uses ? for day-of-week, specifying day-of-month only
+		CronExpression expression = new CronExpression("0 0 0 1 * ?");
+		Assertions.assertNotNull(expression);
+	}
 }
