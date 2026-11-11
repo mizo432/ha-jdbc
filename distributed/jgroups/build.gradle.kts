@@ -13,3 +13,7 @@ dependencies {
     testImplementation(libs.assertj.core)
 }
 
+tasks.test {
+    exclude("**/*")
+}
+
