@@ -105,6 +105,8 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	@Override
 	public D primary()
 	{
+		this.lock.lock();
+
 		try
 		{
 			return this.databaseMap.firstKey();
@@ -112,6 +114,10 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 		catch (NoSuchElementException e)
 		{
 			return null;
+		}
+		finally
+		{
+			this.lock.unlock();
 		}
 	}
 
@@ -191,9 +197,18 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	@Override
 	public D next()
 	{
-		Set<Map.Entry<D, AtomicInteger>> entrySet = this.databaseMap.entrySet();
-		
-		return !entrySet.isEmpty() ? java.util.Collections.min(entrySet, this.comparator).getKey() : null;
+		this.lock.lock();
+
+		try
+		{
+			Set<Map.Entry<D, AtomicInteger>> entrySet = this.databaseMap.entrySet();
+
+			return !entrySet.isEmpty() ? java.util.Collections.min(entrySet, this.comparator).getKey() : null;
+		}
+		finally
+		{
+			this.lock.unlock();
+		}
 	}
 
 	/**
@@ -242,13 +257,23 @@ public class LoadBalancer<Z, D extends Database<Z>> extends AbstractBalancer<Z, 
 	@Override
 	public <T, R, E extends Exception> R invoke(Invoker<Z, D, T, R, E> invoker, D database, T object) throws E
 	{
-		AtomicInteger load = this.databaseMap.get(database);
-		
+		AtomicInteger load;
+
+		this.lock.lock();
+		try
+		{
+			load = this.databaseMap.get(database);
+		}
+		finally
+		{
+			this.lock.unlock();
+		}
+
 		if (load != null)
 		{
 			load.incrementAndGet();
 		}
-		
+
 		try
 		{
 			return invoker.invoke(database, object);

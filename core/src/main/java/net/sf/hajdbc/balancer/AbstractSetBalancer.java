@@ -83,6 +83,8 @@ public abstract class AbstractSetBalancer<Z, D extends Database<Z>> extends Abst
 	@Override
 	public D primary()
 	{
+		this.lock.lock();
+
 		try
 		{
 			return this.databaseSet.first();
@@ -90,6 +92,10 @@ public abstract class AbstractSetBalancer<Z, D extends Database<Z>> extends Abst
 		catch (NoSuchElementException e)
 		{
 			return null;
+		}
+		finally
+		{
+			this.lock.unlock();
 		}
 	}
 
@@ -100,7 +106,16 @@ public abstract class AbstractSetBalancer<Z, D extends Database<Z>> extends Abst
 	@Override
 	protected Set<D> getDatabases()
 	{
-		return this.databaseSet;
+		this.lock.lock();
+
+		try
+		{
+			return this.databaseSet;
+		}
+		finally
+		{
+			this.lock.unlock();
+		}
 	}
 	
 	/**

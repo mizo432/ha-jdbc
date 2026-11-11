@@ -124,6 +124,8 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 	{
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		inputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
+		inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+		inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 		XmlFactory xmlFactory = XmlFactory.builder().xmlInputFactory(inputFactory).build();
 		return XmlMapper.builder(xmlFactory).enable(XmlWriteFeature.WRITE_XML_DECLARATION).build();
 	}
