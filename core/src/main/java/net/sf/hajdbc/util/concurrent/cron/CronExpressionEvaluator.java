@@ -49,7 +49,7 @@ final class CronExpressionEvaluator {
 
         // move ahead one second, since we're computing the time *after* the
         // given time
-        afterTime = new Date(afterTime.getTime() + 1000);
+        afterTime = new Date(afterTime.getTime() + CronExpressionParser.MILLISECONDS_PER_SECOND);
         // CronTrigger does not deal with milliseconds
         cl.setTime(afterTime);
         cl.set(Calendar.MILLISECOND, 0);
@@ -59,7 +59,7 @@ final class CronExpressionEvaluator {
         while (!gotOne) {
 
             //if (endTime != null && cl.getTime().after(endTime)) return null;
-            if (cl.get(Calendar.YEAR) > 2999) { // prevent endless loop...
+            if (cl.get(Calendar.YEAR) > CronExpressionParser.MAX_YEAR) { // prevent endless loop...
                 return null;
             }
 
@@ -141,7 +141,7 @@ final class CronExpressionEvaluator {
                         day -= expression.lastdayOffset;
                         if (t > day) {
                             mon++;
-                            if (mon > 12) {
+                            if (mon > CronExpressionParser.MAX_MONTHS) {
                                 mon = 1;
                                 tmon = 3333; // ensure test of mon != tmon further below fails
                                 cl.add(Calendar.YEAR, 1);

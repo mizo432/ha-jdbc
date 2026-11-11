@@ -43,6 +43,19 @@ final class CronExpressionParser {
     protected static final Integer ALL_SPEC = ALL_SPEC_INT;
     protected static final Integer NO_SPEC = NO_SPEC_INT;
     
+    // Named constants for cron field validation limits
+    static final int MAX_SECONDS = 59;
+    static final int MAX_MINUTES = 59;
+    static final int MAX_HOURS = 23;
+    static final int MAX_DAYS_OF_MONTH = 31;
+    static final int MAX_MONTHS = 12;
+    static final int MAX_DAYS_OF_WEEK = 7;
+    static final int MIN_NTH_DAY_OF_WEEK = 1;
+    static final int MAX_NTH_DAY_OF_WEEK = 5;
+    static final int MILLISECONDS_PER_SECOND = 1000;
+    static final int MAX_YEAR = 2999;
+    static final int MIN_YEAR = 1970;
+    
     protected static final Map<String, Integer> monthMap = new HashMap<String, Integer>(20);
     protected static final Map<String, Integer> dayMap = new HashMap<String, Integer>(60);
     static {
@@ -203,7 +216,7 @@ final class CronExpressionParser {
                     } else if (c == '#') {
                         i += 4;
                         expression.nthdayOfWeek = Integer.parseInt(s.substring(i));
-                        if (expression.nthdayOfWeek < 1 || expression.nthdayOfWeek > 5) {
+                        if (expression.nthdayOfWeek < MIN_NTH_DAY_OF_WEEK || expression.nthdayOfWeek > MAX_NTH_DAY_OF_WEEK) {
                             throw new ParseException(
                                     "A numeric value between 1 and 5 must follow the '#' option", i);
                         }
@@ -263,15 +276,15 @@ final class CronExpressionParser {
                 if (incr > 10) {
                     i++;
                 }
-                if (incr > 59 && (type == SECOND || type == MINUTE)) {
+                if (incr > MAX_SECONDS && (type == SECOND || type == MINUTE)) {
                     throw new ParseException("Increment > 60 : " + incr, i);
-                } else if (incr > 23 && (type == HOUR)) {
+                } else if (incr > MAX_HOURS && (type == HOUR)) {
                     throw new ParseException("Increment > 24 : " + incr, i);
-                } else if (incr > 31 && (type == DAY_OF_MONTH)) {
+                } else if (incr > MAX_DAYS_OF_MONTH && (type == DAY_OF_MONTH)) {
                     throw new ParseException("Increment > 31 : " + incr, i);
-                } else if (incr > 7 && (type == DAY_OF_WEEK)) {
+                } else if (incr > MAX_DAYS_OF_WEEK && (type == DAY_OF_WEEK)) {
                     throw new ParseException("Increment > 7 : " + incr, i);
-                } else if (incr > 12 && (type == MONTH)) {
+                } else if (incr > MAX_MONTHS && (type == MONTH)) {
                     throw new ParseException("Increment > 12 : " + incr, i);
                 }
             } else {
@@ -341,7 +354,7 @@ final class CronExpressionParser {
 
         if (c == 'L') {
             if (type == DAY_OF_WEEK) {
-                if (val < 1 || val > 7)
+                if (val < 1 || val > MAX_DAYS_OF_WEEK)
                     throw new ParseException("Day-of-Week values must be between 1 and 7", -1);
                 expression.lastdayOfWeek = true;
             } else {
@@ -359,7 +372,7 @@ final class CronExpressionParser {
             } else {
                 throw new ParseException("'W' option is not valid here. (pos=" + i + ")", i);
             }
-            if (val > 31)
+            if (val > MAX_DAYS_OF_MONTH)
                 throw new ParseException("The 'W' option does not make sense with values larger than 31 (max number of days in a month)", i);
             TreeSet<Integer> set = expression.getSet(type);
             set.add(val);
@@ -373,7 +386,7 @@ final class CronExpressionParser {
             }
             i++;
             expression.nthdayOfWeek = Integer.parseInt(s.substring(i));
-            if (expression.nthdayOfWeek < 1 || expression.nthdayOfWeek > 5) {
+            if (expression.nthdayOfWeek < MIN_NTH_DAY_OF_WEEK || expression.nthdayOfWeek > MAX_NTH_DAY_OF_WEEK) {
                 throw new ParseException(
                         "A numeric value between 1 and 5 must follow the '#' option", i);
             }
@@ -456,23 +469,23 @@ final class CronExpressionParser {
         TreeSet<Integer> set = expression.getSet(type);
 
         if (type == SECOND || type == MINUTE) {
-            if ((val < 0 || val > 59 || end > 59) && (val != ALL_SPEC_INT)) {
+            if ((val < 0 || val > MAX_SECONDS || end > MAX_SECONDS) && (val != ALL_SPEC_INT)) {
                 throw new ParseException("Minute and Second values must be between 0 and 59", -1);
             }
         } else if (type == HOUR) {
-            if ((val < 0 || val > 23 || end > 23) && (val != ALL_SPEC_INT)) {
+            if ((val < 0 || val > MAX_HOURS || end > MAX_HOURS) && (val != ALL_SPEC_INT)) {
                 throw new ParseException("Hour values must be between 0 and 23", -1);
             }
         } else if (type == DAY_OF_MONTH) {
-            if ((val < 1 || val > 31 || end > 31) && (val != ALL_SPEC_INT) && (val != NO_SPEC_INT)) {
+            if ((val < 1 || val > MAX_DAYS_OF_MONTH || end > MAX_DAYS_OF_MONTH) && (val != ALL_SPEC_INT) && (val != NO_SPEC_INT)) {
                 throw new ParseException("Day of month values must be between 1 and 31", -1);
             }
         } else if (type == MONTH) {
-            if ((val < 1 || val > 12 || end > 12) && (val != ALL_SPEC_INT)) {
+            if ((val < 1 || val > MAX_MONTHS || end > MAX_MONTHS) && (val != ALL_SPEC_INT)) {
                 throw new ParseException("Month values must be between 1 and 12", -1);
             }
         } else if (type == DAY_OF_WEEK) {
-            if ((val == 0 || val > 7 || end > 7) && (val != ALL_SPEC_INT) && (val != NO_SPEC_INT)) {
+            if ((val == 0 || val > MAX_DAYS_OF_WEEK || end > MAX_DAYS_OF_WEEK) && (val != ALL_SPEC_INT) && (val != NO_SPEC_INT)) {
                 throw new ParseException("Day-of-Week values must be between 1 and 7", -1);
             }
         }
@@ -496,45 +509,45 @@ final class CronExpressionParser {
 
         if (type == SECOND || type == MINUTE) {
             if (stopAt == -1) {
-                stopAt = 59;
+                stopAt = MAX_SECONDS;
             }
             if (startAt == -1 || startAt == ALL_SPEC_INT) {
                 startAt = 0;
             }
         } else if (type == HOUR) {
             if (stopAt == -1) {
-                stopAt = 23;
+                stopAt = MAX_HOURS;
             }
             if (startAt == -1 || startAt == ALL_SPEC_INT) {
                 startAt = 0;
             }
         } else if (type == DAY_OF_MONTH) {
             if (stopAt == -1) {
-                stopAt = 31;
+                stopAt = MAX_DAYS_OF_MONTH;
             }
             if (startAt == -1 || startAt == ALL_SPEC_INT) {
                 startAt = 1;
             }
         } else if (type == MONTH) {
             if (stopAt == -1) {
-                stopAt = 12;
+                stopAt = MAX_MONTHS;
             }
             if (startAt == -1 || startAt == ALL_SPEC_INT) {
                 startAt = 1;
             }
         } else if (type == DAY_OF_WEEK) {
             if (stopAt == -1) {
-                stopAt = 7;
+                stopAt = MAX_DAYS_OF_WEEK;
             }
             if (startAt == -1 || startAt == ALL_SPEC_INT) {
                 startAt = 1;
             }
         } else if (type == YEAR) {
             if (stopAt == -1) {
-                stopAt = CronExpression.MAX_YEAR;
+                stopAt = MAX_YEAR;
             }
             if (startAt == -1 || startAt == ALL_SPEC_INT) {
-                startAt = 1970;
+                startAt = MIN_YEAR;
             }
         }
 
@@ -544,12 +557,12 @@ final class CronExpressionParser {
         int max = -1;
         if (stopAt < startAt) {
             switch (type) {
-                case SECOND: max = 60; break;
-                case MINUTE: max = 60; break;
-                case HOUR: max = 24; break;
-                case MONTH: max = 12; break;
-                case DAY_OF_WEEK: max = 7; break;
-                case DAY_OF_MONTH: max = 31; break;
+                case SECOND: max = MAX_SECONDS + 1; break;
+                case MINUTE: max = MAX_MINUTES + 1; break;
+                case HOUR: max = MAX_HOURS + 1; break;
+                case MONTH: max = MAX_MONTHS; break;
+                case DAY_OF_WEEK: max = MAX_DAYS_OF_WEEK; break;
+                case DAY_OF_MONTH: max = MAX_DAYS_OF_MONTH; break;
                 case YEAR: throw new IllegalArgumentException("Start year must be less than stop year");
                 default: throw new IllegalArgumentException("Unexpected type encountered");
             }

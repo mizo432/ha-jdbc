@@ -331,16 +331,16 @@ public final class CronExpression implements Serializable, Cloneable {
         // Get the next fire time after the given date
         newDate = getTimeAfter(lastDate);
         if (newDate == null) {
-            return new Date(lastDate.getTime() + 1000);
+            return new Date(lastDate.getTime() + CronExpressionParser.MILLISECONDS_PER_SECOND);
         }
         
         // Use exponential backoff to find consecutive seconds efficiently
         // First, check if the next fire time is exactly 1 second after
         long difference = newDate.getTime() - lastDate.getTime();
         
-        if (difference != 1000) {
+        if (difference != CronExpressionParser.MILLISECONDS_PER_SECOND) {
             // Not consecutive, so lastDate is already the last valid fire time
-            return new Date(lastDate.getTime() + 1000);
+            return new Date(lastDate.getTime() + CronExpressionParser.MILLISECONDS_PER_SECOND);
         }
         
         // Check for a sequence of consecutive seconds using exponential backoff
@@ -349,7 +349,7 @@ public final class CronExpression implements Serializable, Cloneable {
         int maxIterations = 1000000; // Safety limit to prevent infinite loops
         int iterations = 0;
         
-        while (difference == 1000 && iterations < maxIterations) {
+        while (difference == CronExpressionParser.MILLISECONDS_PER_SECOND && iterations < maxIterations) {
             iterations++;
             lastDate = probeDate;
             probeDate = getTimeAfter(probeDate);
@@ -361,7 +361,7 @@ public final class CronExpression implements Serializable, Cloneable {
             difference = probeDate.getTime() - lastDate.getTime();
         }
         
-        return new Date(lastDate.getTime() + 1000);
+        return new Date(lastDate.getTime() + CronExpressionParser.MILLISECONDS_PER_SECOND);
     }
     
     private CronExpressionEvaluator getEvaluator() {
