@@ -17,17 +17,26 @@
  */
 package net.sf.hajdbc.xml;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
-import net.sf.hajdbc.Database;
-import net.sf.hajdbc.DatabaseClusterConfigurationBuilder;
-import net.sf.hajdbc.DatabaseBuilder;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
+ * POJO model for HA-JDBC descriptor with required id.
  * @author Paul Ferraro
  */
-public interface DatabaseClusterConfigurationReader<Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>>
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"id", "property"})
+public class IdentifiedDescriptor extends Descriptor
 {
-	void read(XMLStreamReader reader, DatabaseClusterConfigurationBuilder<Z, D, B> builder) throws XMLStreamException;
+    @JacksonXmlProperty(isAttribute = true)
+    private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

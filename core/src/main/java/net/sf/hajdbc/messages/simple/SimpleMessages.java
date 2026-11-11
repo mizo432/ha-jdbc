@@ -24,9 +24,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.stream.Location;
-import javax.xml.stream.XMLStreamReader;
-
 import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.SequenceProperties;
@@ -86,38 +83,33 @@ public class SimpleMessages implements Messages
 	}
 
 	@Override
-	public String unsupportedNamespace(XMLStreamReader reader)
+	public String unsupportedNamespace()
 	{
-		Location location = reader.getLocation();
-		return this.tr("Unsupported namespace <{2} xmlns=\"{3}\"/> found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), reader.getNamespaceURI());
+		return this.tr("Unsupported XML namespace. Verify the xmlns attribute in your ha-jdbc.xml configuration file matches a supported version (urn:ha-jdbc:cluster:3.0 or urn:ha-jdbc:cluster:3.1)");
 	}
 
 	@Override
-	public String unexpectedElement(XMLStreamReader reader)
+	public String unexpectedElement(String element)
 	{
-		Location location = reader.getLocation();
-		return this.tr("Unexpected <{2}/> element found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName());
+		return this.tr("Unexpected <{0}/> element in configuration", element);
 	}
 	
 	@Override
-	public String unexpectedAttribute(XMLStreamReader reader, int index)
+	public String unexpectedAttribute(String element, int index)
 	{
-		Location location = reader.getLocation();
-		return this.tr("Unexpected <{2} {3}=\"...\"/> attribute found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), reader.getAttributeLocalName(index));
+		return this.tr("Unexpected attribute at index {1} in <{0}/> element", element, index);
 	}
 	
 	@Override
-	public String invalidAttribute(XMLStreamReader reader, int index)
+	public String invalidAttribute(String element, int index)
 	{
-		Location location = reader.getLocation();
-		return this.tr("Invalid value for <{2} {3}=\"{4}\"/> found at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), reader.getAttributeLocalName(index), reader.getAttributeValue(index));
+		return this.tr("Invalid attribute value at index {1} in <{0}/> element", element, index);
 	}
 
 	@Override
-	public String missingRequiredAttribute(XMLStreamReader reader, String attribute)
+	public String missingRequiredAttribute(String element, String attribute)
 	{
-		Location location = reader.getLocation();
-		return this.tr("<{2} {3}=\"...\"/> attribute is missing at [{0}:{1}]", location.getLineNumber(), location.getColumnNumber(), reader.getLocalName(), attribute);
+		return this.tr("Required attribute '{1}' is missing in <{0}/> element", element, attribute);
 	}
 
 	@Override

@@ -18,13 +18,13 @@
 package net.sf.hajdbc.xml;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 /**
  * Alternative to {@link URLXMLStreamFactory} and the file:// protocol, since default JDK file url stream handler
@@ -57,22 +57,36 @@ public class FileXMLStreamFactory implements XMLStreamFactory
 	
 	/**
 	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createSource()
+	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createInputStream()
 	 */
 	@Override
-	public Source createSource()
+	public InputStream createInputStream()
 	{
-		return new StreamSource(this.file);
+		try
+		{
+			return new FileInputStream(this.file);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createResult()
+	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createOutputStream()
 	 */
 	@Override
-	public Result createResult()
+	public OutputStream createOutputStream()
 	{
-		return new StreamResult(this.file);
+		try
+		{
+			return new FileOutputStream(this.file);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

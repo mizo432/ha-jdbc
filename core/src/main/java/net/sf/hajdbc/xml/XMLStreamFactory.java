@@ -17,34 +17,31 @@
  */
 package net.sf.hajdbc.xml;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-
 /**
- * Factory for creating XML stream sources and results.
+ * Factory for creating input and output streams for XML configuration.
  * <p>
  * This factory is used by {@link XMLDatabaseClusterConfigurationFactory} to read and write
- * XML configuration files. It abstracts the underlying XML parsing implementation,
- * allowing for different XML formats (DOM, SAX, StAX) to be used.
+ * XML configuration files using Jackson 3 XML.
  * </p>
  *
  * @see XMLDatabaseClusterConfigurationFactory
- * @see javax.xml.transform.Source
- * @see javax.xml.transform.Result
  */
 public interface XMLStreamFactory extends Serializable
 {
 	/**
-	 * Creates an XML source for reading configuration.
-	 * @return XML source
+	 * Creates an input stream for reading configuration.
+	 * @return input stream
 	 */
-	Source createSource();
+	InputStream createInputStream();
 
 	/**
-	 * Creates an XML result for writing configuration.
-	 * @return XML result
+	 * Creates an output stream for writing configuration.
+	 * @return output stream
 	 */
-	Result createResult();
+	OutputStream createOutputStream();
 }

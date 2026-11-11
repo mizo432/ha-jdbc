@@ -31,6 +31,9 @@ dependencies {
     // SpotBugs annotations for @SuppressFBWarnings
     compileOnly("com.github.spotbugs:spotbugs-annotations:4.10.2")
 
+    // Jackson 3 XML for POJO-based XML serialization/deserialization
+    api(libs.jackson3.dataformat.xml)
+
     // Optional state manager dependencies
     api(libs.commons.pool2)
 

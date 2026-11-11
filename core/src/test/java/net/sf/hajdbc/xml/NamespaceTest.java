@@ -19,8 +19,6 @@ package net.sf.hajdbc.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.xml.validation.Schema;
-
 import org.junit.jupiter.api.Test;
 
 /**
@@ -48,28 +46,6 @@ public class NamespaceTest {
 	@Test
 	public void version31Uri() {
 		assertThat(Namespace.VERSION_3_1.getURI()).isEqualTo("urn:ha-jdbc:cluster:3.1");
-	}
-
-	@Test
-	public void version30Schema() {
-		Schema schema = Namespace.VERSION_3_0.getSchema();
-		assertThat(schema).isNotNull();
-	}
-
-	@Test
-	public void version31Schema() {
-		Schema schema = Namespace.VERSION_3_1.getSchema();
-		assertThat(schema).isNotNull();
-	}
-
-	@Test
-	public void version30ReaderFactory() {
-		assertThat(Namespace.VERSION_3_0.getReaderFactory()).isNotNull();
-	}
-
-	@Test
-	public void version31ReaderFactory() {
-		assertThat(Namespace.VERSION_3_1.getReaderFactory()).isNotNull();
 	}
 
 	@Test

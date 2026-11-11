@@ -23,17 +23,18 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.util.StreamReaderDelegate;
-
 import net.sf.hajdbc.logging.Level;
 import net.sf.hajdbc.logging.Logger;
 import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.util.Strings;
 import net.sf.hajdbc.util.SystemProperties;
 
-public class PropertyReplacementFilter extends StreamReaderDelegate
+/**
+ * Utility class for replacing ${...} placeholders in XML content with system properties.
+ * Uses a whitelist to prevent reading sensitive system properties.
+ * @author Paul Ferraro
+ */
+public class PropertyReplacementFilter
 {
 	private static final Pattern PATTERN = Pattern.compile("\\$\\{([^\\}]+)\\}");
 
@@ -70,69 +71,38 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 
 	private static final Logger logger = LoggerFactory.getLogger(PropertyReplacementFilter.class);
 
-	private final Properties properties;
-	
-	public PropertyReplacementFilter(XMLStreamReader reader)
+	private static final Properties SYSTEM_PROPERTIES = SystemProperties.getSystemProperties();
+
+	/**
+	 * Replaces ${...} placeholders in the given XML content with system properties.
+	 * @param xmlContent the XML content to process
+	 * @return the XML content with placeholders replaced
+	 */
+	public static String replace(String xmlContent)
 	{
-		this(reader, SystemProperties.getSystemProperties());
+		return replace(xmlContent, SYSTEM_PROPERTIES);
 	}
 
-	public PropertyReplacementFilter(XMLStreamReader reader, Properties properties)
+	/**
+	 * Replaces ${...} placeholders in the given content with the specified properties.
+	 * @param content the content to process
+	 * @param properties the properties to use for replacement
+	 * @return the content with placeholders replaced
+	 */
+	public static String replace(String content, Properties properties)
 	{
-		super(reader);
-		this.properties = properties;
-	}
+		if (content == null) return null;
 
-	@Override
-	public String getAttributeValue(int index)
-	{
-		return this.replace(super.getAttributeValue(index));
-	}
+		Matcher matcher = PATTERN.matcher(content);
 
-	@Override
-	public String getAttributeValue(String namespaceUri, String localName)
-	{
-		return this.replace(super.getAttributeValue(namespaceUri, localName));
-	}
-
-	@Override
-	public String getElementText() throws XMLStreamException
-	{
-		return this.replace(super.getElementText());
-	}
-	
-	@Override
-	public String getText()
-	{
-		return this.replace(super.getText());
-	}
-
-	@Override
-	public char[] getTextCharacters()
-	{
-		return this.replace(String.valueOf(super.getTextCharacters())).toCharArray();
-	}
-
-	@Override
-	public int getTextCharacters(int sourceStart, char[] target, int targetStart, int length) throws XMLStreamException
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	private String replace(String input)
-	{
-		if (input == null) return null;
-
-		Matcher matcher = PATTERN.matcher(input);
-
-		if (!matcher.find()) return input;
+		if (!matcher.find()) return content;
 
 		StringBuilder builder = new StringBuilder();
 		int tail = 0;
 		
 		do
 		{
-			builder.append(input, tail, matcher.start());
+			builder.append(content, tail, matcher.start());
 			
 			String group = matcher.group(1);
 			
@@ -157,7 +127,7 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 					defaultValue = group.substring(index + 1);
 				}
 				
-				String value = this.getProperty(key.split(","), defaultValue);
+				String value = getProperty(key.split(","), defaultValue, properties);
 				
 	  			builder.append((value != null) ? value : matcher.group());
 			}
@@ -166,12 +136,12 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 		}
 		while (matcher.find());
 		
-		builder.append(input, tail, input.length());
+		builder.append(content, tail, content.length());
 		
 		return builder.toString();
 	}
 	
-	private String getProperty(String[] keys, String defaultValue)
+	private static String getProperty(String[] keys, String defaultValue, Properties properties)
 	{
 		for (String key: keys)
 		{
@@ -184,7 +154,7 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 				return null;
 			}
 			
-			String value = this.properties.getProperty(trimmedKey);
+			String value = properties.getProperty(trimmedKey);
 			
 			if (value != null) return value;
 		}
@@ -199,7 +169,7 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 	 * @param key the property key to check
 	 * @return true if the property is allowed, false otherwise
 	 */
-	private boolean isAllowedProperty(String key)
+	private static boolean isAllowedProperty(String key)
 	{
 		for (String prefix : ALLOWED_PREFIXES)
 		{

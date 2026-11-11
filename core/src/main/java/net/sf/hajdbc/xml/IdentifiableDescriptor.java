@@ -17,13 +17,26 @@
  */
 package net.sf.hajdbc.xml;
 
-import net.sf.hajdbc.Database;
-import net.sf.hajdbc.DatabaseBuilder;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
+ * POJO model for HA-JDBC descriptor with optional id.
  * @author Paul Ferraro
  */
-public interface DatabaseClusterConfigurationReaderFactory
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"id", "property"})
+public class IdentifiableDescriptor extends Descriptor
 {
-	<Z, D extends Database<Z>, B extends DatabaseBuilder<Z, D>> DatabaseClusterConfigurationReader<Z, D, B> createReader();
+    @JacksonXmlProperty(isAttribute = true)
+    private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

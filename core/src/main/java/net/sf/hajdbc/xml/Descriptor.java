@@ -17,16 +17,31 @@
  */
 package net.sf.hajdbc.xml;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
-import net.sf.hajdbc.Database;
-import net.sf.hajdbc.DatabaseClusterConfiguration;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * Base POJO model for HA-JDBC descriptors with properties.
  * @author Paul Ferraro
  */
-public interface DatabaseClusterConfigurationWriter<Z, D extends Database<Z>>
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"property"})
+public abstract class Descriptor
 {
-	void write(XMLStreamWriter writer, DatabaseClusterConfiguration<Z, D> config) throws XMLStreamException;
+    @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = "property")
+    private List<Property> property = new ArrayList<>();
+
+    public List<Property> getProperty() {
+        return property;
+    }
+
+    public void setProperty(List<Property> property) {
+        this.property = property;
+    }
 }

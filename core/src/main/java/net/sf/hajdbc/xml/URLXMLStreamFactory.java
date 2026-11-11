@@ -17,12 +17,10 @@
  */
 package net.sf.hajdbc.xml;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 /**
  * @author Paul Ferraro
@@ -31,31 +29,45 @@ public class URLXMLStreamFactory implements XMLStreamFactory
 {
 	private static final long serialVersionUID = -3911432025271185584L;
 	
-	private final String url;
+	private final URL url;
 	
 	public URLXMLStreamFactory(URL url)
 	{
-		this.url = url.toString();
+		this.url = url;
 	}
 	
 	/**
 	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createSource()
+	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createInputStream()
 	 */
 	@Override
-	public Source createSource()
+	public InputStream createInputStream()
 	{
-		return new StreamSource(this.url);
+		try
+		{
+			return this.url.openStream();
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createResult()
+	 * @see net.sf.hajdbc.xml.XMLStreamFactory#createOutputStream()
 	 */
 	@Override
-	public Result createResult()
+	public OutputStream createOutputStream()
 	{
-		return new StreamResult(this.url);
+		try
+		{
+			return this.url.openConnection().getOutputStream();
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
@@ -65,6 +77,6 @@ public class URLXMLStreamFactory implements XMLStreamFactory
 	@Override
 	public String toString()
 	{
-		return this.url;
+		return this.url.toString();
 	}
 }
