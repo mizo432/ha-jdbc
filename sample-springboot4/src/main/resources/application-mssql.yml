@@ -14,12 +14,10 @@ spring:
         envers:
           store_data_at_delete: true
 
-  # Flyway settings
+  # Flyway settings - disabled because we run migrations manually via MssqlFlywayConfig
+  # to migrate both master and slave databases directly, bypassing ha-jdbc proxy
   flyway:
-    enabled: true
-    locations: classpath:db/migration/mssql
-    baseline-on-migrate: true
-    clean-disabled: true
+    enabled: false
 
   # Virtual Threads
   threads:
