@@ -13,7 +13,3 @@ dependencies {
     testImplementation(libs.assertj.core)
 }
 
-// JGroups分散テストはCI環境でハングするため、テストを除外する
-tasks.test {
-    exclude("**/*")
-}
