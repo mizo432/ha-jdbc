@@ -57,23 +57,26 @@ categories:
   - title: '⬆️ Major Version'
     type: version-resolver
     semver-increment: major
-    labels:
-      - 'major'
-      - 'breaking'
+    when:
+      label:
+        - 'major'
+        - 'breaking'
   - title: '⬆️ Minor Version'
     type: version-resolver
     semver-increment: minor
-    labels:
-      - 'minor'
-      - 'feature'
+    when:
+      label:
+        - 'minor'
+        - 'feature'
   - title: '⬆️ Patch Version'
     type: version-resolver
     semver-increment: patch
-    labels:
-      - 'patch'
-      - 'bugfix'
-      - 'fix'
-      - 'improvement'
+    when:
+      label:
+        - 'patch'
+        - 'bugfix'
+        - 'fix'
+        - 'improvement'
 template: |
   ## What's Changed
 
