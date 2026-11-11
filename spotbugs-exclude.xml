@@ -42,9 +42,14 @@
         <Bug code="IMSE" />
     </Match>
 
-    <!-- SE_BAD_FIELD: JGroups Address is Streamable (not Serializable), but AddressMember is serialized via JGroups' own mechanism -->
+    <!-- SE_BAD_FIELD: ZookeeperMember fields are serialized via HA-JDBC's own mechanism -->
     <Match>
         <Bug code="Se" />
+    </Match>
+
+    <!-- AT_STALE_THREAD_WRITE_OF_PRIMITIVE: ZookeeperCommandDispatcher config fields are set before start() -->
+    <Match>
+        <Bug code="AT" />
     </Match>
 
     <!-- RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE: JSpecify @NonNull annotations cause SpotBugs to flag defensive null checks as redundant -->

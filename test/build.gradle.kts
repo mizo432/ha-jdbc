@@ -6,7 +6,7 @@ plugins {
 dependencies {
     // HA-JDBC modules (test scope)
     testImplementation(project(":core"))
-    testImplementation(project(":distributed:jgroups"))
+    testImplementation(project(":distributed:zookeeper"))
     testImplementation(project(":i18n:gettext"))
     testImplementation(project(":state:sqlite"))
 

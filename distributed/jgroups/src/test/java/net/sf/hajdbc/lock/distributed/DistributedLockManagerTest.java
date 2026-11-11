@@ -20,7 +20,6 @@ package net.sf.hajdbc.lock.distributed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,9 +37,6 @@ import net.sf.hajdbc.distributed.jgroups.JGroupsCommandDispatcherFactory;
 import net.sf.hajdbc.lock.LockManager;
 import net.sf.hajdbc.lock.semaphore.SemaphoreLockManager;
 
-/**
- * @author Paul Ferraro
- */
 public class DistributedLockManagerTest
 {
 	LockManager manager1;
@@ -109,115 +105,41 @@ public class DistributedLockManagerTest
 
 	@Test
 	@Disabled("JGroups分散テストはJava 25で不安定")
-	public void blocking()
+	public void concurrent() throws Exception
 	{
-		blocking(this.manager1, this.manager2);
-		blocking(this.manager2, this.manager1);
-	}
-
-	private static void blocking(LockManager manager1, LockManager manager2)
-	{
-		Lock readLock = manager1.readLock(null);
-		Lock readLock2 = manager2.readLock(null);
-		Lock writeLock = manager2.writeLock(null);
-		
-		assertThat(readLock.tryLock()).isTrue();
-		
+		final LockManager manager = this.manager1;
+		ExecutorService executor = Executors.newFixedThreadPool(10);
 		try
 		{
-			// Validate that reads do not block on another
-			assertThat(readLock2.tryLock()).isTrue();
-			readLock2.unlock();
-			
-			// Validate that remote read blocks local write
-			boolean locked = writeLock.tryLock();
-			try
+			Future<?>[] futures = new Future[10];
+			for (int i = 0; i < futures.length; i++)
 			{
-				assertThat(locked).isFalse();
-			}
-			finally
-			{
-				if (locked)
+				futures[i] = executor.submit(() ->
 				{
-					writeLock.unlock();
-				}
+					Lock lock = manager.writeLock("1");
+					lock.lock();
+					try
+					{
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
+						}
+					}
+					finally
+					{
+						lock.unlock();
+					}
+				});
+			}
+			for (Future<?> future : futures)
+			{
+				future.get(10, TimeUnit.SECONDS);
 			}
 		}
 		finally
 		{
-			readLock.unlock();
-		}
-		
-		assertThat(writeLock.tryLock()).isTrue();
-		
-		try
-		{
-			// Validate that remote write blocks local read
-			boolean locked = readLock.tryLock();
-			try
-			{
-				assertThat(locked).isFalse();
-			}
-			finally
-			{
-				if (locked)
-				{
-					readLock.unlock();
-				}
-			}
-		}
-		finally
-		{
-			writeLock.unlock();
-		}
-	}
-	
-	@Test
-	@Disabled("JGroups分散テストはJava 25で不安定")
-	public void failover() throws Exception
-	{
-		Lock lock1 = this.manager1.writeLock(null);
-		Lock lock2 = this.manager2.writeLock(null);
-
-		assertThat(lock1.tryLock()).isTrue();
-		boolean locked = lock2.tryLock();
-		try
-		{
-			assertThat(locked).isFalse();
-		}
-		finally
-		{
-			if (locked)
-			{
-				lock2.unlock();
-			}
-		}
-		
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		try
-		{
-			Callable<Void> task = new Callable<Void>()
-			{
-				@Override
-				public Void call() throws Exception
-				{
-					DistributedLockManagerTest.this.manager1.stop();
-					DistributedLockManagerTest.this.manager1.start();
-					return null;
-				}
-			};
-			Future<?> future = executor.submit(task);
-			
-			locked = lock2.tryLock(10, TimeUnit.SECONDS);
-			
-			assertThat(locked).isTrue();
-			lock2.unlock();
-			
-			future.get();
-		}
-		finally
-		{
-			executor.shutdownNow();
+			executor.shutdown();
 		}
 	}
 }

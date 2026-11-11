@@ -29,7 +29,6 @@ class AddressMemberTest {
     void testGetAddress() {
         Address address = new UUID();
         AddressMember member = new AddressMember(address);
-
         assertThat(member.getAddress()).isSameAs(address);
     }
 
@@ -38,7 +37,6 @@ class AddressMemberTest {
         Address address = new UUID();
         AddressMember member1 = new AddressMember(address);
         AddressMember member2 = new AddressMember(address);
-
         assertThat(member1).isEqualTo(member2);
         assertThat(member2).isEqualTo(member1);
     }
@@ -47,27 +45,23 @@ class AddressMemberTest {
     void testEqualsDifferentAddress() {
         UUID uuid1 = new UUID();
         UUID uuid2 = new UUID();
-        // Ensure different UUIDs by modifying the second one
         while (uuid1.equals(uuid2)) {
             uuid2 = new UUID();
         }
         AddressMember member1 = new AddressMember(uuid1);
         AddressMember member2 = new AddressMember(uuid2);
-
         assertThat(member1).isNotEqualTo(member2);
     }
 
     @Test
     void testEqualsNull() {
         AddressMember member = new AddressMember(new UUID());
-
         assertThat(member).isNotEqualTo(null);
     }
 
     @Test
     void testEqualsOtherType() {
         AddressMember member = new AddressMember(new UUID());
-
         assertThat(member).isNotEqualTo("string");
     }
 
@@ -76,7 +70,6 @@ class AddressMemberTest {
         Address address = new UUID();
         AddressMember member1 = new AddressMember(address);
         AddressMember member2 = new AddressMember(address);
-
         assertThat(member1.hashCode()).isEqualTo(member2.hashCode());
         assertThat(member1.hashCode()).isEqualTo(address.hashCode());
     }
@@ -85,7 +78,6 @@ class AddressMemberTest {
     void testToString() {
         Address address = new UUID();
         AddressMember member = new AddressMember(address);
-
         assertThat(member.toString()).isEqualTo(address.toString());
     }
 
@@ -94,7 +86,6 @@ class AddressMemberTest {
         Address address = new UUID();
         AddressMember member1 = new AddressMember(address);
         AddressMember member2 = new AddressMember(address);
-
         assertThat(member1.compareTo(member2)).isZero();
     }
 
@@ -102,13 +93,11 @@ class AddressMemberTest {
     void testCompareToDifferentAddress() {
         UUID uuid1 = new UUID();
         UUID uuid2 = new UUID();
-        // Ensure different UUIDs
         while (uuid1.equals(uuid2)) {
             uuid2 = new UUID();
         }
         AddressMember member1 = new AddressMember(uuid1);
         AddressMember member2 = new AddressMember(uuid2);
-
         int result = member1.compareTo(member2);
         assertThat(result).isNotZero();
         assertThat(member2.compareTo(member1)).isEqualTo(-result);

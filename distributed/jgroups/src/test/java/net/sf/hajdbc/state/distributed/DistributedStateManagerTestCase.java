@@ -44,10 +44,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for {@link DistributedStateManager}.
- * @author Paul Ferraro
- */
 public class DistributedStateManagerTestCase
 {
 	private DatabaseCluster<Void, Database<Void>> cluster1 = mock(DatabaseCluster.class);
@@ -97,15 +93,10 @@ public class DistributedStateManagerTestCase
 	public void destroy()
 	{
 		this.manager1.stop();
-		
 		verify(this.localManager1).stop();
-		
 		this.manager1 = null;
-		
 		this.manager2.stop();
-		
 		verify(this.localManager2).stop();
-		
 		this.manager2 = null;
 	}
 
@@ -115,22 +106,14 @@ public class DistributedStateManagerTestCase
 	{
 		String databaseId = "test";
 		Database<Void> database = mock(Database.class);
-
 		when(database.getId()).thenReturn(databaseId);
-		
 		DatabaseEvent event = new DatabaseEvent(database);
-		
 		when(this.cluster2.getDatabase(databaseId)).thenReturn(database);
-		
 		this.manager1.activated(event);
-		
 		verify(this.localManager1).activated(event);
 		verify(this.cluster2).activate(database, this.localManager2);
-		
 		when(this.cluster1.getDatabase(databaseId)).thenReturn(database);
-		
 		this.manager2.activated(event);
-		
 		verify(this.localManager2).activated(event);
 		verify(this.cluster1).activate(database, this.localManager1);
 	}
@@ -141,22 +124,14 @@ public class DistributedStateManagerTestCase
 	{
 		String databaseId = "test";
 		Database<Void> database = mock(Database.class);
-
 		when(database.getId()).thenReturn(databaseId);
-		
 		DatabaseEvent event = new DatabaseEvent(database);
-		
 		when(this.cluster2.getDatabase(databaseId)).thenReturn(database);
-		
 		this.manager1.deactivated(event);
-		
 		verify(this.localManager1).deactivated(event);
 		verify(this.cluster2).deactivate(database, this.localManager2);
-		
 		when(this.cluster1.getDatabase(databaseId)).thenReturn(database);
-		
 		this.manager2.deactivated(event);
-		
 		verify(this.localManager2).deactivated(event);
 		verify(this.cluster1).deactivate(database, this.localManager1);
 	}
@@ -166,17 +141,11 @@ public class DistributedStateManagerTestCase
 	public void recover()
 	{
 		Map<InvocationEvent, Map<String, InvokerEvent>> invocations = mock(Map.class);
-		
 		when(this.localManager1.recover()).thenReturn(invocations);
-		
 		Map<InvocationEvent, Map<String, InvokerEvent>> result = this.manager1.recover();
-		
 		assertThat(result).isSameAs(invocations);
-		
 		when(this.localManager2.recover()).thenReturn(invocations);
-		
 		result = this.manager2.recover();
-		
 		assertThat(result).isSameAs(invocations);
 	}
 
@@ -188,42 +157,28 @@ public class DistributedStateManagerTestCase
 		Phase phase = Phase.COMMIT;
 		ExceptionType exceptionType = ExceptionType.SQL;
 		InvocationEvent invocationEvent = new InvocationEventImpl(tx, phase, exceptionType);
-		
 		this.manager1.beforeInvocation(invocationEvent);
-		
 		verify(this.localManager1).beforeInvocation(invocationEvent);
-		
 		Map<InvocationEvent, Map<String, InvokerEvent>> invocations = this.manager2.getRemoteInvokers(this.manager1);
-		
 		assertThat(invocations.size()).isEqualTo(1);
 		Map<String, InvokerEvent> invokers = invocations.get(invocationEvent);
 		assertThat(invokers).isNotNull();
 		assertThat(invokers.size()).isEqualTo(0);
-		
 		String databaseId = "test";
 		InvokerEvent invokerEvent = new InvokerEventImpl(tx, phase, databaseId);
-		
 		this.manager1.beforeInvoker(invokerEvent);
-		
 		verify(this.localManager1).beforeInvoker(invokerEvent);
-		
 		invocations = this.manager2.getRemoteInvokers(this.manager1);
-		
 		assertThat(invocations.size()).isEqualTo(1);
 		invokers = invocations.get(invocationEvent);
 		assertThat(invokers).isNotNull();
 		assertThat(invokers.size()).isEqualTo(1);
 		assertThat(invokers.get(databaseId)).isEqualTo(invokerEvent);
-		
 		InvokerResult result = new InvokerResultImpl("value");
 		invokerEvent.setResult(result);
-		
 		this.manager1.afterInvoker(invokerEvent);
-		
 		verify(this.localManager1).afterInvoker(invokerEvent);
-		
 		invocations = this.manager2.getRemoteInvokers(this.manager1);
-		
 		assertThat(invocations.size()).isEqualTo(1);
 		invokers = invocations.get(invocationEvent);
 		assertThat(invokers).isNotNull();
@@ -231,13 +186,9 @@ public class DistributedStateManagerTestCase
 		InvokerEvent resultEvent = invokers.get(databaseId);
 		assertThat(resultEvent).isEqualTo(invokerEvent);
 		assertThat(resultEvent.getResult().getValue()).isEqualTo(result.getValue());
-		
 		this.manager1.afterInvocation(invocationEvent);
-		
 		verify(this.localManager1).afterInvocation(invocationEvent);
-		
 		invocations = this.manager2.getRemoteInvokers(this.manager1);
-		
 		assertThat(invocations.size()).isEqualTo(0);
 	}
 }

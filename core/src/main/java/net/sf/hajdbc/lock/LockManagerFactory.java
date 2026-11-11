@@ -28,7 +28,7 @@ import net.sf.hajdbc.Identifiable;
  * {@link net.sf.hajdbc.DatabaseClusterConfiguration#getLockManagerFactory()}. The lock manager
  * provides distributed locking to ensure that only one node activates a database at a time,
  * preventing split-brain scenarios. In a distributed setup, a
- * {@link net.sf.hajdbc.lock.distributed.DistributedLockManager} backed by JGroups is used.
+ * {@link net.sf.hajdbc.lock.distributed.DistributedLockManager} backed by Zookeeper is used.
  * </p>
  *
  * @see LockManager

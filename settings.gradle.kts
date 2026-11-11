@@ -10,6 +10,7 @@ pluginManagement {
 include("core")
 include("distributed")
 include("distributed:jgroups")
+include("distributed:zookeeper")
 include("i18n")
 include("i18n:gettext")
 include("logging")
