@@ -28,14 +28,14 @@ import net.sf.hajdbc.Identifiable;
  * Factory for creating {@link StateManager} instances.
  * <p>
  * This factory is a core component of the HA-JDBC architecture, registered via
- * {@link DatabaseClusterConfiguration#getStateManagerFactory()}. The state manager
+ * {@link net.sf.hajdbc.DatabaseClusterFactoryConfiguration#getStateManagerFactory()}. The state manager
  * persists the activation/deactivation state of the database cluster, enabling
  * failover and recovery. In a distributed setup, a {@link net.sf.hajdbc.state.distributed.DistributedStateManager}
  * is used to synchronize state across nodes.
  * </p>
  *
  * @see StateManager
- * @see DatabaseClusterConfiguration#getStateManagerFactory()
+ * @see net.sf.hajdbc.DatabaseClusterFactoryConfiguration#getStateManagerFactory()
  * @see net.sf.hajdbc.state.sql.SQLStateManagerFactory
  * @see net.sf.hajdbc.state.distributed.DistributedStateManager
  */

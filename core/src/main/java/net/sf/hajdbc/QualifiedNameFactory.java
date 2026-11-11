@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  * case sensitivity and identifier quoting rules.
  * </p>
  *
- * @see net.sf.hajdbc.dialect.DialectFactoryContract#createQualifiedNameFactory()
+ * @see net.sf.hajdbc.dialect.DialectFactoryContract#createQualifiedNameFactory(java.sql.DatabaseMetaData, IdentifierNormalizer)
  * @see QualifiedName
  */
 public interface QualifiedNameFactory

@@ -27,7 +27,7 @@ import org.jspecify.annotations.NonNull;
  * its own implementation to handle vendor-specific constraint naming and column handling.
  * </p>
  *
- * @see net.sf.hajdbc.dialect.DialectFactoryContract#createUniqueConstraintFactory()
+ * @see net.sf.hajdbc.dialect.DialectFactoryContract#createUniqueConstraintFactory(IdentifierNormalizer)
  * @see UniqueConstraint
  */
 public interface UniqueConstraintFactory

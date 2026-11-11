@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
  * implementation to handle vendor-specific sequence naming and increment rules.
  * </p>
  *
- * @see net.sf.hajdbc.dialect.DialectFactoryContract#createSequencePropertiesFactory()
+ * @see net.sf.hajdbc.SequenceSupport#createSequencePropertiesFactory(QualifiedNameFactory)
  * @see SequenceProperties
  */
 public interface SequencePropertiesFactory
