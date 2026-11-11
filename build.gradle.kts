@@ -5,7 +5,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
-val haJdbcVersion = "4.0.0-alpha-1-SNAPSHOT"
+val haJdbcVersion = "5.0.0-alpha-1"
 
 plugins {
     id("com.github.spotbugs") version "6.5.13" apply false
@@ -32,6 +32,19 @@ subprojects {
             archiveClassifier.set("sources")
         }
 
+        // Javadoc JAR の生成
+        tasks.withType<Javadoc> {
+            (options as org.gradle.external.javadoc.StandardJavadocDocletOptions).apply {
+                addStringOption("Xdoclint:none", "-quiet")
+                isFailOnError = false
+            }
+        }
+
+        tasks.register<Jar>("javadocJar") {
+            from(tasks.named("javadoc"))
+            archiveClassifier.set("javadoc")
+        }
+
         configure<PublishingExtension> {
             repositories {
                 maven {
@@ -47,6 +60,7 @@ subprojects {
                 register<MavenPublication>("gpr") {
                     from(components["java"])
                     artifact(tasks.named("sourcesJar"))
+                    artifact(tasks.named("javadocJar"))
                     pom {
                         name.set(project.name)
                         description.set("HA-JDBC - High Availability JDBC Driver")
