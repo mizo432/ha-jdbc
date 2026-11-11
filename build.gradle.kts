@@ -1,6 +1,8 @@
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val haJdbcVersion = "4.0.0-alpha-1-SNAPSHOT"
@@ -8,7 +10,6 @@ val haJdbcVersion = "4.0.0-alpha-1-SNAPSHOT"
 plugins {
     id("com.github.spotbugs") version "6.5.13" apply false
     jacoco
-    `maven-publish` apply false
 }
 
 repositories {
@@ -20,9 +21,9 @@ subprojects {
     version = haJdbcVersion
 
     plugins.withId("java") {
-        apply(plugin = "maven-publish")
+        plugins.apply("maven-publish")
 
-        publishing {
+        configure<PublishingExtension> {
             repositories {
                 maven {
                     name = "GitHubPackages"
@@ -61,6 +62,7 @@ subprojects {
                 }
             }
         }
+
         configure<JavaPluginExtension> {
             sourceCompatibility = JavaVersion.VERSION_25
             targetCompatibility = JavaVersion.VERSION_25
