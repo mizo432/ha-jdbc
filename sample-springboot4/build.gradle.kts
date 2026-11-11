@@ -22,6 +22,7 @@ repositories {
 dependencies {
     // Import Spring Boot BOM for dependency version management
     implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+    developmentOnly(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
     // Spring Boot Starters
     implementation("org.springframework.boot:spring-boot-starter-web")
