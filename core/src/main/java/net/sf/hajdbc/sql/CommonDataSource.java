@@ -85,8 +85,24 @@ public abstract class CommonDataSource<Z extends javax.sql.CommonDataSource, D e
 			{
 				break;
 			}
-			proxyFactory.close();
-			cluster.stop();
+			// We lost the race - another thread created the proxy first.
+			// Clean up the resources we created, ensuring they are always released.
+			try
+			{
+				try
+				{
+					proxyFactory.close();
+				}
+				finally
+				{
+					cluster.stop();
+				}
+			}
+			catch (Exception e)
+			{
+				// Log the exception but don't propagate it - we're cleaning up lost race resources
+				Logger.getAnonymousLogger().warning("Failed to clean up resources after losing proxy creation race: " + e.getMessage());
+			}
 			entry = this.reference.get();
 		}
 		return entry.getValue();
