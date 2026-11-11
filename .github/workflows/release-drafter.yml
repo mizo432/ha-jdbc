@@ -15,7 +15,7 @@ permissions:
 jobs:
   update_release_draft:
     name: Update Release Draft
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Draft Release
