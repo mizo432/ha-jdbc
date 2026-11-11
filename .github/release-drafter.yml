@@ -3,16 +3,6 @@ tag-template: '$RESOLVED_VERSION'
 category-template: '### $TITLE'
 change-template: '- $TITLE (#$NUMBER)'
 change-title-escapes: '\<\>{}[]`~&$#@!'
-exclude-labels:
-  - 'skip-changelog'
-  - 'dependencies'
-include-labels:
-  - 'breaking'
-  - 'feature'
-  - 'bugfix'
-  - 'improvement'
-  - 'documentation'
-  - 'security'
 autolabeler:
   - label: 'bugfix'
     title:
@@ -34,42 +24,49 @@ autolabeler:
       - '/!:/i'
       - '/breaking\s+change/i'
 categories:
+  - type: 'pre-exclude'
+    when:
+      labels:
+        - 'skip-changelog'
+        - 'dependencies'
   - title: '🔒 Security'
-    labels:
-      - 'security'
+    when:
+      labels:
+        - 'security'
   - title: '⚠️ Breaking Changes'
-    labels:
-      - 'breaking'
+    when:
+      labels:
+        - 'breaking'
   - title: '🚀 Features'
-    labels:
-      - 'feature'
+    when:
+      labels:
+        - 'feature'
   - title: '🐛 Bug Fixes'
-    labels:
-      - 'bugfix'
+    when:
+      labels:
+        - 'bugfix'
   - title: '✨ Improvements'
-    labels:
-      - 'improvement'
+    when:
+      labels:
+        - 'improvement'
   - title: '📝 Documentation'
-    labels:
-      - 'documentation'
+    when:
+      labels:
+        - 'documentation'
   - title: '📦 Other Changes'
-    labels: []
-  - title: '⬆️ Major Version'
-    type: version-resolver
+  - type: version-resolver
     semver-increment: major
     when:
       labels:
         - 'major'
         - 'breaking'
-  - title: '⬆️ Minor Version'
-    type: version-resolver
+  - type: version-resolver
     semver-increment: minor
     when:
       labels:
         - 'minor'
         - 'feature'
-  - title: '⬆️ Patch Version'
-    type: version-resolver
+  - type: version-resolver
     semver-increment: patch
     when:
       labels:
