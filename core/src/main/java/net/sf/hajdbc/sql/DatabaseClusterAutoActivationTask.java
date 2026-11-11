@@ -61,7 +61,7 @@ class DatabaseClusterAutoActivationTask<Z, D extends Database<Z>> implements Run
 					{
 						try
 						{
-							if (this.cluster.activate(database, this.cluster.configuration.getSynchronizationStrategyMap()
+							if (this.cluster.activateWithStrategy(database, this.cluster.configuration.getSynchronizationStrategyMap()
 									.get(this.cluster.configuration.getDefaultSynchronizationStrategy())))
 							{
 								logger.log(Level.INFO, messages.activated(this.cluster, database));
