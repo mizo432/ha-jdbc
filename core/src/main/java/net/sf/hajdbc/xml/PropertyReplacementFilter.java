@@ -141,6 +141,23 @@ public class PropertyReplacementFilter
 		return builder.toString();
 	}
 	
+	/**
+	 * Resolves a property value from the given properties map.
+	 * Supports fallback keys (comma-separated) and default values.
+	 * 
+	 * <p><b>Security note:</b> If a property key is blocked by the whitelist check,
+	 * this method returns {@code null} immediately, bypassing the default value.
+	 * This means {@code ${blocked.property:default}} will remain as the literal string
+	 * {@code ${blocked.property:default}} in the output, rather than falling back to
+	 * {@code default}. This is intentional: allowing a blocked property to resolve via
+	 * its default value could be exploited to bypass the whitelist by placing sensitive
+	 * data in default values that reference blocked keys.</p>
+	 * 
+	 * @param keys comma-separated property keys (first non-null value wins)
+	 * @param defaultValue fallback value if all keys are null (not used when a key is blocked)
+	 * @param properties the properties map to look up values
+	 * @return the resolved value, {@code null} if a key was blocked, or the default value if all keys are null
+	 */
 	private static String getProperty(String[] keys, String defaultValue, Properties properties)
 	{
 		for (String key: keys)
@@ -165,15 +182,25 @@ public class PropertyReplacementFilter
 	/**
 	 * Check if a property key is allowed based on the whitelist of allowed prefixes.
 	 * This prevents reading sensitive system properties that could expose secrets.
+	 * Entries ending with '.' are treated as prefix matches (e.g., "ha-jdbc." matches "ha-jdbc.test").
+	 * Entries not ending with '.' are treated as exact matches (e.g., "java.version" only matches "java.version",
+	 * not "java.version.bogus").
 	 * 
 	 * @param key the property key to check
 	 * @return true if the property is allowed, false otherwise
 	 */
 	private static boolean isAllowedProperty(String key)
 	{
-		for (String prefix : ALLOWED_PREFIXES)
+		for (String allowed : ALLOWED_PREFIXES)
 		{
-			if (key.startsWith(prefix))
+			if (allowed.endsWith("."))
+			{
+				if (key.startsWith(allowed))
+				{
+					return true;
+				}
+			}
+			else if (key.equals(allowed))
 			{
 				return true;
 			}

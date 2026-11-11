@@ -53,10 +53,6 @@ public interface Messages
 	String init(Version version, XMLStreamFactory factory);
 
 	String unsupportedNamespace();
-	String unexpectedAttribute(String element, int index);
-	String invalidAttribute(String element, int index);
-	String missingRequiredAttribute(String element, String attribute);
-	String unexpectedElement(String element);
 
 	// Configuration
 	String invalidJavaBeanProperty(Class<?> bean, String property);

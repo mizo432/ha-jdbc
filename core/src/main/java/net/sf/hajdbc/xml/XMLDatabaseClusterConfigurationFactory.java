@@ -17,19 +17,29 @@
  */
 package net.sf.hajdbc.xml;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import tools.jackson.dataformat.xml.XmlFactory;
 import tools.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.xml.XmlWriteFeature;
 
 import javax.xml.stream.XMLInputFactory;
 
@@ -114,7 +124,7 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		inputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
 		XmlFactory xmlFactory = XmlFactory.builder().xmlInputFactory(inputFactory).build();
-		return XmlMapper.builder(xmlFactory).build();
+		return XmlMapper.builder(xmlFactory).enable(XmlWriteFeature.WRITE_XML_DECLARATION).build();
 	}
 
 	public XMLDatabaseClusterConfigurationFactory(String id, String resource)
@@ -365,6 +375,43 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		}
 	}
 
+	private static List<Property> extractProperties(net.sf.hajdbc.Identifiable object)
+	{
+		List<Property> result = new ArrayList<>();
+		if (object == null)
+		{
+			return result;
+		}
+		try
+		{
+			for (PropertyDescriptor descriptor : Introspector.getBeanInfo(object.getClass()).getPropertyDescriptors())
+			{
+				Method readMethod = descriptor.getReadMethod();
+				if ((readMethod != null) && (descriptor.getWriteMethod() != null))
+				{
+					Object value = readMethod.invoke(object);
+					if (value != null)
+					{
+						PropertyEditor editor = PropertyEditorManager.findEditor(descriptor.getPropertyType());
+						if (editor != null)
+						{
+							editor.setValue(value);
+							Property p = new Property();
+							p.setName(descriptor.getName());
+							p.setValue(editor.getAsText());
+							result.add(p);
+						}
+					}
+				}
+			}
+		}
+		catch (IllegalAccessException | InvocationTargetException | IntrospectionException e)
+		{
+			logger.log(Level.WARN, e);
+		}
+		return result;
+	}
+
 	private Configuration toConfiguration(DatabaseClusterConfiguration<Z, D> config)
 	{
 		Configuration result = new Configuration();
@@ -374,6 +421,7 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		{
 			IdentifiableDescriptor dist = new IdentifiableDescriptor();
 			dist.setId(config.getDispatcherFactory().getId());
+			dist.setProperty(extractProperties(config.getDispatcherFactory()));
 			result.setDistributable(dist);
 		}
 		
@@ -382,6 +430,7 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		{
 			IdentifiedDescriptor sync = new IdentifiedDescriptor();
 			sync.setId(strategy.getId());
+			sync.setProperty(extractProperties(strategy));
 			result.getSync().add(sync);
 		}
 		
@@ -390,6 +439,7 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		{
 			IdentifiableDescriptor state = new IdentifiableDescriptor();
 			state.setId(config.getStateManagerFactory().getId());
+			state.setProperty(extractProperties(config.getStateManagerFactory()));
 			result.setState(state);
 		}
 		
@@ -398,6 +448,7 @@ public class XMLDatabaseClusterConfigurationFactory<Z, D extends Database<Z>> im
 		{
 			IdentifiableDescriptor lock = new IdentifiableDescriptor();
 			lock.setId(config.getLockManagerFactory().getId());
+			lock.setProperty(extractProperties(config.getLockManagerFactory()));
 			result.setLock(lock);
 		}
 		

@@ -150,4 +150,28 @@ public class PropertyReplacementFilterTest
 		assertThat(PropertyReplacementFilter.replace("${file.create.onExit}", this.properties))
 			.isEqualTo("${file.create.onExit}");
 	}
+
+	@Test
+	public void exactMatchPreventsPrefixLeak()
+	{
+		// "java.version" is an exact match in the whitelist, so "java.version.bogus" should be blocked
+		this.properties.setProperty("java.version", "25.0.1");
+		this.properties.setProperty("java.version.bogus", "leaked");
+		assertThat(PropertyReplacementFilter.replace("${java.version}", this.properties)).isEqualTo("25.0.1");
+		assertThat(PropertyReplacementFilter.replace("${java.version.bogus}", this.properties))
+			.isEqualTo("${java.version.bogus}");
+
+		// Same for "user.name" — "user.name.secret" should be blocked
+		this.properties.setProperty("user.name", "testuser");
+		this.properties.setProperty("user.name.secret", "secret-value");
+		assertThat(PropertyReplacementFilter.replace("${user.name}", this.properties)).isEqualTo("testuser");
+		assertThat(PropertyReplacementFilter.replace("${user.name.secret}", this.properties))
+			.isEqualTo("${user.name.secret}");
+
+		// Prefix entries with trailing dot should still allow sub-properties
+		this.properties.setProperty("ha-jdbc.test", "value");
+		this.properties.setProperty("ha-jdbc.test.nested", "nested-value");
+		assertThat(PropertyReplacementFilter.replace("${ha-jdbc.test}", this.properties)).isEqualTo("value");
+		assertThat(PropertyReplacementFilter.replace("${ha-jdbc.test.nested}", this.properties)).isEqualTo("nested-value");
+	}
 }

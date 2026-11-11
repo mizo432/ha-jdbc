@@ -47,10 +47,10 @@ public class XmlDatabase
     @JacksonXmlProperty(isAttribute = true)
     private String locality;
 
-    @JacksonXmlProperty(isAttribute = true)
+    @JacksonXmlProperty(localName = "user")
     private String user;
 
-    @JacksonXmlProperty(isAttribute = true)
+    @JacksonXmlProperty(localName = "password")
     private String password;
 
     @JacksonXmlElementWrapper(useWrapping = false)

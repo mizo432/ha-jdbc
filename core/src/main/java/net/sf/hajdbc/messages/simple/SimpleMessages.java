@@ -88,29 +88,6 @@ public class SimpleMessages implements Messages
 		return this.tr("Unsupported XML namespace. Verify the xmlns attribute in your ha-jdbc.xml configuration file matches a supported version (urn:ha-jdbc:cluster:3.0 or urn:ha-jdbc:cluster:3.1)");
 	}
 
-	@Override
-	public String unexpectedElement(String element)
-	{
-		return this.tr("Unexpected <{0}/> element in configuration", element);
-	}
-	
-	@Override
-	public String unexpectedAttribute(String element, int index)
-	{
-		return this.tr("Unexpected attribute at index {1} in <{0}/> element", element, index);
-	}
-	
-	@Override
-	public String invalidAttribute(String element, int index)
-	{
-		return this.tr("Invalid attribute value at index {1} in <{0}/> element", element, index);
-	}
-
-	@Override
-	public String missingRequiredAttribute(String element, String attribute)
-	{
-		return this.tr("Required attribute '{1}' is missing in <{0}/> element", element, attribute);
-	}
 
 	@Override
 	public String invalidJavaBeanProperty(Class<?> bean, String property)
