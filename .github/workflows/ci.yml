@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: jacoco-report
-          path: "**/build/reports/jacoco/**/*.html"
+          path: "**/build/reports/jacoco/**"
           retention-days: 14
 
   spotbugs:

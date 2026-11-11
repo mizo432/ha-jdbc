@@ -23,6 +23,14 @@ subprojects {
     plugins.withId("java") {
         plugins.apply("maven-publish")
 
+        val projectExt = the<org.gradle.api.plugins.JavaPluginExtension>()
+
+        // Source JAR の生成
+        tasks.register<Jar>("sourcesJar") {
+            from(projectExt.sourceSets.getByName("main").allSource)
+            archiveClassifier.set("sources")
+        }
+
         configure<PublishingExtension> {
             repositories {
                 maven {
@@ -37,6 +45,7 @@ subprojects {
             publications {
                 register<MavenPublication>("gpr") {
                     from(components["java"])
+                    artifact(tasks.named("sourcesJar"))
                     pom {
                         name.set(project.name)
                         description.set("HA-JDBC - High Availability JDBC Driver")
