@@ -13,19 +13,28 @@ Spring Boot 4 + JPA + PostgreSQL のサンプルプロジェクトです。
 
 ## 起動方法
 
-### 1. PostgreSQL を起動
-
-```bash
-docker compose up -d
-```
-
-### 2. アプリケーションを起動
+### アプリケーションを起動
 
 ```bash
 ./gradlew bootRun
 ```
 
-または IDE から `SampleApplication.java` を実行します。
+`bootRun`を実行すると、PostgreSQL コンテナが自動的に起動します。
+
+または IDE から `SampleApplication.java` を実行します（IDE の実行設定で `dockerComposeUp` タスクを依存タスクとして追加してください）。
+
+### コンテナを手動で管理する場合
+
+```bash
+# コンテナを起動
+docker compose up -d
+
+# コンテナを停止・削除
+docker compose down
+
+# ボリュームも削除する場合
+docker compose down -v
+```
 
 ## API エンドポイント
 
@@ -88,12 +97,3 @@ sample-springboot4/
 | ユーザー | `sample_user` |
 | パスワード | `sample_password` |
 
-## クリーンアップ
-
-```bash
-# コンテナ停止・削除
-docker compose down
-
-# ボリュームも削除する場合
-docker compose down -v
-```
