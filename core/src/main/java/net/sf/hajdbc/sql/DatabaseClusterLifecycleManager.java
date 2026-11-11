@@ -63,15 +63,23 @@ class DatabaseClusterLifecycleManager<Z, D extends Database<Z>>
 
 	void start(DatabaseClusterImpl<Z, D> impl) throws SQLException
 	{
-		this.initializeComponents(impl);
-		this.initializeDatabases(impl);
-		this.initializeRecovery(impl);
-		this.initializeCache(impl);
-		this.registerMBeans(impl);
-		
-		impl.setActive(true);
-		
-		logger.log(Level.INFO, messages.start(this.cluster));
+		try
+		{
+			this.initializeComponents(impl);
+			this.initializeDatabases(impl);
+			this.initializeRecovery(impl);
+			this.initializeCache(impl);
+			this.registerMBeans(impl);
+			
+			impl.setActive(true);
+			
+			logger.log(Level.INFO, messages.start(this.cluster));
+		}
+		catch (SQLException e)
+		{
+			this.cleanupOnFailure(impl);
+			throw e;
+		}
 	}
 
 	void stop(DatabaseClusterImpl<Z, D> impl)
@@ -85,6 +93,17 @@ class DatabaseClusterLifecycleManager<Z, D extends Database<Z>>
 		this.stopStateManager(impl);
 		this.stopLockManager(impl);
 		this.shutdownExecutor(impl);
+		this.clearBalancer(impl);
+	}
+
+	private void cleanupOnFailure(DatabaseClusterImpl<Z, D> impl)
+	{
+		logger.log(Level.WARN, "Initialization failed - cleaning up resources");
+		
+		this.unregisterMBeans(impl);
+		this.shutdownExecutor(impl);
+		this.stopStateManager(impl);
+		this.stopLockManager(impl);
 		this.clearBalancer(impl);
 	}
 
