@@ -17,6 +17,8 @@
  */
 package net.sf.hajdbc.xml;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,12 +27,36 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.util.StreamReaderDelegate;
 
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
 import net.sf.hajdbc.util.Strings;
 import net.sf.hajdbc.util.SystemProperties;
 
 public class PropertyReplacementFilter extends StreamReaderDelegate
 {
 	private static final Pattern PATTERN = Pattern.compile("\\$\\{([^\\}]+)\\}");
+
+	// Whitelist of allowed property prefixes to prevent reading sensitive system properties
+	private static final List<String> ALLOWED_PREFIXES = Arrays.asList(
+			"ha-jdbc.",           // HA-JDBC specific properties
+			"net.sf.hajdbc.",     // HA-JDBC internal properties
+			"java.",              // Standard Java properties (java.version, java.home, etc.)
+			"user.",              // User properties (user.name, user.home, etc.)
+			"os.",                // OS properties (os.name, os.arch, etc.)
+			"file.",              // File properties (file.separator, file.encoding, etc.)
+			"path.",              // Path separator property
+			"jgroups.",           // JGroups properties
+			"spring.",            // Spring framework properties
+			"javax.xml.",         // XML-related properties
+			"awt.",               // AWT properties (font settings, etc.)
+			"sun.java2d.",        // Java2D properties
+			"line.",              // Line separator property
+			"networkaddress.",    // Cache control property
+			"com.sun.jndi."       // JNDI properties
+			);
+
+	private static final Logger logger = LoggerFactory.getLogger(PropertyReplacementFilter.class);
 
 	private final Properties properties;
 	
@@ -137,11 +163,39 @@ public class PropertyReplacementFilter extends StreamReaderDelegate
 	{
 		for (String key: keys)
 		{
-			String value = this.properties.getProperty(key.trim());
+			String trimmedKey = key.trim();
+			
+			// Check if the property key is allowed by the whitelist
+			if (!isAllowedProperty(trimmedKey))
+			{
+				logger.log(Level.WARN, "Property access blocked: ''{0}'' is not in the allowed property prefixes list", trimmedKey);
+				return null;
+			}
+			
+			String value = this.properties.getProperty(trimmedKey);
 			
 			if (value != null) return value;
 		}
 
 		return defaultValue;
+	}
+	
+	/**
+	 * Check if a property key is allowed based on the whitelist of allowed prefixes.
+	 * This prevents reading sensitive system properties that could expose secrets.
+	 * 
+	 * @param key the property key to check
+	 * @return true if the property is allowed, false otherwise
+	 */
+	private boolean isAllowedProperty(String key)
+	{
+		for (String prefix : ALLOWED_PREFIXES)
+		{
+			if (key.startsWith(prefix))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

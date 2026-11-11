@@ -39,7 +39,7 @@ public class PropertyReplacementFilterTest
 	private final Properties properties = new Properties();
 	private final XMLStreamReader reader = mock(XMLStreamReader.class);
 	private final XMLStreamReader filter = new PropertyReplacementFilter(this.reader, this.properties);
-	private final static String PROPERTY_NAME = "existing";
+	private final static String PROPERTY_NAME = "ha-jdbc.existing";
 	private final static String SYSTEM_PROPERTY = String.format("${%s}", PROPERTY_NAME);
 	private final static String PROPERTY_VALUE = "expected";
 	
