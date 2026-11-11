@@ -201,13 +201,9 @@ final class CronExpressionParser {
                             throw new ParseException("Invalid Day-of-Week value: '" + sub + "'", i);
                         }
                     } else if (c == '#') {
-                        try {
-                            i += 4;
-                            expression.nthdayOfWeek = Integer.parseInt(s.substring(i));
-                            if (expression.nthdayOfWeek < 1 || expression.nthdayOfWeek > 5) {
-                                throw new Exception();
-                            }
-                        } catch (Exception e) {
+                        i += 4;
+                        expression.nthdayOfWeek = Integer.parseInt(s.substring(i));
+                        if (expression.nthdayOfWeek < 1 || expression.nthdayOfWeek > 5) {
                             throw new ParseException(
                                     "A numeric value between 1 and 5 must follow the '#' option", i);
                         }
@@ -376,12 +372,8 @@ final class CronExpressionParser {
                 throw new ParseException("'#' option is not valid here. (pos=" + i + ")", i);
             }
             i++;
-            try {
-                expression.nthdayOfWeek = Integer.parseInt(s.substring(i));
-                if (expression.nthdayOfWeek < 1 || expression.nthdayOfWeek > 5) {
-                    throw new Exception();
-                }
-            } catch (Exception e) {
+            expression.nthdayOfWeek = Integer.parseInt(s.substring(i));
+            if (expression.nthdayOfWeek < 1 || expression.nthdayOfWeek > 5) {
                 throw new ParseException(
                         "A numeric value between 1 and 5 must follow the '#' option", i);
             }
