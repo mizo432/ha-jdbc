@@ -30,11 +30,11 @@ import net.sf.hajdbc.SequenceProperties;
  */
 final class DialectSequenceSQLGenerator
 {
-	private final SequenceTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectSequenceSQLGenerator(SequenceTemplate template)
+	DialectSequenceSQLGenerator(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -42,8 +42,8 @@ final class DialectSequenceSQLGenerator
 	 */
 	String getNextSequenceValueSQL(SequenceProperties sequence)
 	{
-		return this.template.executeFunctionSQL(
-				MessageFormat.format(this.template.nextSequenceValueFormat(), sequence.getName().getDMLName()));
+		return this.formats.executeFunctionSQL(
+				MessageFormat.format(this.formats.nextSequenceValueFormat(), sequence.getName().getDMLName()));
 	}
 
 	/**
@@ -51,19 +51,7 @@ final class DialectSequenceSQLGenerator
 	 */
 	String getAlterSequenceSQL(SequenceProperties sequence, long value)
 	{
-		return MessageFormat.format(this.template.alterSequenceFormat(),
+		return MessageFormat.format(this.formats.alterSequenceFormat(),
 				sequence.getName().getDDLName(), String.valueOf(value), String.valueOf(sequence.getIncrement()));
-	}
-
-	/**
-	 * Template method hooks that the sequence generator delegates to the dialect for.
-	 */
-	interface SequenceTemplate
-	{
-		String nextSequenceValueFormat();
-
-		String alterSequenceFormat();
-
-		String executeFunctionSQL(String function);
 	}
 }

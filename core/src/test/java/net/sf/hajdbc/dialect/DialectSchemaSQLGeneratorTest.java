@@ -28,16 +28,16 @@ public class DialectSchemaSQLGeneratorTest
 {
 	private DialectSchemaSQLGenerator createGenerator()
 	{
-		return new DialectSchemaSQLGenerator(new DialectSchemaSQLGenerator.SchemaTemplate()
+		return new DialectSchemaSQLGenerator(new DialectSQLFormats()
 		{
 			@Override
-			public String createSchemaFormat()
+			protected String createSchemaFormat()
 			{
 				return "CREATE SCHEMA {0}";
 			}
 
 			@Override
-			public String dropSchemaFormat()
+			protected String dropSchemaFormat()
 			{
 				return "DROP SCHEMA {0}";
 			}

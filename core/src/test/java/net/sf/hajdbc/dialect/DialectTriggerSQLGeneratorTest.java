@@ -35,22 +35,22 @@ public class DialectTriggerSQLGeneratorTest
 {
 	private DialectTriggerSQLGenerator createGenerator()
 	{
-		return new DialectTriggerSQLGenerator(new DialectTriggerSQLGenerator.TriggerTemplate()
+		return new DialectTriggerSQLGenerator(new DialectSQLFormats()
 		{
 			@Override
-			public String createTriggerFormat()
+			protected String createTriggerFormat()
 			{
 				return "CREATE TRIGGER {0} {1} {2} ON {3} FOR EACH ROW {4}";
 			}
 
 			@Override
-			public String dropTriggerFormat()
+			protected String dropTriggerFormat()
 			{
 				return "DROP TRIGGER {0} ON {1}";
 			}
 
 			@Override
-			public String triggerRowAlias(TriggerTime time)
+			protected String triggerRowAlias(TriggerTime time)
 			{
 				return time.getAlias();
 			}

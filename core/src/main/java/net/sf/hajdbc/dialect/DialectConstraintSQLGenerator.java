@@ -32,11 +32,11 @@ import net.sf.hajdbc.util.Strings;
  */
 final class DialectConstraintSQLGenerator
 {
-	private final ConstraintTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectConstraintSQLGenerator(ConstraintTemplate template)
+	DialectConstraintSQLGenerator(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -44,7 +44,7 @@ final class DialectConstraintSQLGenerator
 	 */
 	String getCreateForeignKeyConstraintSQL(ForeignKeyConstraint key)
 	{
-		return MessageFormat.format(this.template.createForeignKeyConstraintFormat(),
+		return MessageFormat.format(this.formats.createForeignKeyConstraintFormat(),
 				key.getName(),
 				key.getTable().getDDLName(),
 				Strings.join(key.getColumnList(), Strings.PADDED_COMMA),
@@ -60,7 +60,7 @@ final class DialectConstraintSQLGenerator
 	 */
 	String getDropForeignKeyConstraintSQL(ForeignKeyConstraint key)
 	{
-		return MessageFormat.format(this.template.dropForeignKeyConstraintFormat(), key.getName(), key.getTable().getDDLName());
+ 	return MessageFormat.format(this.formats.dropForeignKeyConstraintFormat(), key.getName(), key.getTable().getDDLName());
 	}
 
 	/**
@@ -68,7 +68,7 @@ final class DialectConstraintSQLGenerator
 	 */
 	String getCreateUniqueConstraintSQL(UniqueConstraint constraint)
 	{
-		return MessageFormat.format(this.template.createUniqueConstraintFormat(),
+ 	return MessageFormat.format(this.formats.createUniqueConstraintFormat(),
 				constraint.getName(),
 				constraint.getTable().getDDLName(),
 				Strings.join(constraint.getColumnList(), Strings.PADDED_COMMA));
@@ -79,20 +79,7 @@ final class DialectConstraintSQLGenerator
 	 */
 	String getDropUniqueConstraintSQL(UniqueConstraint constraint)
 	{
-		return MessageFormat.format(this.template.dropUniqueConstraintFormat(), constraint.getName(), constraint.getTable().getDDLName());
+ 	return MessageFormat.format(this.formats.dropUniqueConstraintFormat(), constraint.getName(), constraint.getTable().getDDLName());
 	}
 
-	/**
-	 * Template method hooks that the constraint generator delegates to the dialect for.
-	 */
-	interface ConstraintTemplate
-	{
-		String createForeignKeyConstraintFormat();
-
-		String dropForeignKeyConstraintFormat();
-
-		String createUniqueConstraintFormat();
-
-		String dropUniqueConstraintFormat();
-	}
 }

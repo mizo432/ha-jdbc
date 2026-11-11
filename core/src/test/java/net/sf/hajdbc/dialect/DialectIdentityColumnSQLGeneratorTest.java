@@ -34,10 +34,10 @@ public class DialectIdentityColumnSQLGeneratorTest
 {
 	private DialectIdentityColumnSQLGenerator createGenerator()
 	{
-		return new DialectIdentityColumnSQLGenerator(new DialectIdentityColumnSQLGenerator.IdentityColumnTemplate()
+		return new DialectIdentityColumnSQLGenerator(new DialectSQLFormats()
 		{
 			@Override
-			public String alterIdentityColumnFormat()
+			protected String alterIdentityColumnFormat()
 			{
 				return "ALTER TABLE {0} ALTER COLUMN {1} RESTART WITH {2}";
 			}

@@ -30,11 +30,11 @@ import net.sf.hajdbc.TableProperties;
  */
 final class DialectTruncateSQLGenerator
 {
-	private final TruncateTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectTruncateSQLGenerator(TruncateTemplate template)
+	DialectTruncateSQLGenerator(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -42,14 +42,6 @@ final class DialectTruncateSQLGenerator
 	 */
 	String getTruncateTableSQL(TableProperties properties)
 	{
-		return MessageFormat.format(this.template.truncateTableFormat(), properties.getName().getDMLName());
-	}
-
-	/**
-	 * Template method hooks that the truncate generator delegates to the dialect for.
-	 */
-	interface TruncateTemplate
-	{
-		String truncateTableFormat();
+		return MessageFormat.format(this.formats.truncateTableFormat(), properties.getName().getDMLName());
 	}
 }

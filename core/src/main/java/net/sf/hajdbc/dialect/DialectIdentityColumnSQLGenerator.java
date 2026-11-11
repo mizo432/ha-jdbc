@@ -31,11 +31,11 @@ import net.sf.hajdbc.TableProperties;
  */
 final class DialectIdentityColumnSQLGenerator
 {
-	private final IdentityColumnTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectIdentityColumnSQLGenerator(IdentityColumnTemplate template)
+	DialectIdentityColumnSQLGenerator(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -43,15 +43,7 @@ final class DialectIdentityColumnSQLGenerator
 	 */
 	String getAlterIdentityColumnSQL(TableProperties table, ColumnProperties column, long value)
 	{
-		return MessageFormat.format(this.template.alterIdentityColumnFormat(),
+		return MessageFormat.format(this.formats.alterIdentityColumnFormat(),
 				table.getName().getDDLName(), column.getName(), String.valueOf(value));
-	}
-
-	/**
-	 * Template method hooks that the identity column generator delegates to the dialect for.
-	 */
-	interface IdentityColumnTemplate
-	{
-		String alterIdentityColumnFormat();
 	}
 }

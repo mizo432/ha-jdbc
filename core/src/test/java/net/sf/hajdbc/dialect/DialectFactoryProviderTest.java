@@ -42,16 +42,16 @@ public class DialectFactoryProviderTest
 {
 	private DialectFactoryProvider createProvider()
 	{
-		return new DialectFactoryProvider(new DialectFactoryProvider.FactoryTemplate()
+		return new DialectFactoryProvider(new DialectSQLFormats()
 		{
 			@Override
-			public Pattern identifierPattern(DatabaseMetaData metaData)
+			protected Pattern identifierPattern(DatabaseMetaData metaData)
 			{
 				return Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
 			}
 
 			@Override
-			public Set<String> reservedIdentifiers(DatabaseMetaData metaData)
+			protected Set<String> reservedIdentifiers(DatabaseMetaData metaData)
 			{
 				Set<String> reserved = new HashSet<>();
 				reserved.add("SELECT");

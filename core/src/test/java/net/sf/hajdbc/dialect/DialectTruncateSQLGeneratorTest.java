@@ -33,10 +33,10 @@ public class DialectTruncateSQLGeneratorTest
 {
 	private DialectTruncateSQLGenerator createGenerator()
 	{
-		return new DialectTruncateSQLGenerator(new DialectTruncateSQLGenerator.TruncateTemplate()
+		return new DialectTruncateSQLGenerator(new DialectSQLFormats()
 		{
 			@Override
-			public String truncateTableFormat()
+			protected String truncateTableFormat()
 			{
 				return "DELETE FROM {0}";
 			}
@@ -74,10 +74,10 @@ public class DialectTruncateSQLGeneratorTest
 	@Test
 	public void getTruncateTableSQLWithTruncateSyntax()
 	{
-		DialectTruncateSQLGenerator generator = new DialectTruncateSQLGenerator(new DialectTruncateSQLGenerator.TruncateTemplate()
+		DialectTruncateSQLGenerator generator = new DialectTruncateSQLGenerator(new DialectSQLFormats()
 		{
 			@Override
-			public String truncateTableFormat()
+			protected String truncateTableFormat()
 			{
 				return "TRUNCATE TABLE {0}";
 			}

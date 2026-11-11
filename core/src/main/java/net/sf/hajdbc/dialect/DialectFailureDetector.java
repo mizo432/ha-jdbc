@@ -33,11 +33,11 @@ import javax.transaction.xa.XAException;
  */
 final class DialectFailureDetector
 {
-	private final FailureDetector detector;
+	private final DialectSQLFormats formats;
 
-	DialectFailureDetector(FailureDetector detector)
+	DialectFailureDetector(DialectSQLFormats formats)
 	{
-		this.detector = detector;
+		this.formats = formats;
 	}
 
 	/**
@@ -65,7 +65,7 @@ final class DialectFailureDetector
 	 */
 	boolean indicatesFailure(String sqlState)
 	{
-		return detector != null ? detector.indicatesFailureSQLState(sqlState) : sqlState.startsWith("08");
+ 	return this.formats.indicatesFailureSQLState(sqlState);
 	}
 
 	/**
@@ -74,7 +74,7 @@ final class DialectFailureDetector
 	 */
 	boolean indicatesFailure(int code)
 	{
-		return detector != null ? detector.indicatesFailureErrorCode(code) : false;
+ 	return this.formats.indicatesFailureErrorCode(code);
 	}
 
 	/**
@@ -82,19 +82,8 @@ final class DialectFailureDetector
 	 */
 	boolean indicatesFailure(XAException e)
 	{
-		Set<Integer> failureCodes = detector != null ? detector.failureXAErrorCodes() : null;
-		return failureCodes != null && failureCodes.contains(e.errorCode);
+ 	Set<Integer> failureCodes = this.formats.failureXAErrorCodes();
+ 	return failureCodes != null && failureCodes.contains(e.errorCode);
 	}
 
-	/**
-	 * Optional custom failure detector for vendor-specific logic.
-	 */
-	interface FailureDetector
-	{
-		boolean indicatesFailureSQLState(String sqlState);
-
-		boolean indicatesFailureErrorCode(int code);
-
-		Set<Integer> failureXAErrorCodes();
-	}
 }

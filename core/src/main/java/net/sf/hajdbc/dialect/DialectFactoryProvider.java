@@ -38,11 +38,11 @@ import net.sf.hajdbc.UniqueConstraintFactory;
  */
 final class DialectFactoryProvider
 {
-	private final FactoryTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectFactoryProvider(FactoryTemplate template)
+	DialectFactoryProvider(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -50,9 +50,9 @@ final class DialectFactoryProvider
 	 */
 	IdentifierNormalizer createIdentifierNormalizer(DatabaseMetaData metaData) throws SQLException
 	{
-		return new StandardIdentifierNormalizer(metaData,
-				this.template.identifierPattern(metaData),
-				this.template.reservedIdentifiers(metaData));
+ 	return new StandardIdentifierNormalizer(metaData,
+				this.formats.identifierPattern(metaData),
+				this.formats.reservedIdentifiers(metaData));
 	}
 
 	/**
@@ -95,13 +95,4 @@ final class DialectFactoryProvider
 		return new StandardUniqueConstraintFactory(normalizer);
 	}
 
-	/**
-	 * Template method hooks that the factory provider delegates to the dialect for.
-	 */
-	interface FactoryTemplate
-	{
-		Pattern identifierPattern(DatabaseMetaData metaData) throws SQLException;
-
-		Set<String> reservedIdentifiers(DatabaseMetaData metaData) throws SQLException;
-	}
 }

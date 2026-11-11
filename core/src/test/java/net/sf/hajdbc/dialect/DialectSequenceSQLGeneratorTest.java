@@ -33,22 +33,22 @@ public class DialectSequenceSQLGeneratorTest
 {
 	private DialectSequenceSQLGenerator createGenerator()
 	{
-		return new DialectSequenceSQLGenerator(new DialectSequenceSQLGenerator.SequenceTemplate()
+		return new DialectSequenceSQLGenerator(new DialectSQLFormats()
 		{
 			@Override
-			public String nextSequenceValueFormat()
+			protected String nextSequenceValueFormat()
 			{
 				return "NEXT VALUE FOR {0}";
 			}
 
 			@Override
-			public String alterSequenceFormat()
+			protected String alterSequenceFormat()
 			{
 				return "ALTER SEQUENCE {0} RESTART WITH {1}";
 			}
 
 			@Override
-			public String executeFunctionSQL(String function)
+			protected String executeFunctionSQL(String function)
 			{
 				return "SELECT " + function;
 			}

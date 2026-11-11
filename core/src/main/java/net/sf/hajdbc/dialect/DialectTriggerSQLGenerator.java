@@ -32,11 +32,11 @@ import net.sf.hajdbc.TriggerTime;
  */
 final class DialectTriggerSQLGenerator
 {
-	private final TriggerTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectTriggerSQLGenerator(TriggerTemplate template)
+	DialectTriggerSQLGenerator(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -44,7 +44,7 @@ final class DialectTriggerSQLGenerator
 	 */
 	String getCreateTriggerSQL(String name, TableProperties table, TriggerEvent event, String action)
 	{
-		return MessageFormat.format(this.template.createTriggerFormat(),
+		return MessageFormat.format(this.formats.createTriggerFormat(),
 				name, event.getTime().toString(), event.toString(), table.getName().getDDLName(), action);
 	}
 
@@ -53,7 +53,7 @@ final class DialectTriggerSQLGenerator
 	 */
 	String getDropTriggerSQL(String name, TableProperties table)
 	{
-		return MessageFormat.format(this.template.dropTriggerFormat(), name, table.getName().getDDLName());
+ 	return MessageFormat.format(this.formats.dropTriggerFormat(), name, table.getName().getDDLName());
 	}
 
 	/**
@@ -61,18 +61,7 @@ final class DialectTriggerSQLGenerator
 	 */
 	String getTriggerRowAlias(TriggerTime time)
 	{
-		return this.template.triggerRowAlias(time);
+ 	return this.formats.triggerRowAlias(time);
 	}
 
-	/**
-	 * Template method hooks that the trigger generator delegates to the dialect for.
-	 */
-	interface TriggerTemplate
-	{
-		String createTriggerFormat();
-
-		String dropTriggerFormat();
-
-		String triggerRowAlias(TriggerTime time);
-	}
 }

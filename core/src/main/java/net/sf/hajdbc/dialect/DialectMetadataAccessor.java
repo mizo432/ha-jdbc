@@ -52,11 +52,11 @@ import net.sf.hajdbc.util.Strings;
  */
 final class DialectMetadataAccessor
 {
-	private final DialectTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectMetadataAccessor(DialectTemplate template)
+	DialectMetadataAccessor(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -64,7 +64,7 @@ final class DialectMetadataAccessor
 	 */
 	Collection<QualifiedName> getTables(DatabaseMetaData metaData, QualifiedNameFactory factory) throws SQLException
 	{
-		try (ResultSet resultSet = metaData.getTables(getCatalog(metaData), template.schemaPattern(metaData), Strings.ANY, new String[] { "TABLE" }))
+ 	try (ResultSet resultSet = metaData.getTables(getCatalog(metaData), formats.schemaPattern(metaData), Strings.ANY, new String[] { "TABLE" }))
 		{
 			List<QualifiedName> list = new LinkedList<>();
 
@@ -237,7 +237,7 @@ final class DialectMetadataAccessor
 	 */
 	Collection<SequenceProperties> getSequences(DatabaseMetaData metaData, SequencePropertiesFactory factory) throws SQLException
 	{
-		try (ResultSet resultSet = metaData.getTables(Strings.EMPTY, null, Strings.ANY, new String[] { template.sequenceTableType() }))
+ 	try (ResultSet resultSet = metaData.getTables(Strings.EMPTY, null, Strings.ANY, new String[] { formats.sequenceTableType() }))
 		{
 			List<SequenceProperties> sequences = new LinkedList<>();
 
@@ -257,14 +257,4 @@ final class DialectMetadataAccessor
 		return (catalog != null) ? catalog : Strings.EMPTY;
 	}
 
-	/**
-	 * Template method hooks that the metadata accessor delegates to the dialect for.
-	 * These are package-private so only the accessor uses them.
-	 */
-	interface DialectTemplate
-	{
-		String schemaPattern(DatabaseMetaData metaData) throws SQLException;
-
-		String sequenceTableType();
-	}
 }

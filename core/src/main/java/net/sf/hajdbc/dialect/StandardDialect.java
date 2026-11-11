@@ -22,19 +22,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.sf.hajdbc.util.Strings;
 
 import javax.transaction.xa.XAException;
 
@@ -66,8 +60,7 @@ import net.sf.hajdbc.codec.Decoder;
  * @author  Paul Ferraro
  * @since   1.1
  */
-public class StandardDialect implements Dialect, SequenceSupport, IdentityColumnSupport, TriggerSupport,
-		DialectMetadataAccessor.DialectTemplate
+public class StandardDialect extends DialectSQLFormats implements Dialect, SequenceSupport, IdentityColumnSupport, TriggerSupport
 {
 	private DialectSQLParser sqlParser;
 	private DialectTemporalEvaluator temporalEvaluator;
@@ -92,241 +85,6 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	}
 
 	/* ------------------------------------------------------------------- *
-	 *  Template method hooks — subclasses override these to customize     *
-	 *  database-specific behavior.                                        *
-	 * ------------------------------------------------------------------- */
-
-	protected String vendorPattern()
-	{
-		return "[^\\:]+";
-	}
-
-	protected String locatorPattern()
-	{
-		return "(?://(?<host>[^\\:/]+)(?:\\:(?<port>\\d+))?/)?(?<database>[^\\?]+)";
-	}
-
-	protected String selectForUpdatePattern()
-	{
-		return "SELECT\\s+.+\\s+FOR\\s+UPDATE";
-	}
-
-	protected String insertIntoTablePattern()
-	{
-		return "INSERT\\s+(?:INTO\\s+)?'?([^'\\s\\(]+)";
-	}
-
-	protected String sequencePattern()
-	{
-		return "NEXT\\s+VALUE\\s+FOR\\s+'?([^',\\s\\(\\)]+)";
-	}
-
-	protected String currentDatePattern()
-	{
-		return "(?<=\\W)CURRENT_DATE(?=\\W)";
-	}
-
-	protected String currentTimePattern()
-	{
-		return "(?<=\\W)CURRENT_TIME(?:\\s*\\(\\s*\\d+\\s*\\))?(?=\\W)|(?<=\\W)LOCALTIME(?:\\s*\\(\\s*\\d+\\s*\\))?(?=\\W)";
-	}
-
-	protected String currentTimestampPattern()
-	{
-		return "(?<=\\W)CURRENT_TIMESTAMP(?:\\s*\\(\\s*\\d+\\s*\\))?(?=\\W)|(?<=\\W)LOCALTIMESTAMP(?:\\s*\\(\\s*\\d+\\s*\\))?(?=\\W)";
-	}
-
-	protected String randomPattern()
-	{
-		return "(?<=\\W)RAND\\s*\\(\\s*\\)";
-	}
-
-	protected String dateLiteralFormat()
-	{
-		return "DATE ''{0}''";
-	}
-
-	protected String timeLiteralFormat()
-	{
-		return "TIME ''{0}''";
-	}
-
-	protected String timestampLiteralFormat()
-	{
-		return "TIMESTAMP ''{0}''";
-	}
-
-	protected String executeFunctionFormat()
-	{
-		StringBuilder builder = new StringBuilder("SELECT {0}");
-
-		String dummyTable = this.dummyTable();
-
-		if (dummyTable != null)
-		{
-			builder.append(" FROM ").append(dummyTable);
-		}
-
-		return builder.toString();
-	}
-
-	protected String executeFunctionSQL(String function)
-	{
-		return MessageFormat.format(this.executeFunctionFormat(), function);
-	}
-
-	protected String dummyTable()
-	{
-		return null;
-	}
-
-	protected String truncateTableFormat()
-	{
-		return "DELETE FROM {0}";
-	}
-
-	protected String createForeignKeyConstraintFormat()
-	{
-		return "ALTER TABLE {1} ADD CONSTRAINT {0} FOREIGN KEY ({2}) REFERENCES {3} ({4}) ON DELETE {5,choice,0#CASCADE|1#RESTRICT|2#SET NULL|3#NO ACTION|4#SET DEFAULT} ON UPDATE {6,choice,0#CASCADE|1#RESTRICT|2#SET NULL|3#NO ACTION|4#SET DEFAULT} {7,choice,5#DEFERRABLE INITIALLY DEFERRED|6#DEFERRABLE INITIALLY IMMEDIATE|7#NOT DEFERRABLE}";
-	}
-
-	protected String dropForeignKeyConstraintFormat()
-	{
-		return this.dropConstraintFormat();
-	}
-
-	protected String dropConstraintFormat()
-	{
-		return "ALTER TABLE {1} DROP CONSTRAINT {0}";
-	}
-
-	protected String createUniqueConstraintFormat()
-	{
-		return "ALTER TABLE {1} ADD CONSTRAINT {0} UNIQUE ({2})";
-	}
-
-	protected String dropUniqueConstraintFormat()
-	{
-		return this.dropConstraintFormat();
-	}
-
-	protected String createTriggerFormat()
-	{
-		return "CREATE TRIGGER {0} {1} {2} ON {3} FOR EACH ROW BEGIN {4} END";
-	}
-
-	protected String dropTriggerFormat()
-	{
-		return "DROP TRIGGER {1} ON {2}";
-	}
-
-	protected String triggerRowAlias(TriggerTime time)
-	{
-		return time.getAlias();
-	}
-
-	protected String createSchemaFormat()
-	{
-		return "CREATE SCHEMA {0}";
-	}
-
-	protected String dropSchemaFormat()
-	{
-		return "DROP SCHEMA {0}";
-	}
-
-	protected String nextSequenceValueFormat()
-	{
-		return "NEXT VALUE FOR {0}";
-	}
-
-	protected String alterSequenceFormat()
-	{
-		return "ALTER SEQUENCE {0} RESTART WITH {1}";
-	}
-
-	protected String alterIdentityColumnFormat()
-	{
-		return "ALTER TABLE {0} ALTER COLUMN {1} RESTART WITH {2}";
-	}
-
-	protected boolean indicatesFailureSQLState(String sqlState)
-	{
-		// 08 class SQLStates indicate connection failures
-		return sqlState.startsWith("08");
-	}
-
-	protected boolean indicatesFailureErrorCode(int code)
-	{
-		return false;
-	}
-
-	protected Set<Integer> failureXAErrorCodes()
-	{
-		return Collections.singleton(XAException.XAER_RMFAIL);
-	}
-
-	protected Pattern identifierPattern(DatabaseMetaData metaData) throws SQLException
-	{
-		return Pattern.compile(MessageFormat.format("[a-zA-Z][\\w{0}]*", Pattern.quote(metaData.getExtraNameCharacters())));
-	}
-
-	// Taken from SQL:2003 column of: http://www.postgresql.org/docs/9.1/static/sql-keywords-appendix.html
-	// Only includes reserved keywords, since we only care about those keywords that require quoting to be used as an identifier
-	protected static final String[] SQL_2003_RESERVED_KEY_WORDS = new String[] {
-		"ABS", "ALL", "ALLOCATE", "ALTER", "AND", "ANY", "ARE", "ARRAY", "AS", "ASENSITIVE", "ASYMMETRIC", "AT", "ATOMIC", "AUTHORIZATION", "AVG",
-		"BEGIN", "BETWEEN", "BIGINT", "BINARY", "BLOB", "BOOLEAN", "BOTH", "BY",
-		"CALL", "CALLED", "CARDINALITY", "CASCADED", "CASE", "CAST", "CEIL", "CEILING", "CHAR", "CHARACTER", "CHARACTER_LENGTH", "CHAR_LENGTH", "CHECK", "CLOB", "CLOSE", "COALESCE", "COLLATE", "COLLECT", "COLUMN", "COMMIT", "CONDITION", "CONNECT", "CONSTRAINT", "CONVERT", "CORR", "CORRESPONDING", "COUNT", "COVAR_POP", "COVAR_SAMP", "CREATE", "CROSS", "CUBE", "CUME_DIST", "CURRENT", "CURRENT_DATE", "CURRENT_DEFAULT_TRANSFORM_GROUP", "CURRENT_PATH", "CURRENT_ROLE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_TRANSFORM_GROUP_FOR_TYPE", "CURRENT_USER", "CURSOR", "CYCLE",
-		"DATALINK", "DATE", "DAY", "DEALLOCATE", "DEC", "DECIMAL", "DECLARE", "DEFAULT", "DELETE", "DENSE_RANK", "DEREF", "DESCRIBE", "DETERMINISTIC", "DISCONNECT", "DISTINCT", "DLNEWCOPY", "DLPREVIOUSCOPY", "DLURLCOMPLETE", "DLURLCOMPLETEONLY", "DLURLCOMPLETEWRITE", "DLURLPATH", "DLURLPATHONLY", "DLURLPATHWRITE", "DLURLSCHEME", "DLURLSERVER", "DLVALUE", "DOUBLE", "DROP", "DYNAMIC",
-		"EACH", "ELEMENT", "ELSE", "END", "END-EXEC", "ESCAPE", "EVERY", "EXCEPT", "EXEC", "EXECUTE", "EXISTS", "EXP", "EXTERNAL", "EXTRACT",
-		"FALSE", "FETCH", "FILTER", "FLOAT", "FLOOR", "FOR", "FOREIGN", "FREE", "FROM", "FULL", "FUNCTION", "FUSION",
-		"GET", "GLOBAL", "GRANT", "GROUP", "GROUPING",
-		"HAVING", "HOLD", "HOUR",
-		"IDENTITY", "IMPORT", "IN", "INDICATOR", "INNER", "INOUT", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTERSECT", "INTERSECTION", "INTERVAL", "INTO", "IS",
-		"JOIN",
-		"LANGUAGE", "LARGE", "LATERAL", "LEADING", "LEFT", "LIKE", "LN", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOWER",
-		"MATCH", "MAX", "MEMBER", "MERGE", "METHOD", "MIN", "MINUTE", "MOD", "MODIFIES", "MODULE", "MONTH", "MULTISET",
-		"NATIONAL", "NATURAL", "NCHAR", "NCLOB", "NEW", "NO", "NONE", "NORMALIZE", "NOT", "NULL", "NULLIF", "NUMERIC",
-		"OCTET_LENGTH", "OF", "OLD", "ON", "ONLY", "OPEN", "OR", "ORDER", "OUT", "OUTER", "OVER", "OVERLAPS", "OVERLAY",
-		"PARAMETER", "PARTITION", "PERCENTILE_CONT", "PERCENTILE_DISC", "PERCENT_RANK", "POSITION", "POWER", "PRECISION", "PREPARE", "PRIMARY", "PROCEDURE",
-		"RANGE", "RANK", "READS", "REAL", "RECURSIVE", "REF", "REFERENCES", "REFERENCING", "REGR_AVGX", "REGR_AVGY", "REGR_COUNT", "REGR_INTERCEPT", "REGR_R2", "REGR_SLOPE", "REGR_SXX", "REGR_SXY", "REGR_SYY", "RELEASE", "RESULT", "RETURN", "RETURNS", "REVOKE", "RIGHT", "ROLLBACK", "ROLLUP", "ROW", "ROWS", "ROW_NUMBER",
-		"SAVEPOINT", "SCOPE", "SCROLL", "SEARCH", "SECOND", "SELECT", "SENSITIVE", "SESSION_USER", "SET", "SIMILAR", "SMALLINT", "SOME", "SPECIFIC", "SPECIFICTYPE", "SQL", "SQLEXCEPTION", "SQLSTATE", "SQLWARNING", "SQRT", "START", "STATIC", "STDDEV_POP", "STDDEV_SAMP", "SUBMULTISET", "SUBSTRING", "SUM", "SYMMETRIC", "SYSTEM", "SYSTEM_USER",
-		"TABLE", "TABLESAMPLE", "THEN", "TIME", "TIMESTAMP", "TIMEZONE_HOUR", "TIMEZONE_MINUTE", "TO", "TRAILING", "TRANSLATE", "TRANSLATION", "TREAT", "TRIGGER", "TRIM", "TRUE",
-		"UESCAPE", "UNION", "UNIQUE", "UNKNOWN", "UNNEST", "UPDATE", "UPPER", "USER", "USING",
-		"VALUE", "VALUES", "VARCHAR", "VARYING", "VAR_POP", "VAR_SAMP",
-		"WHEN", "WHENEVER", "WHERE", "WIDTH_BUCKET", "WINDOW", "WITH", "WITHIN", "WITHOUT",
-		"XML", "XMLAGG", "XMLATTRIBUTES", "XMLBINARY", "XMLCOMMENT", "XMLCONCAT", "XMLELEMENT", "XMLFOREST", "XMLNAMESPACES", "XMLPARSE", "XMLPI", "XMLROOT", "XMLSERIALIZE",
-		"YEAR",
-	};
-
-	/**
-	 * Return the set of reserved identifiers for this dialect.
-	 * Subclasses may override to provide vendor-specific reserved keywords.
-	 */
-	protected Set<String> reservedIdentifiers(DatabaseMetaData metaData) throws SQLException
-	{
-		Set<String> set = new HashSet<>(Arrays.asList(SQL_2003_RESERVED_KEY_WORDS));
-
-		for (String word : metaData.getSQLKeywords().split(Strings.COMMA))
-		{
-			set.add(word.toUpperCase());
-		}
-
-		return set;
-	}
-
-	/**
-	 * Helper to parse a regex pattern against a string.
-	 * Subclasses may use this for custom SQL parsing.
-	 */
-	protected String parse(Pattern pattern, String string)
-	{
-		Matcher matcher = pattern.matcher(string);
-
-		return matcher.find() ? matcher.group(1) : null;
-	}
-
-	/* ------------------------------------------------------------------- *
 	 *  Helper initialization                                              *
 	 * ------------------------------------------------------------------- */
 
@@ -345,136 +103,14 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 				this.timeLiteralFormat(),
 				this.timestampLiteralFormat());
 		this.metadataAccessor = new DialectMetadataAccessor(this);
-		this.failureDetector = new DialectFailureDetector(new DialectFailureDetector.FailureDetector()
-		{
-			@Override
-			public boolean indicatesFailureSQLState(String sqlState)
-			{
-				return StandardDialect.this.indicatesFailureSQLState(sqlState);
-			}
-
-			@Override
-			public boolean indicatesFailureErrorCode(int code)
-			{
-				return StandardDialect.this.indicatesFailureErrorCode(code);
-			}
-
-			@Override
-			public Set<Integer> failureXAErrorCodes()
-			{
-				return StandardDialect.this.failureXAErrorCodes();
-			}
-		});
-		this.constraintSQLGenerator = new DialectConstraintSQLGenerator(new DialectConstraintSQLGenerator.ConstraintTemplate()
-		{
-			@Override
-			public String createForeignKeyConstraintFormat()
-			{
-				return StandardDialect.this.createForeignKeyConstraintFormat();
-			}
-
-			@Override
-			public String dropForeignKeyConstraintFormat()
-			{
-				return StandardDialect.this.dropForeignKeyConstraintFormat();
-			}
-
-			@Override
-			public String createUniqueConstraintFormat()
-			{
-				return StandardDialect.this.createUniqueConstraintFormat();
-			}
-
-			@Override
-			public String dropUniqueConstraintFormat()
-			{
-				return StandardDialect.this.dropUniqueConstraintFormat();
-			}
-		});
-		this.triggerSQLGenerator = new DialectTriggerSQLGenerator(new DialectTriggerSQLGenerator.TriggerTemplate()
-		{
-			@Override
-			public String createTriggerFormat()
-			{
-				return StandardDialect.this.createTriggerFormat();
-			}
-
-			@Override
-			public String dropTriggerFormat()
-			{
-				return StandardDialect.this.dropTriggerFormat();
-			}
-
-			@Override
-			public String triggerRowAlias(TriggerTime time)
-			{
-				return StandardDialect.this.triggerRowAlias(time);
-			}
-		});
-		this.schemaSQLGenerator = new DialectSchemaSQLGenerator(new DialectSchemaSQLGenerator.SchemaTemplate()
-		{
-			@Override
-			public String createSchemaFormat()
-			{
-				return StandardDialect.this.createSchemaFormat();
-			}
-
-			@Override
-			public String dropSchemaFormat()
-			{
-				return StandardDialect.this.dropSchemaFormat();
-			}
-		});
-		this.sequenceSQLGenerator = new DialectSequenceSQLGenerator(new DialectSequenceSQLGenerator.SequenceTemplate()
-		{
-			@Override
-			public String nextSequenceValueFormat()
-			{
-				return StandardDialect.this.nextSequenceValueFormat();
-			}
-
-			@Override
-			public String alterSequenceFormat()
-			{
-				return StandardDialect.this.alterSequenceFormat();
-			}
-
-			@Override
-			public String executeFunctionSQL(String function)
-			{
-				return StandardDialect.this.executeFunctionSQL(function);
-			}
-		});
-		this.identityColumnSQLGenerator = new DialectIdentityColumnSQLGenerator(new DialectIdentityColumnSQLGenerator.IdentityColumnTemplate()
-		{
-			@Override
-			public String alterIdentityColumnFormat()
-			{
-				return StandardDialect.this.alterIdentityColumnFormat();
-			}
-		});
-		this.truncateSQLGenerator = new DialectTruncateSQLGenerator(new DialectTruncateSQLGenerator.TruncateTemplate()
-		{
-			@Override
-			public String truncateTableFormat()
-			{
-				return StandardDialect.this.truncateTableFormat();
-			}
-		});
-		this.factoryProvider = new DialectFactoryProvider(new DialectFactoryProvider.FactoryTemplate()
-		{
-			@Override
-			public Pattern identifierPattern(DatabaseMetaData metaData) throws SQLException
-			{
-				return StandardDialect.this.identifierPattern(metaData);
-			}
-
-			@Override
-			public Set<String> reservedIdentifiers(DatabaseMetaData metaData) throws SQLException
-			{
-				return StandardDialect.this.reservedIdentifiers(metaData);
-			}
-		});
+		this.failureDetector = new DialectFailureDetector(this);
+		this.constraintSQLGenerator = new DialectConstraintSQLGenerator(this);
+		this.triggerSQLGenerator = new DialectTriggerSQLGenerator(this);
+		this.schemaSQLGenerator = new DialectSchemaSQLGenerator(this);
+		this.sequenceSQLGenerator = new DialectSequenceSQLGenerator(this);
+		this.identityColumnSQLGenerator = new DialectIdentityColumnSQLGenerator(this);
+		this.truncateSQLGenerator = new DialectTruncateSQLGenerator(this);
+		this.factoryProvider = new DialectFactoryProvider(this);
 		this.connectionResolver = new DialectConnectionResolver(this.vendorPattern(), this.locatorPattern());
 	}
 
@@ -774,6 +410,17 @@ public class StandardDialect implements Dialect, SequenceSupport, IdentityColumn
 	/* ------------------------------------------------------------------- *
 	 *  Utility methods — kept for subclasses                              *
 	 * ------------------------------------------------------------------- */
+
+	/**
+	 * Helper to parse a regex pattern against a string.
+	 * Subclasses may use this for custom SQL parsing.
+	 */
+	protected String parse(Pattern pattern, String string)
+	{
+		Matcher matcher = pattern.matcher(string);
+
+		return matcher.find() ? matcher.group(1) : null;
+	}
 
 	protected boolean meetsRequirement(int minMajor, int minMinor)
 	{

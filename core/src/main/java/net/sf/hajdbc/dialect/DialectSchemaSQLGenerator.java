@@ -28,11 +28,11 @@ import java.text.MessageFormat;
  */
 final class DialectSchemaSQLGenerator
 {
-	private final SchemaTemplate template;
+	private final DialectSQLFormats formats;
 
-	DialectSchemaSQLGenerator(SchemaTemplate template)
+	DialectSchemaSQLGenerator(DialectSQLFormats formats)
 	{
-		this.template = template;
+		this.formats = formats;
 	}
 
 	/**
@@ -40,7 +40,7 @@ final class DialectSchemaSQLGenerator
 	 */
 	String getCreateSchemaSQL(String schema)
 	{
-		return MessageFormat.format(this.template.createSchemaFormat(), schema);
+		return MessageFormat.format(this.formats.createSchemaFormat(), schema);
 	}
 
 	/**
@@ -48,16 +48,6 @@ final class DialectSchemaSQLGenerator
 	 */
 	String getDropSchemaSQL(String schema)
 	{
-		return MessageFormat.format(this.template.dropSchemaFormat(), schema);
-	}
-
-	/**
-	 * Template method hooks that the schema generator delegates to the dialect for.
-	 */
-	interface SchemaTemplate
-	{
-		String createSchemaFormat();
-
-		String dropSchemaFormat();
+		return MessageFormat.format(this.formats.dropSchemaFormat(), schema);
 	}
 }

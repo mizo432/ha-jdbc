@@ -37,28 +37,28 @@ public class DialectConstraintSQLGeneratorTest
 {
 	private DialectConstraintSQLGenerator createGenerator()
 	{
-		return new DialectConstraintSQLGenerator(new DialectConstraintSQLGenerator.ConstraintTemplate()
+		return new DialectConstraintSQLGenerator(new DialectSQLFormats()
 		{
 			@Override
-			public String createForeignKeyConstraintFormat()
+			protected String createForeignKeyConstraintFormat()
 			{
 				return "ALTER TABLE {1} ADD CONSTRAINT {0} FOREIGN KEY ({2}) REFERENCES {3} ({4}) ON DELETE {5,choice,0#CASCADE|1#RESTRICT|2#SET NULL|3#NO ACTION|4#SET DEFAULT} ON UPDATE {6,choice,0#CASCADE|1#RESTRICT|2#SET NULL|3#NO ACTION|4#SET DEFAULT} {7,choice,5#DEFERRABLE INITIALLY DEFERRED|6#DEFERRABLE INITIALLY IMMEDIATE}";
 			}
 
 			@Override
-			public String dropForeignKeyConstraintFormat()
+			protected String dropForeignKeyConstraintFormat()
 			{
 				return "ALTER TABLE {1} DROP CONSTRAINT {0}";
 			}
 
 			@Override
-			public String createUniqueConstraintFormat()
+			protected String createUniqueConstraintFormat()
 			{
 				return "ALTER TABLE {1} ADD CONSTRAINT {0} UNIQUE ({2})";
 			}
 
 			@Override
-			public String dropUniqueConstraintFormat()
+			protected String dropUniqueConstraintFormat()
 			{
 				return "ALTER TABLE {1} DROP CONSTRAINT {0}";
 			}
