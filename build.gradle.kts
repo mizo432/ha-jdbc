@@ -8,6 +8,7 @@ val haJdbcVersion = "4.0.0-alpha-1-SNAPSHOT"
 plugins {
     id("com.github.spotbugs") version "6.5.13" apply false
     jacoco
+    `maven-publish` apply false
 }
 
 repositories {
@@ -15,10 +16,51 @@ repositories {
 }
 
 subprojects {
-    group = "io.ha-jdbc"
+    group = "com.github.mizo432"
     version = haJdbcVersion
 
     plugins.withId("java") {
+        apply(plugin = "maven-publish")
+
+        publishing {
+            repositories {
+                maven {
+                    name = "GitHubPackages"
+                    url = uri("https://maven.pkg.github.com/mizo432/ha-jdbc")
+                    credentials {
+                        username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
+                        password = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
+            publications {
+                register<MavenPublication>("gpr") {
+                    from(components["java"])
+                    pom {
+                        name.set(project.name)
+                        description.set("HA-JDBC - High Availability JDBC Driver")
+                        url.set("https://github.com/mizo432/ha-jdbc")
+                        licenses {
+                            license {
+                                name.set("MIT License")
+                                url.set("https://opensource.org/licenses/MIT")
+                            }
+                        }
+                        developers {
+                            developer {
+                                id.set("mizo432")
+                                name.set("Kenichi Mizoguchi")
+                            }
+                        }
+                        scm {
+                            connection.set("scm:git:git://github.com/mizo432/ha-jdbc.git")
+                            developerConnection.set("scm:git:ssh://git@github.com/mizo432/ha-jdbc.git")
+                            url.set("https://github.com/mizo432/ha-jdbc")
+                        }
+                    }
+                }
+            }
+        }
         configure<JavaPluginExtension> {
             sourceCompatibility = JavaVersion.VERSION_25
             targetCompatibility = JavaVersion.VERSION_25
@@ -92,4 +134,3 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         }
     }
 }
-
