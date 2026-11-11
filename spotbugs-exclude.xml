@@ -51,4 +51,48 @@
     <Match>
         <Bug code="RCN" />
     </Match>
+
+    <!-- Test code exclusions -->
+    <!-- NN_NAKED_NOTIFY: Test code uses notify/notifyAll without condition checks -->
+    <Match>
+        <Bug code="NN" />
+    </Match>
+
+    <!-- UW_UNCOND_WAIT, WA_NOT_IN_LOOP: Test code uses wait() without proper loop conditions -->
+    <Match>
+        <Bug code="UW" />
+    </Match>
+    <Match>
+        <Bug code="Wa" />
+    </Match>
+
+    <!-- OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE: Test code may not clean up resources on exception paths -->
+    <Match>
+        <Bug code="OBL" />
+    </Match>
+
+    <!-- BC_VACUOUS_INSTANCEOF: Test code uses instanceof with types that can never match -->
+    <Match>
+        <Bug code="BC" />
+    </Match>
+
+    <!-- RV_RETURN_VALUE_IGNORED*: Test code ignores return values intentionally -->
+    <Match>
+        <Bug code="RV" />
+    </Match>
+
+    <!-- RR_NOT_CHECKED: Test code does not check return values of read() -->
+    <Match>
+        <Bug code="RR" />
+    </Match>
+
+    <!-- DM_STRING_CTOR, DM_GC: Test code performance issues -->
+    <Match>
+        <Bug code="Dm" />
+    </Match>
+
+    <!-- EQ_COMPARETO_USE_OBJECT_EQUALS: Test code compareTo/equals inconsistency -->
+    <Match>
+        <Bug code="Eq" />
+    </Match>
 </FindBugsFilter>

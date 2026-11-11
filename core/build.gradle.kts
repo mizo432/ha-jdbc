@@ -41,4 +41,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.hsqldb)
     testImplementation(libs.h2)
+    
+    // JSpecify annotations for SpotBugs test analysis
+    testCompileOnly("org.jspecify:jspecify:1.0.0")
 }
